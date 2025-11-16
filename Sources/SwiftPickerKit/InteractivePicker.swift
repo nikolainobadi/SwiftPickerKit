@@ -24,7 +24,53 @@ public extension InteractivePicker {
 }
 
 
+// MARK: - Helper Methods
+internal extension InteractivePicker {
+    @discardableResult
+    func runSelection<Item, B: SelectionBehavior>(
+        title: PickerPrompt,
+        items: [Item],
+        behavior: B,
+        isSingle: Bool,
+        newScreen: Bool
+    ) -> SelectionOutcome<Item> where B.Item == Item, Item: DisplayablePickerItem {
+        
+        if newScreen {
+            pickerInput.enterAlternativeScreen()
+        }
+        
+        pickerInput.cursorOff()
+        pickerInput.clearScreen()
+        pickerInput.moveToHome()
+        
+        let topLine = pickerInput.readCursorPos().row + PickerPadding.top
+        let options = items.enumerated().map { Option(item: $1, line: topLine + $0) }
+        let state = SelectionState(
+            options: options,
+            topLine: topLine,
+            title: title.title,
+            isSingleSelection: isSingle
+        )
+        
+        let handler = SelectionHandler(state: state, inputHandler: pickerInput, behavior: behavior)
+        let outcome = handler.captureUserInput()
+        
+        handler.endSelection()
+        
+        return outcome
+    }
+}
+
+
 // MARK: - Dependencies
+enum Direction {
+    case up, down, left, right
+}
+
+enum SpecialChar {
+    case enter, space, quit, backspace
+}
+
 protocol TextInput {
     func getInput(_ prompt: String) -> String
     func getPermission(_ prompt: String) -> Bool
@@ -46,51 +92,4 @@ protocol PickerInput {
     func readSpecialChar() -> SpecialChar?
     func readCursorPos() -> (row: Int, col: Int)
     func readScreenSize() -> (rows: Int, cols: Int)
-}
-
-// MARK: - Dependencies
-
-/// An enumeration representing direction keys (up, down, left, right).
-internal enum Direction {
-    case up, down, left, right
-}
-
-/// An enumeration representing special characters (enter, space, quit, backspace).
-internal enum SpecialChar {
-    case enter, space, quit, backspace
-}
-
-public protocol PickerPrompt {
-    var title: String { get }
-}
-
-extension String: PickerPrompt {
-    public var title: String {
-        return self
-    }
-}
-
-public enum SwiftPickerError: Error {
-    case inputRequired
-    case selectionCancelled
-}
-
-public protocol DisplayablePickerItem {
-    var displayName: String { get }
-}
-
-extension String: DisplayablePickerItem {
-    public var displayName: String { self }
-}
-
-struct SelectionHandlerFactory {
-    private let pickerInput: PickerInput
-    
-    init(pickerInput: PickerInput) {
-        self.pickerInput = pickerInput
-    }
-}
-
-extension SelectionHandlerFactory {
-    
 }
