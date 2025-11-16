@@ -1,0 +1,15 @@
+{
+  "originHash" : "79a6ce1b4897e98c16407990905bf77a044956261abe8b2dd94176eebee4c4b0",
+  "pins" : [
+    {
+      "identity" : "ansiterminalmodified",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nikolainobadi/ANSITerminalModified",
+      "state" : {
+        "revision" : "fd1443a5369693ddac5c8ef8dc6128af4011ff42",
+        "version" : "0.6.0"
+      }
+    }
+  ],
+  "version" : 3
+}
