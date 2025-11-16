@@ -11,8 +11,16 @@ import ANSITerminal
 /// Handles rendering of top line text, title, selected item display, and scroll indicators.
 struct PickerHeaderRenderer {
     /// The input handler for writing to the terminal.
-    let inputHandler: PickerInput
+    private let pickerInput: PickerInput
+    
+    init(pickerInput: PickerInput) {
+        self.pickerInput = pickerInput
+    }
+}
 
+
+// MARK: - Actions
+extension PickerHeaderRenderer {
     /// Renders the complete header section for a picker.
     /// - Parameters:
     ///   - topLineText: The text to display at the top of the header (centered).
@@ -27,16 +35,16 @@ struct PickerHeaderRenderer {
         screenWidth: Int,
         showScrollUpIndicator: Bool
     ) {
-        inputHandler.clearScreen()
-        inputHandler.moveToHome()
-        inputHandler.write(centerText(topLineText, inWidth: screenWidth))
-        inputHandler.write("\n")
-        inputHandler.write("\n")
+        pickerInput.clearScreen()
+        pickerInput.moveToHome()
+        pickerInput.write(centerText(topLineText, inWidth: screenWidth))
+        pickerInput.write("\n")
+        pickerInput.write("\n")
 
         // Render selected item between topLineText and title
         if let selectedItem = selectedItem {
             renderSelectedItem(selectedItem, screenWidth: screenWidth)
-            inputHandler.write("\n")
+            pickerInput.write("\n")
         }
 
         // Truncate and center title if needed
@@ -44,10 +52,10 @@ struct PickerHeaderRenderer {
         let truncatedTitle = title.count > maxTitleWidth
             ? PickerTextFormatter.truncate(title, maxWidth: maxTitleWidth)
             : title
-        inputHandler.write(centerText(truncatedTitle, inWidth: screenWidth))
-        inputHandler.write("\n")
+        pickerInput.write(centerText(truncatedTitle, inWidth: screenWidth))
+        pickerInput.write("\n")
         if showScrollUpIndicator {
-            inputHandler.write("↑".lightGreen)
+            pickerInput.write("↑".lightGreen)
         }
     }
 }
@@ -72,7 +80,7 @@ private extension PickerHeaderRenderer {
 
         // Center and display in cyan color
         let centeredText = PickerTextFormatter.centerText(finalText, inWidth: screenWidth)
-        inputHandler.write(centeredText.foreColor(51))  // Cyan color
+        pickerInput.write(centeredText.foreColor(51))  // Cyan color
     }
 
     /// Centers the given text within the specified width.

@@ -7,15 +7,15 @@
 
 final class SelectionHandler<Item: DisplayablePickerItem, Behavior: SelectionBehavior> where Behavior.Item == Item {
     private let behavior: Behavior
-    private let inputHandler: PickerInput
+    private let pickerInput: PickerInput
     private let state: SelectionState<Item>
     private let headerRenderer: PickerHeaderRenderer
     
-    init(state: SelectionState<Item>, inputHandler: PickerInput, behavior: Behavior) {
+    init(state: SelectionState<Item>, pickerInput: PickerInput, behavior: Behavior) {
         self.state = state
-        self.inputHandler = inputHandler
-        self.headerRenderer = PickerHeaderRenderer(inputHandler: inputHandler)
         self.behavior = behavior
+        self.pickerInput = pickerInput
+        self.headerRenderer = .init(pickerInput: pickerInput)
     }
 }
 
@@ -23,9 +23,9 @@ final class SelectionHandler<Item: DisplayablePickerItem, Behavior: SelectionBeh
 // MARK: - Actions
 extension SelectionHandler {
     func captureUserInput() -> SelectionOutcome<Item> {
-        SignalHandler.setupSignalHandlers { [inputHandler] in
-            inputHandler.exitAlternativeScreen()
-            inputHandler.enableNormalInput()
+        SignalHandler.setupSignalHandlers { [pickerInput] in
+            pickerInput.exitAlternativeScreen()
+            pickerInput.enableNormalInput()
         }
 
         defer {
@@ -36,10 +36,10 @@ extension SelectionHandler {
         scrollAndRenderOptions()
 
         while true {
-            inputHandler.clearBuffer()
+            pickerInput.clearBuffer()
 
-            if inputHandler.keyPressed() {
-                if let char = inputHandler.readSpecialChar() {
+            if pickerInput.keyPressed() {
+                if let char = pickerInput.readSpecialChar() {
                     let outcome = behavior.handleSpecialChar(
                         char: char,
                         state: state
@@ -62,12 +62,12 @@ extension SelectionHandler {
     }
     
     func endSelection() {
-        inputHandler.exitAlternativeScreen()
-        inputHandler.enableNormalInput()
+        pickerInput.exitAlternativeScreen()
+        pickerInput.enableNormalInput()
     }
 
     func handleArrowKeys() {
-        guard let direction = inputHandler.readDirectionKey() else { return }
+        guard let direction = pickerInput.readDirectionKey() else { return }
 
         switch direction {
         case .up:
@@ -82,16 +82,11 @@ extension SelectionHandler {
     }
 
     func scrollAndRenderOptions() {
-        let (rows, cols) = inputHandler.readScreenSize()
-
+        let (rows, cols) = pickerInput.readScreenSize()
         let reservedHeaderSpace = 1
         let displayableOptions = rows - verticalPadding - reservedHeaderSpace
 
-        renderScrollableOptions(
-            displayableOptionsCount: displayableOptions,
-            columns: cols,
-            rows: rows
-        )
+        renderScrollableOptions(displayableOptionsCount: displayableOptions, columns: cols, rows: rows)
     }
 }
 
@@ -140,34 +135,30 @@ private extension SelectionHandler {
     }
 
     func renderFooter(end: Int, displayableOptionsCount: Int) {
-        inputHandler.write("\n")
+        pickerInput.write("\n")
         if state.options.count > displayableOptionsCount {
             if end < state.options.count {
-                inputHandler.write("↓".lightGreen)
+                pickerInput.write("↓".lightGreen)
             }
         }
-        inputHandler.write("\n")
-        inputHandler.write(state.bottomLineText)
-    }
-
-    func truncate(_ text: String, maxWidth: Int) -> String {
-        PickerTextFormatter.truncate(text, maxWidth: maxWidth)
+        pickerInput.write("\n")
+        pickerInput.write(state.bottomLineText)
     }
 
     func renderOption(option: Option<Item>, isActive: Bool, row: Int, col: Int, screenWidth: Int) {
-        inputHandler.moveTo(row, col)
-        inputHandler.moveRight()
-        inputHandler.write(
+        pickerInput.moveTo(row, col)
+        pickerInput.moveRight()
+        pickerInput.write(
             state.showAsSelected(option)
             ? "●".lightGreen
             : "○".foreColor(250)
         )
-        inputHandler.moveRight()
+        pickerInput.moveRight()
 
         let maxWidth = screenWidth - 4
-        let truncated = truncate(option.title, maxWidth: maxWidth)
+        let truncated = PickerTextFormatter.truncate(option.title, maxWidth: maxWidth)
 
-        inputHandler.write(
+        pickerInput.write(
             isActive
             ? truncated.underline
             : truncated.foreColor(250)

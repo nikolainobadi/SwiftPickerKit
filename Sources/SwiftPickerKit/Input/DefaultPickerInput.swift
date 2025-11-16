@@ -69,29 +69,6 @@ struct DefaultPickerInput: PickerInput {
         ANSITerminal.moveTo(row, col)
     }
     
-    /// Reads a direction key input (e.g., up, down, left, right).
-    /// - Returns: A Direction value indicating the key pressed, or `nil` if no direction key was pressed.
-    func readDirectionKey() -> Direction? {
-        switch ANSITerminal.readKey().code {
-        case .up: return .up
-        case .down: return .down
-        case .left: return .left
-        case .right: return .right
-        default: return nil
-        }
-    }
-    
-    /// Reads a special character input (e.g., enter, space, quit, backspace).
-    /// - Returns: A SpecialChar value indicating the key pressed, or `nil` if no special character was pressed.
-    func readSpecialChar() -> SpecialChar? {
-        let char = ANSITerminal.readChar()
-        if char == NonPrintableChar.enter.char() { return .enter }
-        if char == " " { return .space }
-        if char == "q" || char == "Q" { return .quit }
-        if char == "\u{7F}" { return .backspace }  // ASCII 127 (DEL/Backspace on macOS)
-        return nil
-    }
-    
     /// Reads the current cursor position.
     /// - Returns: A tuple containing the row and column of the cursor position.
     func readCursorPos() -> (row: Int, col: Int) {
@@ -102,5 +79,44 @@ struct DefaultPickerInput: PickerInput {
     /// - Returns: A tuple containing the number of rows and columns of the screen size.
     func readScreenSize() -> (rows: Int, cols: Int) {
         return ANSITerminal.readScreenSize()
+    }
+    
+    /// Reads a direction key input (e.g., up, down, left, right).
+    /// - Returns: A Direction value indicating the key pressed, or `nil` if no direction key was pressed.
+    func readDirectionKey() -> Direction? {
+        switch ANSITerminal.readKey().code {
+        case .up:
+            return .up
+        case .down:
+            return .down
+        case .left:
+            return .left
+        case .right:
+            return .right
+        default:
+            return nil
+        }
+    }
+    
+    /// Reads a special character input (e.g., enter, space, quit, backspace).
+    /// - Returns: A SpecialChar value indicating the key pressed, or `nil` if no special character was pressed.
+    func readSpecialChar() -> SpecialChar? {
+        let char = ANSITerminal.readChar()
+        if char == NonPrintableChar.enter.char() {
+            return .enter
+        }
+        
+        if char == " " {
+            return .space
+        }
+        
+        if char == "q" || char == "Q" {
+            return .quit
+        }
+        if char == "\u{7F}" {
+            return .backspace
+        }
+        
+        return nil
     }
 }

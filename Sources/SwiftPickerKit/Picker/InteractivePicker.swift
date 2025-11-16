@@ -52,7 +52,7 @@ internal extension InteractivePicker {
             isSingleSelection: isSingle
         )
         
-        let handler = SelectionHandler(state: state, inputHandler: pickerInput, behavior: behavior)
+        let handler = SelectionHandler(state: state, pickerInput: pickerInput, behavior: behavior)
         let outcome = handler.captureUserInput()
         
         handler.endSelection()
