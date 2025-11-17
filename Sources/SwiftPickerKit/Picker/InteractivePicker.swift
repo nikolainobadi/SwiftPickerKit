@@ -115,7 +115,8 @@ internal extension InteractivePicker {
         let handler = SelectionHandler(
             state: state,
             pickerInput: pickerInput,
-            behavior: behavior
+            behavior: behavior,
+            renderer: SingleColumnRenderer<Item>()
         )
         
         let outcome = handler.captureUserInput()
