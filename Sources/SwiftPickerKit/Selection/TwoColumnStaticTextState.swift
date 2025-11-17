@@ -6,12 +6,18 @@
 //
 
 final class TwoColumnStaticTextState<Item: DisplayablePickerItem> {
+
     var left: SelectionState<Item>
-    var rightTextLines: [String]
+    private let rawRightText: String
 
     init(left: SelectionState<Item>, rightText: String) {
         self.left = left
-        self.rightTextLines = rightText.split(separator: "\n").map(String.init)
+        self.rawRightText = rightText
+    }
+
+    /// Splits and wraps full text for the right column using runtime width.
+    func wrappedRightLines(width: Int) -> [String] {
+        rawRightText.wrapToWidth(maxWidth: width)
     }
 }
 
@@ -28,60 +34,6 @@ extension TwoColumnStaticTextState: BaseSelectionState {
 
     func toggleSelection(at index: Int) {
         left.toggleSelection(at: index)
-    }
-}
-
-struct TwoColumnStaticTextRenderer<Item: DisplayablePickerItem>: ContentRenderer {
-    typealias State = TwoColumnStaticTextState<Item>
-
-    func render(
-        items: [Item],
-        state: State,
-        context: ScrollRenderContext,
-        input: PickerInput,
-        screenWidth: Int
-    ) {
-        let leftWidth = screenWidth / 2
-        let rightWidth = screenWidth - leftWidth
-
-        var row = context.listStartRow
-
-        // left side uses visible item indices
-        for index in context.startIndex..<context.endIndex {
-            let option = state.left.options[index]
-            let isActive = (index == state.left.activeIndex)
-
-            input.moveTo(row, 0)
-            input.moveRight()
-
-            let marker: String
-            if state.left.isSingleSelection {
-                marker = isActive ? "●".lightGreen : "○".foreColor(250)
-            } else {
-                marker = option.isSelected ? "●".lightGreen : "○".foreColor(250)
-            }
-            input.write(marker)
-            input.moveRight()
-
-            let maxLeftWidth = leftWidth - 4
-            let leftText = PickerTextFormatter.truncate(option.title, maxWidth: maxLeftWidth)
-            if isActive { input.write(leftText.underline) }
-            else { input.write(leftText.foreColor(250)) }
-
-            // right side shows static text lines, independent of selection
-            let visualRow = row - context.listStartRow
-            if visualRow < state.rightTextLines.count {
-                let line = state.rightTextLines[visualRow]
-                let truncated = PickerTextFormatter.truncate(line, maxWidth: rightWidth - 3)
-
-                input.moveTo(row, leftWidth)
-                input.write("│".foreColor(240))
-                input.moveRight()
-                input.write(truncated.foreColor(250))
-            }
-
-            row += 1
-        }
     }
 }
 
@@ -214,5 +166,55 @@ internal extension SwiftPicker {
 
             return handler.captureUserInput()
         }
+    }
+}
+
+//
+//  String+Wrap.swift
+//  SwiftPickerKit
+//
+
+extension String {
+
+    /// Wraps a full multiline string into lines that fit a given width,
+    /// preserving blank lines and paragraph breaks.
+    func wrapToWidth(maxWidth: Int) -> [String] {
+        self
+            .split(separator: "\n", omittingEmptySubsequences: false)
+            .flatMap { line in
+                if line.trimmingCharacters(in: .whitespaces).isEmpty {
+                    return [""] // preserve blank line
+                }
+                return line.wrapOneLine(maxWidth: maxWidth)
+            }
+    }
+}
+
+private extension Substring {
+
+    /// Wraps a single line (no newlines) into visual rows.
+    func wrapOneLine(maxWidth: Int) -> [String] {
+        guard maxWidth > 2 else { return [String(self)] }
+
+        let words = self.split(separator: " ")
+        var lines: [String] = []
+        var current = ""
+
+        for word in words {
+            if current.isEmpty {
+                current = String(word)
+            } else if current.count + 1 + word.count <= maxWidth {
+                current += " \(word)"
+            } else {
+                lines.append(current)
+                current = String(word)
+            }
+        }
+
+        if !current.isEmpty {
+            lines.append(current)
+        }
+
+        return lines
     }
 }
