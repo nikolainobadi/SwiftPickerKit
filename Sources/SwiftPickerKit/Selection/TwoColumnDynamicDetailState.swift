@@ -1,27 +1,21 @@
 //
-//  TwoColumnStaticTextState.swift
+//  TwoColumnDynamicDetailState.swift
 //  SwiftPickerKit
 //
 //  Created by Nikolai Nobadi on 11/17/25.
 //
 
-final class TwoColumnStaticTextState<Item: DisplayablePickerItem> {
-    private let rawRightText: String
-    
+final class TwoColumnDynamicDetailState<Item: DisplayablePickerItem> {
     var left: SelectionState<Item>
+    let detailForItem: (Item) -> String
 
-    init(left: SelectionState<Item>, rightText: String) {
+    init(left: SelectionState<Item>, detailForItem: @escaping (Item) -> String) {
         self.left = left
-        self.rawRightText = rightText
-    }
-
-    /// Splits and wraps full text for the right column using runtime width.
-    func wrappedRightLines(width: Int) -> [String] {
-        rawRightText.wrapToWidth(maxWidth: width)
+        self.detailForItem = detailForItem
     }
 }
 
-extension TwoColumnStaticTextState: BaseSelectionState {
+extension TwoColumnDynamicDetailState: BaseSelectionState {
     var activeIndex: Int {
         get { left.activeIndex }
         set { left.activeIndex = newValue }

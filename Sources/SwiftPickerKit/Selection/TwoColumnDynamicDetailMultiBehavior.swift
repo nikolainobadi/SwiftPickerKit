@@ -1,12 +1,12 @@
 //
-//  MultiSelectionBehavior.swift
+//  TwoColumnDynamicDetailMultiBehavior.swift
 //  SwiftPickerKit
 //
-//  Created by Nikolai Nobadi on 11/16/25.
+//  Created by Nikolai Nobadi on 11/17/25.
 //
 
-struct MultiSelectionBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
-    typealias State = SelectionState<Item>
+struct TwoColumnDynamicDetailMultiBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
+    typealias State = TwoColumnDynamicDetailState<Item>
 
     func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item> {
         switch char {
