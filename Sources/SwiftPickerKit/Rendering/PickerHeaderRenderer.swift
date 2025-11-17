@@ -3,11 +3,6 @@
 //  SwiftPickerKit
 //
 
-//
-//  PickerHeaderRenderer.swift
-//  SwiftPickerKit
-//
-
 import ANSITerminal
 
 struct PickerHeaderRenderer {
@@ -22,8 +17,6 @@ struct PickerHeaderRenderer {
 
 // MARK: - Render
 extension PickerHeaderRenderer {
-
-    /// Renders the header and returns the number of lines consumed.
     @discardableResult
     func renderHeader(
         prompt: String,
@@ -93,9 +86,8 @@ extension PickerHeaderRenderer {
     }
 }
 
-// MARK: - Helpers
+// MARK: - Private Helpers
 private extension PickerHeaderRenderer {
-
     @discardableResult
     func writeDivider(width: Int) -> Int {
         let line = dividerStyle.makeLine(width: width)

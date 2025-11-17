@@ -8,7 +8,6 @@
 import ANSITerminal
 
 struct PickerFooterRenderer {
-
     private let pickerInput: PickerInput
     private let dividerStyle: PickerDividerStyle
 
@@ -16,23 +15,19 @@ struct PickerFooterRenderer {
     /// You can tune this; it stays consistent.
     private let footerHeight: Int = 3   // arrow / blank / instructions
 
-    init(
-        pickerInput: PickerInput,
-        dividerStyle: PickerDividerStyle = .single
-    ) {
+    init(pickerInput: PickerInput, dividerStyle: PickerDividerStyle = .single) {
         self.pickerInput = pickerInput
         self.dividerStyle = dividerStyle
     }
-
+}
+ 
+// MARK: - Helpers
+extension PickerFooterRenderer {
     /// Returns the total number of terminal rows the footer occupies.
     func height() -> Int {
         return footerHeight
     }
-}
- 
-// MARK: - Render
-extension PickerFooterRenderer {
-
+    
     /// Renders the footer anchored at the bottom of the terminal window.
     ///
     /// - Parameters:

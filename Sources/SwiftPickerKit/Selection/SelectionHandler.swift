@@ -5,9 +5,7 @@
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-final class SelectionHandler<Item: DisplayablePickerItem, Behavior: SelectionBehavior>
-where Behavior.Item == Item {
-
+final class SelectionHandler<Item: DisplayablePickerItem, Behavior: SelectionBehavior> where Behavior.Item == Item {
     private let behavior: Behavior
     private let pickerInput: PickerInput
     private let state: SelectionState<Item>
@@ -30,7 +28,6 @@ where Behavior.Item == Item {
 
 // MARK: - Input Loop
 extension SelectionHandler {
-
     func captureUserInput() -> SelectionOutcome<Item> {
         SignalHandler.setupSignalHandlers { [pickerInput] in
             pickerInput.exitAlternativeScreen()
@@ -48,17 +45,12 @@ extension SelectionHandler {
             pickerInput.clearBuffer()
 
             if pickerInput.keyPressed() {
-
                 if let special = pickerInput.readSpecialChar() {
-
                     let outcome = behavior.handleSpecialChar(char: special, state: state)
-
                     switch outcome {
-
                     case .continueLoop:
                         renderFrame()
                         continue
-
                     case .finishSingle,
                          .finishMulti:
                         return outcome   // FIXED: no second call
@@ -95,7 +87,14 @@ extension SelectionHandler {
 
 // MARK: - Rendering
 private extension SelectionHandler {
+    var footerHeight: Int {
+        footerRenderer.height()
+    }
 
+    var totalReservedSpace: Int {
+        headerHeight + footerHeight
+    }
+    
     var headerHeight: Int {
         var height = 0
 
@@ -120,14 +119,6 @@ private extension SelectionHandler {
         height += 1 // final blank before list
 
         return height
-    }
-
-    var footerHeight: Int {
-        footerRenderer.height()
-    }
-
-    var totalReservedSpace: Int {
-        headerHeight + footerHeight
     }
 
     func renderFrame() {
