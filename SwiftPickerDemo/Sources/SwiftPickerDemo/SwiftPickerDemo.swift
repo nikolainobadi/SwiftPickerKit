@@ -31,8 +31,11 @@ extension SwiftPickerDemo {
         @Flag(name: [.customShort("s"), .long], help: "Use the smaller non-scrolling list")
         var small = false
         
+        @Flag(name: [.customShort("d"), .long], help: "Show static detail column")
+        var detail = false
+        
         func run() throws {
-            let picker = InteractivePicker()
+            let picker = SwiftPicker()
             let items = small ? TestItem.smallList : TestItem.largeList
             
             let prompt = """
@@ -42,13 +45,26 @@ extension SwiftPickerDemo {
             and project templates based on what you prefer most.
             """
             
+            let detailText = """
+            This is my own custom detail text.
+
+            The purpose of this text is to give more information
+            to the user as they use my awesome new tool.
+            
+            This text is static, so it should remain the same
+            regardless of which item in the first column is
+            currently selected
+            """
+            
+            let layout: PickerLayout<TestItem> = detail ? .twoColumnStatic(detailText: detailText) : .singleColumn
             if required {
-                let selection = try picker.requiredSingleSelection(prompt: prompt, items: items)
-                
+                let selection = try picker.requiredSingleSelection(prompt: prompt, items: items, layout: layout, newScreen: true)
+//                let selection = try picker.requiredSingleSelection(prompt: prompt, items: items)
+//                
                 print("\nYou selected: \(selection.displayName)")
                 print("Description: \(selection.description)")
             } else {
-                guard let selection = picker.singleSelection(prompt: prompt, items: items) else {
+                guard let selection = picker.singleSelection(prompt: prompt, items: items, layout: layout, newScreen: true) else {
                     print("\nNo selection made")
                     return
                 }
@@ -70,7 +86,7 @@ extension SwiftPickerDemo {
         var small = false
         
         func run() throws {
-            let picker = InteractivePicker()
+            let picker = SwiftPicker()
             let items = small ? TestItem.smallList : TestItem.largeList
             
             let prompt = """
