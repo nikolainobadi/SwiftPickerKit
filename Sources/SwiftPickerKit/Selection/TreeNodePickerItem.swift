@@ -294,6 +294,7 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         screenWidth: Int
     ) {
         var row = context.listStartRow
+        let maxRowExclusive = context.listStartRow + context.visibleRowCount
 
         // ---------- Breadcrumb line ----------
         let breadcrumb = BreadcrumbBuilder.makePath(
@@ -301,13 +302,19 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
             current: state.currentItems
         )
 
-        input.moveTo(row, 0)
-        input.write(breadcrumb.lightBlue)
-        row += 2 // Blank line after breadcrumb
+        if row < maxRowExclusive {
+            input.moveTo(row, 0)
+            input.write(breadcrumb.lightBlue)
+            row += 1
+        }
+
+        if row < maxRowExclusive {
+            row += 1 // Blank line after breadcrumb
+        }
 
         // ---------- List of items ----------
         // ---------- Empty folder handling ----------
-        if state.currentItems.isEmpty {
+        if state.currentItems.isEmpty, row < maxRowExclusive {
             input.moveTo(row, 0)
             input.write("  (empty folder)".foreColor(240))
             return
@@ -315,6 +322,8 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         for index in context.startIndex..<context.endIndex {
             guard state.currentItems.indices.contains(index) else { continue }
             let item = state.currentItems[index]
+
+            if row >= maxRowExclusive { break }
 
             input.moveTo(row, 0)
             input.moveRight()
@@ -335,13 +344,14 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
             // ---------- Metadata (multiline) ----------
             if let meta = item.metadata, isActive {
-                if let subtitle = meta.subtitle {
+                if let subtitle = meta.subtitle, row < maxRowExclusive {
                     input.moveTo(row, 4)
                     input.write(subtitle.foreColor(240))
                     row += 1
                 }
 
                 for line in meta.detailLines {
+                    if row >= maxRowExclusive { break }
                     input.moveTo(row, 4)
                     let t = PickerTextFormatter.truncate(line, maxWidth: screenWidth - 6)
                     input.write(t.foreColor(244))
