@@ -38,7 +38,8 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         let rightColumnStart = min(screenWidth - columnWidth, columnWidth + columnSpacing)
 
         // Render parent column (left)
-        if let parent = state.parentLevel {
+        if let parentInfo = state.parentLevelInfo {
+            let parent = parentInfo.level
             let engine = ScrollEngine(totalItems: parent.items.count, visibleRows: context.visibleRowCount)
             let (start, end) = engine.bounds(activeIndex: parent.activeIndex)
             renderColumn(
@@ -48,12 +49,14 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
                 endIndex: end,
                 title: "Parent",
                 isActiveColumn: false,
+                levelIndex: parentInfo.index,
                 startRow: columnStartRow,
                 startCol: 0,
                 columnWidth: columnWidth,
                 maxRowExclusive: maxRowExclusive,
                 emptyPlaceholder: "Root level",
-                input: input
+                input: input,
+                state: state
             )
         } else {
             renderEmptyColumn(
@@ -68,19 +71,22 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         }
 
         // Render current column (right)
+        let currentInfo = state.currentLevelInfo
         renderColumn(
-            items: state.currentItems,
-            activeIndex: state.activeIndex,
+            items: currentInfo.level.items,
+            activeIndex: currentInfo.level.activeIndex,
             startIndex: context.startIndex,
             endIndex: context.endIndex,
             title: "Current",
             isActiveColumn: true,
+            levelIndex: currentInfo.index,
             startRow: columnStartRow,
             startCol: rightColumnStart,
             columnWidth: columnWidth,
             maxRowExclusive: maxRowExclusive,
             emptyPlaceholder: "(empty folder)",
-            input: input
+            input: input,
+            state: state
         )
     }
 }
@@ -111,12 +117,14 @@ private extension TreeNavigationRenderer {
         endIndex: Int,
         title: String,
         isActiveColumn: Bool,
+        levelIndex: Int,
         startRow: Int,
         startCol: Int,
         columnWidth: Int,
         maxRowExclusive: Int,
         emptyPlaceholder: String,
-        input: PickerInput
+        input: PickerInput,
+        state: State
     ) {
         guard startRow < maxRowExclusive else { return }
         renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, input: input)
@@ -141,6 +149,7 @@ private extension TreeNavigationRenderer {
 
             let item = items[index]
             input.moveTo(row, insetCol)
+            let emptyHint = state.isEmptyHint(level: levelIndex, index: index)
 
             let pointer: String
             if index == activeIndex {
@@ -150,15 +159,19 @@ private extension TreeNavigationRenderer {
             }
 
             let icon = item.metadata?.icon ?? (item.hasChildren ? "▸" : " ")
-            let baseText = "\(pointer) \(icon) \(item.displayName)"
+            var baseText = "\(pointer) \(icon) \(item.displayName)"
+            if emptyHint {
+                baseText += " (empty)"
+            }
             let truncated = PickerTextFormatter.truncate(baseText, maxWidth: textWidth)
 
+            let defaultColor: UInt8 = isActiveColumn ? 250 : 244
+            let color: UInt8 = emptyHint ? 208 : defaultColor
+            var styled = truncated.foreColor(color)
             if index == activeIndex && isActiveColumn {
-                input.write(truncated.underline)
-            } else {
-                let color = isActiveColumn ? 250 : 244
-                input.write(truncated.foreColor(UInt8(color)))
+                styled = styled.underline
             }
+            input.write(styled)
 
             row += 1
         }

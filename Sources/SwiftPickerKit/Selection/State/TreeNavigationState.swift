@@ -12,6 +12,8 @@ final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
     }
 
     private(set) var levels: [Level]
+    private var emptyFolderIndicator: (level: Int, index: Int)?
+    private var emptyFolderMessage: String?
     let prompt: String
 
     init(rootItems: [Item], prompt: String) {
@@ -25,9 +27,12 @@ final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
     }
 
     var activeIndex: Int {
-        get { levels.last?.activeIndex ?? 0 }
+        get { currentLevel.activeIndex }
         set {
             guard !levels.isEmpty else { return }
+            if currentLevel.activeIndex != newValue {
+                clearEmptyFolderHint()
+            }
             levels[levels.count - 1].activeIndex = newValue
             clampCurrentLevel()
         }
@@ -40,13 +45,19 @@ final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
     }
 
     var selectedDetailLines: [String] {
-        guard let item = currentSelectedItem, let metadata = item.metadata else { return [] }
-
         var lines: [String] = []
-        if let subtitle = metadata.subtitle {
-            lines.append(subtitle.foreColor(240))
+
+        if let item = currentSelectedItem, let metadata = item.metadata {
+            if let subtitle = metadata.subtitle {
+                lines.append(subtitle.foreColor(240))
+            }
+            lines.append(contentsOf: metadata.detailLines.map { $0.foreColor(244) })
         }
-        lines.append(contentsOf: metadata.detailLines.map { $0.foreColor(244) })
+
+        if let message = emptyFolderMessage {
+            lines.append(message.foreColor(208))
+        }
+
         return lines
     }
 
@@ -54,6 +65,10 @@ final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
 }
 
 extension TreeNavigationState {
+    private var currentLevel: Level {
+        levels.last ?? Level(items: [], activeIndex: 0)
+    }
+
     var currentItems: [Item] {
         levels.last?.items ?? []
     }
@@ -63,9 +78,18 @@ extension TreeNavigationState {
         return currentItems[activeIndex]
     }
 
-    var parentLevel: Level? {
+    var parentLevelInfo: (index: Int, level: Level)? {
         guard levels.count > 1 else { return nil }
-        return levels[levels.count - 2]
+        let index = levels.count - 2
+        return (index, levels[index])
+    }
+
+    var currentLevelInfo: (index: Int, level: Level) {
+        guard !levels.isEmpty else {
+            return (0, Level(items: [], activeIndex: 0))
+        }
+        let index = levels.count - 1
+        return (index, levels[index])
     }
 
     func clampIndex() {
@@ -89,15 +113,22 @@ extension TreeNavigationState {
 
     func descendIntoChildIfPossible() {
         guard let selected = currentSelectedItem, selected.hasChildren else { return }
+        let depth = currentLevelInfo.index
         let children = selected.loadChildren()
-        guard !children.isEmpty else { return }
+        guard !children.isEmpty else {
+            emptyFolderIndicator = (level: depth, index: activeIndex)
+            emptyFolderMessage = "'\(selected.displayName)' is empty"
+            return
+        }
 
         levels.append(Level(items: children, activeIndex: 0))
+        clearEmptyFolderHint()
     }
 
     func ascendToParent() {
         guard levels.count > 1 else { return }
         levels.removeLast()
+        clearEmptyFolderHint()
     }
 
     func breadcrumbPath() -> String {
@@ -107,5 +138,15 @@ extension TreeNavigationState {
         }
 
         return names.joined(separator: " ▸ ")
+    }
+
+    func isEmptyHint(level levelIndex: Int, index: Int) -> Bool {
+        guard let hint = emptyFolderIndicator else { return false }
+        return hint.level == levelIndex && hint.index == index
+    }
+
+    private func clearEmptyFolderHint() {
+        emptyFolderIndicator = nil
+        emptyFolderMessage = nil
     }
 }
