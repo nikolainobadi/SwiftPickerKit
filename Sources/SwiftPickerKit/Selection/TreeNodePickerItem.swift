@@ -190,6 +190,19 @@ final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
         "Arrows: Up/Down highlight, Right enters, Left goes up, Enter selects"
     }
 
+    var selectedDetailLines: [String] {
+        guard currentItems.indices.contains(activeIndex) else { return [] }
+        let item = currentItems[activeIndex]
+        guard let metadata = item.metadata else { return [] }
+
+        var lines: [String] = []
+        if let subtitle = metadata.subtitle {
+            lines.append(subtitle.foreColor(240))
+        }
+        lines.append(contentsOf: metadata.detailLines.map { $0.foreColor(244) })
+        return lines
+    }
+
     func toggleSelection(at index: Int) {}
 }
 
@@ -352,22 +365,7 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
             row += 1
 
-            // ---------- Metadata (multiline) ----------
-            if let meta = item.metadata, isActive {
-                if let subtitle = meta.subtitle, row < maxRowExclusive {
-                    input.moveTo(row, 4)
-                    input.write(subtitle.foreColor(240))
-                    row += 1
-                }
-
-                for line in meta.detailLines {
-                    if row >= maxRowExclusive { break }
-                    input.moveTo(row, 4)
-                    let t = PickerTextFormatter.truncate(line, maxWidth: screenWidth - 6)
-                    input.write(t.foreColor(244))
-                    row += 1
-                }
-            }
+            // Metadata now handled by header selected block to keep list compact.
         }
     }
 }

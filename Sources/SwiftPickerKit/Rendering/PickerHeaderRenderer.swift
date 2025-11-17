@@ -24,6 +24,7 @@ extension PickerHeaderRenderer {
         prompt: String,
         topLineText: String,
         selectedItem: (any DisplayablePickerItem)?,
+        selectedDetailLines: [String] = [],
         screenWidth: Int
     ) -> Int {
 
@@ -66,6 +67,13 @@ extension PickerHeaderRenderer {
         if let item = selectedItem {
             height += writeDivider(width: screenWidth)
             height += writeCentered("Selected: \(item.displayName)".foreColor(51), width: screenWidth)
+            for line in selectedDetailLines {
+                let maxWidth = screenWidth - 2
+                let text = line.count > maxWidth
+                    ? PickerTextFormatter.truncate(line, maxWidth: maxWidth)
+                    : line
+                height += writeCentered(text, width: screenWidth)
+            }
             height += writeDivider(width: screenWidth)
             height += writeNewline()
         }
