@@ -62,6 +62,7 @@ struct TwoColumnStaticTextSingleBehavior<Item: DisplayablePickerItem>: Selection
 public enum PickerLayout<Item: DisplayablePickerItem> {
     case singleColumn
     case twoColumnStatic(detailText: String)
+    case twoColumnDynamic(detailForItem: (Item) -> String)
 }
 
 public extension SwiftPicker {
@@ -165,6 +166,30 @@ internal extension SwiftPicker {
             )
 
             return handler.captureUserInput()
+        case .twoColumnDynamic(let detailForItem):
+
+            let base = SelectionState(
+                options: options,
+                prompt: prompt,
+                isSingleSelection: true
+            )
+
+            let state = TwoColumnDynamicDetailState(
+                left: base,
+                detailForItem: detailForItem
+            )
+
+            let behavior = TwoColumnDynamicDetailSingleBehavior<Item>()
+            let renderer = TwoColumnDynamicDetailRenderer<Item>()
+
+            let handler = SelectionHandler(
+                state: state,
+                pickerInput: pickerInput,
+                behavior: behavior,
+                renderer: renderer
+            )
+
+            return handler.captureUserInput()
         }
     }
 }
@@ -216,5 +241,103 @@ private extension Substring {
         }
 
         return lines
+    }
+}
+
+final class TwoColumnDynamicDetailState<Item: DisplayablePickerItem> {
+    var left: SelectionState<Item>
+    let detailForItem: (Item) -> String
+
+    init(left: SelectionState<Item>, detailForItem: @escaping (Item) -> String) {
+        self.left = left
+        self.detailForItem = detailForItem
+    }
+}
+
+extension TwoColumnDynamicDetailState: BaseSelectionState {
+    var activeIndex: Int {
+        get { left.activeIndex }
+        set { left.activeIndex = newValue }
+    }
+
+    var options: [Option<Item>] { left.options }
+    var prompt: String { left.prompt }
+    var topLineText: String { left.topLineText }
+    var bottomLineText: String { left.bottomLineText }
+
+    func toggleSelection(at index: Int) {
+        left.toggleSelection(at: index)
+    }
+}
+
+struct TwoColumnDynamicDetailSingleBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
+    typealias State = TwoColumnDynamicDetailState<Item>
+
+    func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item> {
+        switch char {
+        case .enter:
+            let item = state.left.options[state.activeIndex].item
+            return .finishSingle(item)
+
+        case .quit:
+            return .finishSingle(nil)
+
+        case .space, .backspace:
+            return .continueLoop
+        }
+    }
+}
+
+struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRenderer {
+    typealias State = TwoColumnDynamicDetailState<Item>
+
+    func render(
+        items: [Item],
+        state: State,
+        context: ScrollRenderContext,
+        input: PickerInput,
+        screenWidth: Int
+    ) {
+        let leftWidth = max(18, screenWidth / 3)
+        let rightWidth = screenWidth - leftWidth - 3
+
+        var row = context.listStartRow
+
+        // LEFT COLUMN (same as static)
+        for index in context.startIndex..<context.endIndex {
+            let option = state.left.options[index]
+            let isActive = index == state.activeIndex
+
+            input.moveTo(row, 0)
+            input.moveRight()
+
+            let marker = optionMarker(option: option, isActive: isActive, isSingle: state.left.isSingleSelection)
+            input.write(marker)
+            input.moveRight()
+
+            let text = PickerTextFormatter.truncate(option.title, maxWidth: leftWidth - 4)
+            input.write(isActive ? text.underline : text.foreColor(250))
+
+            row += 1
+        }
+
+        // RIGHT COLUMN — dynamic text
+        let item = state.left.options[state.activeIndex].item
+        let lines = state.detailForItem(item).wrapToWidth(maxWidth: rightWidth)
+
+        row = context.listStartRow
+        for line in lines {
+            if row >= context.listStartRow + context.visibleRowCount { break }
+            input.moveTo(row, leftWidth)
+            input.write("│ ".foreColor(240))
+            let truncated = PickerTextFormatter.truncate(line, maxWidth: rightWidth)
+            input.write(truncated.foreColor(250))
+            row += 1
+        }
+    }
+
+    private func optionMarker(option: Option<Item>, isActive: Bool, isSingle: Bool) -> String {
+        if isSingle { return isActive ? "●".lightGreen : "○".foreColor(250) }
+        return option.isSelected ? "●".lightGreen : "○".foreColor(250)
     }
 }

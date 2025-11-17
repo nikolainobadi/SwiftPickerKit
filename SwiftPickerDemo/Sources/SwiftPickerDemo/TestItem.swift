@@ -64,6 +64,47 @@ extension TestItem {
     ]
 }
 
+// MARK: - Dynamic detail examples
+extension TestItem {
+    static let dynamicList: [TestItem] = [
+        .init(
+            name: "Swift",
+            description: "Safe, fast, and modern programming language.",
+            emoji: "🔶"
+        ),
+        .init(
+            name: "Rust",
+            description: "Memory safe, zero cost abstractions.",
+            emoji: "🦀"
+        ),
+        .init(
+            name: "Python",
+            description: "Clean syntax, huge ecosystem.",
+            emoji: "🐍"
+        ),
+        .init(
+            name: "Kotlin",
+            description: "Modern language for Android development.",
+            emoji: "🟣"
+        ),
+        .init(
+            name: "Elixir",
+            description: "Highly concurrent, distributed systems.",
+            emoji: "💧"
+        ),
+        .init(
+            name: "Clojure",
+            description: "A modern Lisp dialect running on the JVM.",
+            emoji: "🍃"
+        ),
+        .init(
+            name: "Julia",
+            description: "High-performance numerical and scientific computing.",
+            emoji: "🧪"
+        )
+    ]
+}
+
 extension TestItem: DisplayablePickerItem {
     var displayName: String {
         "\(emoji) \(name)"
