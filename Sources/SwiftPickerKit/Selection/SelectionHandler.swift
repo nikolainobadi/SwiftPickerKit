@@ -117,6 +117,7 @@ private extension SelectionHandler {
 
         if currentSelectedItem != nil {
             height += 3 // divider + Selected + divider
+            height += state.selectedDetailLines.count
             height += 1 // blank after selected block
         }
 

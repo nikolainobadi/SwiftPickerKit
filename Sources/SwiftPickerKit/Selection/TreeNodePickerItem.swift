@@ -143,45 +143,35 @@ public struct FileSystemNode: TreeNodePickerItem {
 
 
 // =======================================================================
-// MARK: - Breadcrumb utility
-// =======================================================================
-
-struct BreadcrumbBuilder {
-    static func makePath<Item: TreeNodePickerItem>(
-        stack: [[Item]],
-        current: [Item]
-    ) -> String {
-        let names = stack.map { level in
-            level.first?.displayName ?? "?"
-        } + [current.first?.displayName ?? ""]
-
-        return names
-            .filter { !$0.isEmpty }
-            .joined(separator: " ▸ ")
-    }
-}
-
-
-
-// =======================================================================
 // MARK: - Tree Navigation State
 // =======================================================================
 
 final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
-    var currentItems: [Item]
-    var stack: [[Item]] = []
-    var activeIndex: Int = 0
+    struct Level {
+        var items: [Item]
+        var activeIndex: Int
+    }
+
+    private(set) var levels: [Level]
     let prompt: String
 
     init(rootItems: [Item], prompt: String) {
-        self.currentItems = rootItems
+        self.levels = [Level(items: rootItems, activeIndex: 0)]
         self.prompt = prompt
     }
 
     // BaseSelectionState
     var options: [Option<Item>] {
-        if currentItems.isEmpty { return [] }
-        return currentItems.map { Option(item: $0) }
+        currentItems.map { Option(item: $0) }
+    }
+
+    var activeIndex: Int {
+        get { levels.last?.activeIndex ?? 0 }
+        set {
+            guard !levels.isEmpty else { return }
+            levels[levels.count - 1].activeIndex = newValue
+            clampCurrentLevel()
+        }
     }
 
     var topLineText: String { "Tree Navigation" }
@@ -191,9 +181,7 @@ final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
     }
 
     var selectedDetailLines: [String] {
-        guard currentItems.indices.contains(activeIndex) else { return [] }
-        let item = currentItems[activeIndex]
-        guard let metadata = item.metadata else { return [] }
+        guard let item = currentSelectedItem, let metadata = item.metadata else { return [] }
 
         var lines: [String] = []
         if let subtitle = metadata.subtitle {
@@ -207,14 +195,59 @@ final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
 }
 
 extension TreeNavigationState {
+    var currentItems: [Item] {
+        levels.last?.items ?? []
+    }
+
+    var currentSelectedItem: Item? {
+        guard currentItems.indices.contains(activeIndex) else { return nil }
+        return currentItems[activeIndex]
+    }
+
+    var parentLevel: Level? {
+        guard levels.count > 1 else { return nil }
+        return levels[levels.count - 2]
+    }
+
     func clampIndex() {
-        if currentItems.isEmpty {
-            activeIndex = 0
-        } else if activeIndex >= currentItems.count {
-            activeIndex = currentItems.count - 1
-        } else if activeIndex < 0 {
-            activeIndex = 0
+        clampCurrentLevel()
+    }
+
+    private func clampCurrentLevel() {
+        guard !levels.isEmpty else { return }
+        var level = levels[levels.count - 1]
+
+        if level.items.isEmpty {
+            level.activeIndex = 0
+        } else if level.activeIndex >= level.items.count {
+            level.activeIndex = level.items.count - 1
+        } else if level.activeIndex < 0 {
+            level.activeIndex = 0
         }
+
+        levels[levels.count - 1] = level
+    }
+
+    func descendIntoChildIfPossible() {
+        guard let selected = currentSelectedItem, selected.hasChildren else { return }
+        let children = selected.loadChildren()
+        guard !children.isEmpty else { return }
+
+        levels.append(Level(items: children, activeIndex: 0))
+    }
+
+    func ascendToParent() {
+        guard levels.count > 1 else { return }
+        levels.removeLast()
+    }
+
+    func breadcrumbPath() -> String {
+        let names: [String] = levels.compactMap { level in
+            guard level.items.indices.contains(level.activeIndex) else { return nil }
+            return level.items[level.activeIndex].displayName
+        }
+
+        return names.joined(separator: " ▸ ")
     }
 }
 
@@ -242,9 +275,9 @@ final class TreeNavigationBehavior<Item: TreeNodePickerItem>: SelectionBehavior 
             state.activeIndex += 1
             state.clampIndex()
         case .right:
-            descendIntoChild(state: state)
+            state.descendIntoChildIfPossible()
         case .left:
-            ascendToParent(state: state)
+            state.ascendToParent()
         }
     }
 
@@ -275,35 +308,12 @@ final class TreeNavigationBehavior<Item: TreeNodePickerItem>: SelectionBehavior 
             return .finishSingle(nil)
         }
     }
-
-    private func descendIntoChild(state: State) {
-        guard !state.currentItems.isEmpty else { return }
-        let selected = state.currentItems[state.activeIndex]
-        guard selected.hasChildren else { return }
-
-        let children = selected.loadChildren()
-        guard !children.isEmpty else { return }
-
-        state.stack.append(state.currentItems)
-        state.currentItems = children
-        state.activeIndex = 0
-        state.clampIndex()
-    }
-
-    private func ascendToParent(state: State) {
-        guard !state.currentItems.isEmpty else { return }
-        guard let previous = state.stack.popLast() else { return }
-
-        state.currentItems = previous
-        state.activeIndex = 0
-        state.clampIndex()
-    }
 }
 
 
 
 // =======================================================================
-// MARK: - Renderer (Breadcrumbs + Metadata)
+// MARK: - Renderer (Breadcrumbs + Two Columns)
 // =======================================================================
 
 struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
@@ -320,53 +330,161 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         let maxRowExclusive = context.listStartRow + context.visibleRowCount
 
         // ---------- Breadcrumb line ----------
-        let breadcrumb = BreadcrumbBuilder.makePath(
-            stack: state.stack,
-            current: state.currentItems
-        )
+        let breadcrumb = state.breadcrumbPath()
 
-        if row < maxRowExclusive {
+        if !breadcrumb.isEmpty, row < maxRowExclusive {
             input.moveTo(row, 0)
-            input.write(breadcrumb.lightBlue)
+            let truncated = PickerTextFormatter.truncate(breadcrumb.lightBlue, maxWidth: screenWidth)
+            input.write(truncated)
             row += 1
         }
 
         if row < maxRowExclusive {
-            row += 1 // Blank line after breadcrumb
+            row += 1 // spacer before columns
         }
 
-        // ---------- List of items ----------
-        // ---------- Empty folder handling ----------
-        if state.currentItems.isEmpty, row < maxRowExclusive {
-            input.moveTo(row, 0)
-            input.write("  (empty folder)".foreColor(240))
+        let columnStartRow = row
+        let columnSpacing = max(2, screenWidth / 20)
+        let columnWidth = max(10, (screenWidth - columnSpacing) / 2)
+        let rightColumnStart = min(screenWidth - columnWidth, columnWidth + columnSpacing)
+
+        // Render parent column (left)
+        if let parent = state.parentLevel {
+            let engine = ScrollEngine(totalItems: parent.items.count, visibleRows: context.visibleRowCount)
+            let (start, end) = engine.bounds(activeIndex: parent.activeIndex)
+            renderColumn(
+                items: parent.items,
+                activeIndex: parent.activeIndex,
+                startIndex: start,
+                endIndex: end,
+                title: "Parent",
+                isActiveColumn: false,
+                startRow: columnStartRow,
+                startCol: 0,
+                columnWidth: columnWidth,
+                maxRowExclusive: maxRowExclusive,
+                emptyPlaceholder: "Root level",
+                input: input
+            )
+        } else {
+            renderEmptyColumn(
+                title: "Parent",
+                message: "Root level",
+                startRow: columnStartRow,
+                startCol: 0,
+                columnWidth: columnWidth,
+                maxRowExclusive: maxRowExclusive,
+                input: input
+            )
+        }
+
+        // Render current column (right)
+        renderColumn(
+            items: state.currentItems,
+            activeIndex: state.activeIndex,
+            startIndex: context.startIndex,
+            endIndex: context.endIndex,
+            title: "Current",
+            isActiveColumn: true,
+            startRow: columnStartRow,
+            startCol: rightColumnStart,
+            columnWidth: columnWidth,
+            maxRowExclusive: maxRowExclusive,
+            emptyPlaceholder: "(empty folder)",
+            input: input
+        )
+    }
+}
+
+private extension TreeNavigationRenderer {
+    func renderEmptyColumn(
+        title: String,
+        message: String,
+        startRow: Int,
+        startCol: Int,
+        columnWidth: Int,
+        maxRowExclusive: Int,
+        input: PickerInput
+    ) {
+        guard startRow < maxRowExclusive else { return }
+        renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, input: input)
+        let row = startRow + 1
+        guard row < maxRowExclusive else { return }
+        input.moveTo(row, startCol + 1)
+        let truncated = PickerTextFormatter.truncate(message, maxWidth: max(4, columnWidth - 2))
+        input.write(truncated.foreColor(240))
+    }
+
+    func renderColumn(
+        items: [Item],
+        activeIndex: Int,
+        startIndex: Int,
+        endIndex: Int,
+        title: String,
+        isActiveColumn: Bool,
+        startRow: Int,
+        startCol: Int,
+        columnWidth: Int,
+        maxRowExclusive: Int,
+        emptyPlaceholder: String,
+        input: PickerInput
+    ) {
+        guard startRow < maxRowExclusive else { return }
+        renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, input: input)
+
+        var row = startRow + 1
+        let textWidth = max(4, columnWidth - 2)
+        let insetCol = startCol + 1
+
+        guard !items.isEmpty else {
+            if row < maxRowExclusive {
+                input.moveTo(row, insetCol)
+                let truncated = PickerTextFormatter.truncate(emptyPlaceholder, maxWidth: textWidth)
+                input.write(truncated.foreColor(240))
+            }
             return
         }
-        for index in context.startIndex..<context.endIndex {
-            guard state.currentItems.indices.contains(index) else { continue }
-            let item = state.currentItems[index]
 
+        let availableRange = startIndex..<min(endIndex, items.count)
+
+        for index in availableRange {
             if row >= maxRowExclusive { break }
 
-            input.moveTo(row, 0)
-            input.moveRight()
+            let item = items[index]
+            input.moveTo(row, insetCol)
 
-            let isActive = index == state.activeIndex
-            let prefix = (index == state.activeIndex && !state.currentItems.isEmpty)
-                ? "➤".lightGreen
-                : " "
+            let pointer: String
+            if index == activeIndex {
+                pointer = isActiveColumn ? "➤".lightGreen : "•".foreColor(244)
+            } else {
+                pointer = " "
+            }
+
             let icon = item.metadata?.icon ?? (item.hasChildren ? "▸" : " ")
+            let baseText = "\(pointer) \(icon) \(item.displayName)"
+            let truncated = PickerTextFormatter.truncate(baseText, maxWidth: textWidth)
 
-            let baseText = "\(prefix) \(icon) \(item.displayName)"
-            let truncated = PickerTextFormatter.truncate(baseText, maxWidth: screenWidth - 2)
-
-            if isActive { input.write(truncated.underline) }
-            else { input.write(truncated.foreColor(250)) }
+            if index == activeIndex && isActiveColumn {
+                input.write(truncated.underline)
+            } else {
+                let color = isActiveColumn ? 250 : 244
+                input.write(truncated.foreColor(UInt8(color)))
+            }
 
             row += 1
-
-            // Metadata now handled by header selected block to keep list compact.
         }
+    }
+
+    func renderColumnHeader(
+        title: String,
+        startRow: Int,
+        startCol: Int,
+        columnWidth: Int,
+        input: PickerInput
+    ) {
+        input.moveTo(startRow, startCol)
+        let header = PickerTextFormatter.truncate(title.uppercased(), maxWidth: max(4, columnWidth - 1))
+        input.write(header.foreColor(102))
     }
 }
 
@@ -395,13 +513,9 @@ public extension SwiftPicker {
         let renderer = TreeNavigationRenderer<Item>()
 
         // Start with first root node opened
-        if startInsideFirstRoot, let firstRoot = rootItems.first {
-            let children = firstRoot.loadChildren()
-            if !children.isEmpty {
-                state.stack.append(rootItems)
-                state.currentItems = children
-                state.activeIndex = 0
-            }
+        if startInsideFirstRoot {
+            state.activeIndex = 0
+            state.descendIntoChildIfPossible()
         }
 
         let handler = SelectionHandler(
