@@ -17,7 +17,8 @@ struct SwiftPickerDemo: ParsableCommand {
             SingleSelection.self,
             MultiSelection.self,
             DynamicDetail.self,
-            Choose.self
+            Choose.self,
+            Browse.self
         ]
     )
 }
@@ -365,5 +366,54 @@ extension SwiftPickerDemo {
                 print("Unknown selection.")
             }
         }
+    }
+}
+
+// MARK: - Tree Navigation (Filesystem Browser)
+struct Browse: ParsableCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "browse",
+        abstract: "Browse your filesystem using SwiftPicker tree navigation"
+    )
+
+    @Option(
+        name: [.customShort("p"), .long],
+        help: "Starting path (defaults to your home directory)"
+    )
+    var path: String?
+
+    @Flag(
+        name: [.customShort("H"), .long],
+        help: "Show hidden files and folders"
+    )
+    var showHidden = false
+
+    func run() throws {
+        FileSystemNode.showHiddenFiles = showHidden
+
+        let picker = SwiftPicker()
+
+        let startURL: URL
+        if let path {
+            startURL = URL(fileURLWithPath: path)
+        } else {
+            startURL = FileManager.default.homeDirectoryForCurrentUser
+        }
+
+        let root = FileSystemNode(url: startURL)
+
+        guard let selection = picker.treeNavigation(
+            prompt: "Browse folders. Space enters. Backspace goes up.",
+            rootItems: [root],
+            allowSelectingFolders: true,
+            startInsideFirstRoot: true,
+            newScreen: true
+        ) else {
+            print("\nNo selection made")
+            return
+        }
+
+        print("\nSelected path:")
+        print(selection.url.path)
     }
 }
