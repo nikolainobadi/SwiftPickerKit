@@ -27,10 +27,13 @@ extension SwiftPickerDemo {
         
         @Flag(name: .shortAndLong, help: "Require a selection and throw if none is made")
         var required = false
+
+        @Flag(name: [.customShort("s"), .long], help: "Use the smaller non-scrolling list")
+        var small = false
         
         func run() throws {
             let picker = InteractivePicker()
-            let items = TestItem.sampleItems
+            let items = small ? TestItem.smallList : TestItem.largeList
             
             let prompt = """
             Choose your favorite language to personalize your experience.
@@ -63,9 +66,12 @@ extension SwiftPickerDemo {
     struct MultiSelection: ParsableCommand {
         static let configuration = CommandConfiguration(abstract: "Test multi selection picker")
 
+        @Flag(name: [.customShort("s"), .long], help: "Use the smaller non-scrolling list")
+        var small = false
+        
         func run() throws {
             let picker = InteractivePicker()
-            let items = TestItem.sampleItems
+            let items = small ? TestItem.smallList : TestItem.largeList
             
             let prompt = """
             Select any languages you work with regularly.
@@ -87,3 +93,5 @@ extension SwiftPickerDemo {
         }
     }
 }
+
+
