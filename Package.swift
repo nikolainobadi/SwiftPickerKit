@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "SwiftPickerKit",
     platforms: [
-        .macOS(.v10_14),
+        .macOS(.v12),
     ],
     products: [
         .library(

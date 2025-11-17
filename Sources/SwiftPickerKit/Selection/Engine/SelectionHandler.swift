@@ -117,6 +117,7 @@ private extension SelectionHandler {
 
         if currentSelectedItem != nil {
             height += 3 // divider + Selected + divider
+            height += state.selectedDetailLines.count
             height += 1 // blank after selected block
         }
 
@@ -127,12 +128,17 @@ private extension SelectionHandler {
     func renderFrame() {
         let (rows, cols) = pickerInput.readScreenSize()
 
-        currentSelectedItem = state.options[state.activeIndex].item
+        let options = state.options
+        if options.indices.contains(state.activeIndex) {
+            currentSelectedItem = options[state.activeIndex].item
+        } else {
+            currentSelectedItem = nil
+        }
 
         let headerH = headerHeight
         let footerH = footerHeight
         let visibleRows = max(1, rows - headerH - footerH)
-        let engine = ScrollEngine(totalItems: state.options.count, visibleRows: visibleRows)
+        let engine = ScrollEngine(totalItems: options.count, visibleRows: visibleRows)
         let (start, end) = engine.bounds(activeIndex: state.activeIndex)
         let showUp = engine.showScrollUp(start: start)
         let showDown = engine.showScrollDown(end: end)
@@ -141,6 +147,7 @@ private extension SelectionHandler {
             prompt: state.prompt,
             topLineText: state.topLineText,
             selectedItem: currentSelectedItem,
+            selectedDetailLines: state.selectedDetailLines,
             screenWidth: cols
         )
 
@@ -150,7 +157,7 @@ private extension SelectionHandler {
         }
 
         let context = ScrollRenderContext(startIndex: start, endIndex: end, listStartRow: headerH, visibleRowCount: visibleRows)
-        let items = state.options.map { $0.item }
+        let items = options.map { $0.item }
 
         contentRenderer.render(items: items, state: state, context: context, input: pickerInput, screenWidth: cols)
         footerRenderer.renderFooter(instructionText: state.bottomLineText)

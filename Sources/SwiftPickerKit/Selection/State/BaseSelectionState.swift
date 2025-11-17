@@ -15,6 +15,11 @@ protocol BaseSelectionState<Item> {
     var prompt: String { get }
     var topLineText: String { get }
     var bottomLineText: String { get }
+    var selectedDetailLines: [String] { get }
 
     func toggleSelection(at index: Int)
+}
+
+extension BaseSelectionState {
+    var selectedDetailLines: [String] { [] }
 }
