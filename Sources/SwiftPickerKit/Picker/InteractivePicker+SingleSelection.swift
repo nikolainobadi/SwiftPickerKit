@@ -6,23 +6,17 @@
 //
 
 public extension InteractivePicker {
-    func requiredSingleSelection<Item: DisplayablePickerItem>(
-        title: PickerPrompt,
-        items: [Item]
-    ) throws -> Item {
-        guard let item = singleSelection(title: title, items: items) else {
+    func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item]) throws -> Item {
+        guard let item = singleSelection(prompt: prompt, items: items) else {
             throw SwiftPickerError.selectionCancelled
         }
+        
         return item
     }
 
-    func singleSelection<Item: DisplayablePickerItem>(
-        title prompt: PickerPrompt,
-        items: [Item]
-    ) -> Item? {
-
+    func singleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item]) -> Item? {
         let outcome = runSelection(
-            title: prompt,
+            prompt: prompt,
             items: items,
             behavior: SingleSelectionBehavior<Item>(),
             isSingle: true,

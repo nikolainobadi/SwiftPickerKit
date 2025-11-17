@@ -31,15 +31,21 @@ extension SwiftPickerDemo {
         func run() throws {
             let picker = InteractivePicker()
             let items = TestItem.sampleItems
-            let title = "Choose your favorite"
+            
+            let prompt = """
+            Choose your favorite language to personalize your experience.
+
+            Your choice helps tailor future suggestions, examples,
+            and project templates based on what you prefer most.
+            """
             
             if required {
-                let selection = try picker.requiredSingleSelection(title: title, items: items)
+                let selection = try picker.requiredSingleSelection(prompt: prompt, items: items)
                 
                 print("\nYou selected: \(selection.displayName)")
                 print("Description: \(selection.description)")
             } else {
-                guard let selection = picker.singleSelection(title: "Choose your favorite", items: items) else {
+                guard let selection = picker.singleSelection(prompt: prompt, items: items) else {
                     print("\nNo selection made")
                     return
                 }
@@ -60,7 +66,15 @@ extension SwiftPickerDemo {
         func run() throws {
             let picker = InteractivePicker()
             let items = TestItem.sampleItems
-            let selections = picker.multiSelection(title: "Choose multiple items", items: items)
+            
+            let prompt = """
+            Select any languages you work with regularly.
+
+            Your selections help build a customized toolkit,
+            feature set, and workflow recommendations tuned to you.
+            """
+            
+            let selections = picker.multiSelection(prompt: prompt, items: items)
 
             if selections.isEmpty {
                 print("\nNo selections made")

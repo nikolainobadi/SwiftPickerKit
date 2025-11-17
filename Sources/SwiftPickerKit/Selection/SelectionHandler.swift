@@ -9,18 +9,24 @@ final class SelectionHandler<Item: DisplayablePickerItem, Behavior: SelectionBeh
     private let behavior: Behavior
     private let pickerInput: PickerInput
     private let state: SelectionState<Item>
+
     private let headerRenderer: PickerHeaderRenderer
-    
+    private let footerRenderer: PickerFooterRenderer
+
+    private var currentSelectedItem: Item?
+    private var showScrollUp = false
+
     init(state: SelectionState<Item>, pickerInput: PickerInput, behavior: Behavior) {
         self.state = state
         self.behavior = behavior
         self.pickerInput = pickerInput
+
         self.headerRenderer = .init(pickerInput: pickerInput)
+        self.footerRenderer = .init(pickerInput: pickerInput)
     }
 }
 
-
-// MARK: - Actions
+// MARK: - Input Loop
 extension SelectionHandler {
     func captureUserInput() -> SelectionOutcome<Item> {
         SignalHandler.setupSignalHandlers { [pickerInput] in
@@ -33,26 +39,21 @@ extension SelectionHandler {
             endSelection()
         }
 
-        scrollAndRenderOptions()
+        renderFrame()
 
         while true {
             pickerInput.clearBuffer()
 
             if pickerInput.keyPressed() {
-                if let char = pickerInput.readSpecialChar() {
-                    let outcome = behavior.handleSpecialChar(
-                        char: char,
-                        state: state
-                    )
-
+                if let special = pickerInput.readSpecialChar() {
+                    let outcome = behavior.handleSpecialChar(char: special, state: state)
                     switch outcome {
                     case .continueLoop:
-                        scrollAndRenderOptions()
+                        renderFrame()
                         continue
-
                     case .finishSingle,
                          .finishMulti:
-                        return outcome
+                        return outcome   // FIXED: no second call
                     }
                 }
 
@@ -60,109 +61,116 @@ extension SelectionHandler {
             }
         }
     }
-    
+
     func endSelection() {
         pickerInput.exitAlternativeScreen()
         pickerInput.enableNormalInput()
     }
 
     func handleArrowKeys() {
-        guard let direction = pickerInput.readDirectionKey() else { return }
+        guard let dir = pickerInput.readDirectionKey() else { return }
 
-        switch direction {
+        switch dir {
         case .up:
             if state.activeLine > state.rangeOfLines.minimum {
-                handleScrolling(direction: -1)
+                state.activeLine -= 1
+                renderFrame()
             }
         case .down:
-            handleScrolling(direction: 1)
+            state.activeLine += 1
+            renderFrame()
         case .left, .right:
             break
         }
     }
-
-    func scrollAndRenderOptions() {
-        let (rows, cols) = pickerInput.readScreenSize()
-        let reservedHeaderSpace = 1
-        let displayableOptions = rows - verticalPadding - reservedHeaderSpace
-
-        renderScrollableOptions(displayableOptionsCount: displayableOptions, columns: cols, rows: rows)
-    }
 }
 
-
-// MARK: - Private Helpers
+// MARK: - Rendering
 private extension SelectionHandler {
-    var topPadding: Int { PickerPadding.top }
-    var bottomPadding: Int { PickerPadding.bottom }
-    var verticalPadding: Int { topPadding + bottomPadding }
-
-    func handleScrolling(direction: Int) {
-        state.activeLine = max(0, min(state.options.count + topPadding, state.activeLine + direction))
-        scrollAndRenderOptions()
+    var footerHeight: Int {
+        footerRenderer.height()
     }
 
-    func renderScrollableOptions(displayableOptionsCount: Int, columns: Int, rows: Int) {
-        let start = max(0, state.activeLine - (displayableOptionsCount + topPadding))
-        let end = min(start + displayableOptionsCount, state.options.count)
+    var totalReservedSpace: Int {
+        headerHeight + footerHeight
+    }
+    
+    var headerHeight: Int {
+        var height = 0
 
-        let activeOption = state.options.first {
-            $0.line == state.activeLine
+        height += 1 // topLineText
+        height += 1 // divider
+
+        // prompt lines
+        height += state.prompt.split(separator: "\n", omittingEmptySubsequences: false).count
+
+        height += 1 // divider
+        height += 1 // blank line
+
+        if currentSelectedItem != nil {
+            height += 3 // divider + line + divider
+            height += 1 // blank
         }
 
+        if showScrollUp {
+            height += 1 // ↑
+        }
+
+        height += 1 // final blank before list
+
+        return height
+    }
+
+    func renderFrame() {
+        let (rows, cols) = pickerInput.readScreenSize()
+
+        let displayable = rows - totalReservedSpace
+        let start = max(0, state.activeLine - displayable)
+        let end = min(start + displayable, state.options.count)
+
+        currentSelectedItem = state.options.first { $0.line == state.activeLine }?.item
+        showScrollUp = (start > 0)
+
         headerRenderer.renderHeader(
+            prompt: state.prompt,
             topLineText: state.topLineText,
-            title: state.title,
-            selectedItem: activeOption?.item,
-            screenWidth: columns,
-            showScrollUpIndicator: start > 0
+            selectedItem: currentSelectedItem,
+            screenWidth: cols,
+            showScrollUpIndicator: showScrollUp
         )
 
         for i in start..<end {
             let option = state.options[i]
-            let row = i - start + (topPadding + 1)
+            let row = i - start + headerHeight
             let isActive = option.line == state.activeLine
-            renderOption(
-                option: option,
-                isActive: isActive,
-                row: row,
-                col: 0,
-                screenWidth: columns
-            )
+
+            renderOption(option: option, isActive: isActive, row: row, col: 0, screenWidth: cols)
         }
 
-        renderFooter(end: end, displayableOptionsCount: displayableOptionsCount)
-    }
+        let showDown = end < state.options.count
 
-    func renderFooter(end: Int, displayableOptionsCount: Int) {
-        pickerInput.write("\n")
-        if state.options.count > displayableOptionsCount {
-            if end < state.options.count {
-                pickerInput.write("↓".lightGreen)
-            }
-        }
-        pickerInput.write("\n")
-        pickerInput.write(state.bottomLineText)
+        footerRenderer.renderFooter(
+            showScrollDownIndicator: showDown,
+            instructionText: state.bottomLineText
+        )
     }
 
     func renderOption(option: Option<Item>, isActive: Bool, row: Int, col: Int, screenWidth: Int) {
         pickerInput.moveTo(row, col)
         pickerInput.moveRight()
+
         pickerInput.write(
             state.showAsSelected(option)
             ? "●".lightGreen
             : "○".foreColor(250)
         )
+
         pickerInput.moveRight()
 
         let maxWidth = screenWidth - 4
-        let truncated = PickerTextFormatter.truncate(option.title, maxWidth: maxWidth)
+        let text = PickerTextFormatter.truncate(option.title, maxWidth: maxWidth)
 
-        pickerInput.write(
-            isActive
-            ? truncated.underline
-            : truncated.foreColor(250)
-        )
+        pickerInput.write(isActive ? text.underline : text.foreColor(250))
     }
 }
 

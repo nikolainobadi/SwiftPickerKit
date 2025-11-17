@@ -1,16 +1,21 @@
+////
+////  PickerPrompt.swift
+////  SwiftPickerKit
+////
+////  Created by Nikolai Nobadi on 11/16/25.
+////
 //
-//  PickerPrompt.swift
-//  SwiftPickerKit
+//public protocol PickerPrompt {
+//    var title: String { get }
+//    var instructions: [String] { get }
+//}
 //
-//  Created by Nikolai Nobadi on 11/16/25.
+//extension String: PickerPrompt {
+//    public var title: String {
+//        return self
+//    }
 //
-
-public protocol PickerPrompt {
-    var title: String { get }
-}
-
-extension String: PickerPrompt {
-    public var title: String {
-        return self
-    }
-}
+//    public var instructions: [String] {
+//        return []
+//    }
+//}
