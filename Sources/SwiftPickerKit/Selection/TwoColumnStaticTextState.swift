@@ -65,21 +65,20 @@ public enum PickerLayout<Item: DisplayablePickerItem> {
     case twoColumnDynamic(detailForItem: (Item) -> String)
 }
 
-public extension SwiftPicker {
-    func singleSelection<Item: DisplayablePickerItem>(
+extension SwiftPicker {
+    public func singleSelection<Item: DisplayablePickerItem>(
         prompt: String,
         items: [Item],
         layout: PickerLayout<Item> = .singleColumn,
         newScreen: Bool = true
     ) -> Item? {
-        let outcome: SelectionOutcome<Item> = runSingleSelection(
+        switch runSelection(
             prompt: prompt,
             items: items,
             layout: layout,
+            isSingle: true,
             newScreen: newScreen
-        )
-
-        switch outcome {
+        ) {
         case .finishSingle(let item):
             return item
         default:
@@ -87,7 +86,7 @@ public extension SwiftPicker {
         }
     }
 
-    func requiredSingleSelection<Item: DisplayablePickerItem>(
+    public func requiredSingleSelection<Item: DisplayablePickerItem>(
         prompt: String,
         items: [Item],
         layout: PickerLayout<Item> = .singleColumn,
@@ -103,16 +102,38 @@ public extension SwiftPicker {
         }
         return value
     }
+    
+    public func multiSelection<Item: DisplayablePickerItem>(
+        prompt: String,
+        items: [Item],
+        layout: PickerLayout<Item> = .singleColumn,
+        newScreen: Bool = true
+    ) -> [Item] {
+        switch runSelection(
+            prompt: prompt,
+            items: items,
+            layout: layout,
+            isSingle: false,
+            newScreen: newScreen
+        ) {
+        case .finishMulti(let items):
+            return items
+        default:
+            return []
+        }
+    }
 }
 
 internal extension SwiftPicker {
     @discardableResult
-    func runSingleSelection<Item: DisplayablePickerItem>(
+    func runSelection<Item: DisplayablePickerItem>(
         prompt: String,
         items: [Item],
         layout: PickerLayout<Item>,
+        isSingle: Bool,
         newScreen: Bool
     ) -> SelectionOutcome<Item> {
+
         if newScreen {
             pickerInput.enterAlternativeScreen()
         }
@@ -123,73 +144,107 @@ internal extension SwiftPicker {
 
         let options = items.map { Option(item: $0) }
 
+        // Base state for single-column or left-column of two-column
+        let baseState = SelectionState(
+            options: options,
+            prompt: prompt,
+            isSingleSelection: isSingle
+        )
+
         switch layout {
+
+        // -----------------------------------------------------
+        // 1. SINGLE COLUMN
+        // -----------------------------------------------------
         case .singleColumn:
-            let state = SelectionState(
-                options: options,
-                prompt: prompt,
-                isSingleSelection: true
-            )
 
-            let behavior = SingleSelectionBehavior<Item>()
-            let renderer = SingleColumnRenderer<Item>()
+            if isSingle {
+                let behavior = SingleSelectionBehavior<Item>()
+                let renderer = SingleColumnRenderer<Item>()
 
-            let handler = SelectionHandler(
-                state: state,
-                pickerInput: pickerInput,
-                behavior: behavior,
-                renderer: renderer
-            )
+                let handler = SelectionHandler(
+                    state: baseState,
+                    pickerInput: pickerInput,
+                    behavior: behavior,
+                    renderer: renderer
+                )
+                return handler.captureUserInput()
 
-            return handler.captureUserInput()
+            } else {
+                let behavior = MultiSelectionBehavior<Item>()
+                let renderer = SingleColumnRenderer<Item>()
 
+                let handler = SelectionHandler(
+                    state: baseState,
+                    pickerInput: pickerInput,
+                    behavior: behavior,
+                    renderer: renderer
+                )
+                return handler.captureUserInput()
+            }
+
+        // -----------------------------------------------------
+        // 2. TWO COLUMN STATIC
+        // -----------------------------------------------------
         case .twoColumnStatic(let detailText):
-            let base = SelectionState(
-                options: options,
-                prompt: prompt,
-                isSingleSelection: true
-            )
 
             let state = TwoColumnStaticTextState(
-                left: base,
+                left: baseState,
                 rightText: detailText
             )
-
-            let behavior = TwoColumnStaticTextSingleBehavior<Item>()
             let renderer = TwoColumnStaticTextRenderer<Item>()
 
-            let handler = SelectionHandler(
-                state: state,
-                pickerInput: pickerInput,
-                behavior: behavior,
-                renderer: renderer
-            )
+            if isSingle {
+                let behavior = TwoColumnStaticTextSingleBehavior<Item>()
+                let handler = SelectionHandler(
+                    state: state,
+                    pickerInput: pickerInput,
+                    behavior: behavior,
+                    renderer: renderer
+                )
+                return handler.captureUserInput()
 
-            return handler.captureUserInput()
+            } else {
+                let behavior = TwoColumnStaticTextMultiBehavior<Item>()
+                let handler = SelectionHandler(
+                    state: state,
+                    pickerInput: pickerInput,
+                    behavior: behavior,
+                    renderer: renderer
+                )
+                return handler.captureUserInput()
+            }
+
+        // -----------------------------------------------------
+        // 3. TWO COLUMN DYNAMIC
+        // -----------------------------------------------------
         case .twoColumnDynamic(let detailForItem):
 
-            let base = SelectionState(
-                options: options,
-                prompt: prompt,
-                isSingleSelection: true
-            )
-
             let state = TwoColumnDynamicDetailState(
-                left: base,
+                left: baseState,
                 detailForItem: detailForItem
             )
-
-            let behavior = TwoColumnDynamicDetailSingleBehavior<Item>()
             let renderer = TwoColumnDynamicDetailRenderer<Item>()
 
-            let handler = SelectionHandler(
-                state: state,
-                pickerInput: pickerInput,
-                behavior: behavior,
-                renderer: renderer
-            )
-
-            return handler.captureUserInput()
+            if isSingle {
+                let behavior = TwoColumnDynamicDetailSingleBehavior<Item>()
+                let handler = SelectionHandler(
+                    state: state,
+                    pickerInput: pickerInput,
+                    behavior: behavior,
+                    renderer: renderer
+                )
+                return handler.captureUserInput()
+            } else {
+                let behavior = TwoColumnDynamicDetailMultiBehavior<Item>()
+                let handler = SelectionHandler(
+                    state: state,
+                    pickerInput: pickerInput,
+                    behavior: behavior,
+                    renderer: renderer
+                )
+                return handler.captureUserInput()
+            }
         }
     }
 }
@@ -339,5 +394,77 @@ struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRende
     private func optionMarker(option: Option<Item>, isActive: Bool, isSingle: Bool) -> String {
         if isSingle { return isActive ? "●".lightGreen : "○".foreColor(250) }
         return option.isSelected ? "●".lightGreen : "○".foreColor(250)
+    }
+}
+
+struct MultiSelectionBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
+    typealias State = SelectionState<Item>
+
+    func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item> {
+        switch char {
+        case .enter:
+            let selected = state.options
+                .filter { $0.isSelected }
+                .map { $0.item }
+            return .finishMulti(selected)
+
+        case .space:
+            state.toggleSelection(at: state.activeIndex)
+            return .continueLoop
+
+        case .quit:
+            return .finishMulti([])
+
+        case .backspace:
+            return .continueLoop
+        }
+    }
+}
+
+struct TwoColumnStaticTextMultiBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
+    typealias State = TwoColumnStaticTextState<Item>
+
+    func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item> {
+        switch char {
+        case .enter:
+            let selected = state.options
+                .filter { $0.isSelected }
+                .map { $0.item }
+            return .finishMulti(selected)
+
+        case .space:
+            state.toggleSelection(at: state.activeIndex)
+            return .continueLoop
+
+        case .quit:
+            return .finishMulti([])
+
+        case .backspace:
+            return .continueLoop
+        }
+    }
+}
+
+struct TwoColumnDynamicDetailMultiBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
+    typealias State = TwoColumnDynamicDetailState<Item>
+
+    func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item> {
+        switch char {
+        case .enter:
+            let selected = state.options
+                .filter { $0.isSelected }
+                .map { $0.item }
+            return .finishMulti(selected)
+
+        case .space:
+            state.toggleSelection(at: state.activeIndex)
+            return .continueLoop
+
+        case .quit:
+            return .finishMulti([])
+
+        case .backspace:
+            return .continueLoop
+        }
     }
 }

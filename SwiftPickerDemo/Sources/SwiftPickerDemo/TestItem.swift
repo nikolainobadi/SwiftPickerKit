@@ -11,12 +11,18 @@ struct TestItem {
     let name: String
     let description: String
     let emoji: String
+    let additionalNotes: [String]
+    
+    init(name: String, description: String, emoji: String, additionalNotes: [String] = []) {
+        self.name = name
+        self.description = description
+        self.emoji = emoji
+        self.additionalNotes = additionalNotes
+    }
 }
 
-// MARK: - Lists
 extension TestItem {
 
-    // Small list
     static let smallList: [TestItem] = [
         .init(name: "Swift", description: "Modern, safe programming language", emoji: "🔶"),
         .init(name: "Python", description: "Easy to learn, versatile language", emoji: "🐍"),
@@ -30,7 +36,6 @@ extension TestItem {
         .init(name: "Java", description: "Write once, run anywhere", emoji: "☕️")
     ]
 
-    // Large list: includes smallList + many more
     static let largeList: [TestItem] = smallList + [
         .init(name: "C#", description: "Popular for Unity and enterprise dev", emoji: "🎮"),
         .init(name: "Haskell", description: "Pure functional programming", emoji: "📐"),
@@ -64,43 +69,70 @@ extension TestItem {
     ]
 }
 
-// MARK: - Dynamic detail examples
 extension TestItem {
     static let dynamicList: [TestItem] = [
         .init(
             name: "Swift",
-            description: "Safe, fast, and modern programming language.",
-            emoji: "🔶"
+            description: "Safe, fast, modern.",
+            emoji: "🔶",
+            additionalNotes: [
+                "Great for iOS and server apps.",
+                "Built with performance and safety in mind."
+            ]
         ),
         .init(
             name: "Rust",
-            description: "Memory safe, zero cost abstractions.",
-            emoji: "🦀"
+            description: "Fearless concurrency.",
+            emoji: "🦀",
+            additionalNotes: [
+                "Memory safety without garbage collection.",
+                "Widely used for systems programming."
+            ]
         ),
         .init(
             name: "Python",
-            description: "Clean syntax, huge ecosystem.",
-            emoji: "🐍"
+            description: "Huge ecosystem.",
+            emoji: "🐍",
+            additionalNotes: [
+                "Great for AI and automation.",
+                "Very clean syntax."
+            ]
         ),
         .init(
             name: "Kotlin",
-            description: "Modern language for Android development.",
-            emoji: "🟣"
+            description: "Modern Android dev.",
+            emoji: "🟣",
+            additionalNotes: [
+                "Interoperable with Java.",
+                "Excellent for mobile development."
+            ]
         ),
         .init(
             name: "Elixir",
-            description: "Highly concurrent, distributed systems.",
-            emoji: "💧"
+            description: "Distributed systems.",
+            emoji: "💧",
+            additionalNotes: [
+                "Built on the Erlang VM.",
+                "Highly fault tolerant."
+            ]
         ),
         .init(
             name: "Clojure",
-            description: "A modern Lisp dialect running on the JVM.",
-            emoji: "🍃"
+            description: "A modern Lisp.",
+            emoji: "🍃",
+            additionalNotes: [
+                "Great for data processing.",
+                "Functional and expressive."
+            ]
         ),
         .init(
             name: "Julia",
-            description: "High-performance numerical and scientific computing.",
-            emoji: "🧪"
+            description: "Scientific computing.",
+            emoji: "🧪",
+            additionalNotes: [
+                "Designed for numerical computing.",
+                "Often used in scientific communities."
+            ]
         )
     ]
 }
