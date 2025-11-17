@@ -1,11 +1,11 @@
 //
-//  InteractivePicker.swift
+//  SwiftPicker.swift
 //  SwiftPickerKit
 //
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-public struct InteractivePicker {
+public struct SwiftPicker {
     let textInput: TextInput
     let pickerInput: PickerInput
     
@@ -17,7 +17,7 @@ public struct InteractivePicker {
 
 
 // MARK: - Init
-public extension InteractivePicker {
+public extension SwiftPicker {
     init() {
         self.init(textInput: DefaultTextInput(), pickerInput: DefaultPickerInput())
     }
@@ -25,20 +25,10 @@ public extension InteractivePicker {
 
 
 // MARK: - High-Level API
-public extension InteractivePicker {
-    func singleSelection<Item: DisplayablePickerItem>(
-        prompt: String,
-        items: [Item],
-        newScreen: Bool = true
-    ) -> Item? {
+public extension SwiftPicker {
+    func singleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], newScreen: Bool = true) -> Item? {
         let behavior = SingleSelectionBehavior<Item>()
-        let outcome = runSelection(
-            prompt: prompt,
-            items: items,
-            behavior: behavior,
-            isSingle: true,
-            newScreen: newScreen
-        )
+        let outcome = runSelection(prompt: prompt, items: items, behavior: behavior, isSingle: true, newScreen: newScreen)
         
         switch outcome {
         case .finishSingle(let item):
@@ -48,30 +38,17 @@ public extension InteractivePicker {
         }
     }
 
-    func requiredSingleSelection<Item: DisplayablePickerItem>(
-        prompt: String,
-        items: [Item],
-        newScreen: Bool = true
-    ) throws -> Item {
+    func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], newScreen: Bool = true) throws -> Item {
         guard let value = singleSelection(prompt: prompt, items: items, newScreen: newScreen) else {
             throw SwiftPickerError.selectionCancelled
         }
+        
         return value
     }
 
-    func multiSelection<Item: DisplayablePickerItem>(
-        prompt: String,
-        items: [Item],
-        newScreen: Bool = true
-    ) -> [Item] {
+    func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], newScreen: Bool = true) -> [Item] {
         let behavior = MultiSelectionBehavior<Item>()
-        let outcome = runSelection(
-            prompt: prompt,
-            items: items,
-            behavior: behavior,
-            isSingle: false,
-            newScreen: newScreen
-        )
+        let outcome = runSelection(prompt: prompt, items: items, behavior: behavior, isSingle: false, newScreen: newScreen)
         
         switch outcome {
         case .finishMulti(let items):
@@ -84,7 +61,7 @@ public extension InteractivePicker {
 
 
 // MARK: - Core Selection Runner
-internal extension InteractivePicker {
+internal extension SwiftPicker {
     @discardableResult
     func runSelection<Item, B: SelectionBehavior>(
         prompt: String,

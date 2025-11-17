@@ -6,15 +6,7 @@
 //
 
 struct SingleColumnRenderer<Item: DisplayablePickerItem>: ContentRenderer {
-    typealias State = SelectionState<Item>
-
-    func render(
-        items: [Item],
-        state: State,
-        context: ScrollRenderContext,
-        using input: PickerInput,
-        screenWidth: Int
-    ) {
+    func render(items: [Item], state: SelectionState<Item>, context: ScrollRenderContext, input: PickerInput, screenWidth: Int) {
         var row = context.listStartRow
 
         for index in context.startIndex..<context.endIndex {

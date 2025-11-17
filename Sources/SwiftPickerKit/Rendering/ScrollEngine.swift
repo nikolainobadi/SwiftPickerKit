@@ -8,14 +8,20 @@
 struct ScrollEngine {
     let totalItems: Int
     let visibleRows: Int   // number of rows available for scrollable content
-
+    
     init(totalItems: Int, visibleRows: Int) {
         self.totalItems = max(0, totalItems)
         self.visibleRows = max(1, visibleRows)
     }
+}
 
+
+// MARK: - Helpers
+extension ScrollEngine {
     func bounds(activeIndex: Int) -> (start: Int, end: Int) {
-        guard totalItems > 0 else { return (0, 0) }
+        guard totalItems > 0 else {
+            return (0, 0)
+        }
 
         let clamped = max(0, min(activeIndex, totalItems - 1))
 
@@ -32,6 +38,7 @@ struct ScrollEngine {
         }
 
         let end = min(totalItems, start + visibleRows)
+        
         return (start, end)
     }
 

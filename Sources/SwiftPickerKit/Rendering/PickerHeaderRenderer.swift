@@ -85,8 +85,13 @@ private extension PickerHeaderRenderer {
     @discardableResult
     func writeDivider(width: Int) -> Int {
         let line = dividerStyle.makeLine(width: width)
-        guard !line.isEmpty else { return 0 }
+        
+        guard !line.isEmpty else {
+            return 0
+        }
+        
         pickerInput.write(line + "\n")
+        
         return 1
     }
 
@@ -94,12 +99,14 @@ private extension PickerHeaderRenderer {
     func writeCentered(_ text: String, width: Int) -> Int {
         pickerInput.write(PickerTextFormatter.centerText(text, inWidth: width))
         pickerInput.write("\n")
+        
         return 1
     }
 
     @discardableResult
     func writeNewline() -> Int {
         pickerInput.write("\n")
+        
         return 1
     }
 }

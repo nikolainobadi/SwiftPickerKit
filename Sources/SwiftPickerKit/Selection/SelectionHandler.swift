@@ -99,7 +99,6 @@ extension SelectionHandler {
 
 // MARK: Rendering
 private extension SelectionHandler {
-
     var footerHeight: Int {
         footerRenderer.height()
     }
@@ -113,6 +112,7 @@ private extension SelectionHandler {
             separator: "\n",
             omittingEmptySubsequences: false
         ).count
+        
         height += 1 // blank after prompt
 
         if currentSelectedItem != nil {
@@ -131,14 +131,8 @@ private extension SelectionHandler {
 
         let headerH = headerHeight
         let footerH = footerHeight
-
         let visibleRows = max(1, rows - headerH - footerH)
-
-        let engine = ScrollEngine(
-            totalItems: state.options.count,
-            visibleRows: visibleRows
-        )
-
+        let engine = ScrollEngine(totalItems: state.options.count, visibleRows: visibleRows)
         let (start, end) = engine.bounds(activeIndex: state.activeIndex)
         let showUp = engine.showScrollUp(start: start)
         let showDown = engine.showScrollDown(end: end)
@@ -155,26 +149,11 @@ private extension SelectionHandler {
             scrollRenderer.renderUpArrow(at: arrowRow)
         }
 
-        let context = ScrollRenderContext(
-            startIndex: start,
-            endIndex: end,
-            listStartRow: headerH,
-            visibleRowCount: visibleRows
-        )
-
+        let context = ScrollRenderContext(startIndex: start, endIndex: end, listStartRow: headerH, visibleRowCount: visibleRows)
         let items = state.options.map { $0.item }
 
-        contentRenderer.render(
-            items: items,
-            state: state,
-            context: context,
-            using: pickerInput,
-            screenWidth: cols
-        )
-
-        footerRenderer.renderFooter(
-            instructionText: state.bottomLineText
-        )
+        contentRenderer.render(items: items, state: state, context: context, input: pickerInput, screenWidth: cols)
+        footerRenderer.renderFooter(instructionText: state.bottomLineText)
 
         if showDown {
             let footerStartRow = rows - footerH
@@ -183,36 +162,32 @@ private extension SelectionHandler {
     }
 }
 
-// MARK: - Dependencies
 
+// MARK: - Dependencies
 enum SelectionOutcome<Item> {
     case continueLoop
     case finishSingle(Item?)
     case finishMulti([Item])
 }
 
+protocol ContentRenderer {
+    associatedtype State
+    associatedtype Item: DisplayablePickerItem
+
+    func render(items: [Item], state: State, context: ScrollRenderContext, input: PickerInput, screenWidth: Int)
+}
+
 protocol SelectionBehavior {
     associatedtype Item: DisplayablePickerItem
     associatedtype State: BaseSelectionState<Item>
 
-    func handleSpecialChar(
-        char: SpecialChar,
-        state: State
-    ) -> SelectionOutcome<Item>
-
-    /// Behaviors own arrow-key navigation.
-    func handleArrow(
-        direction: Direction,
-        state: inout State
-    )
+    func handleArrow(direction: Direction, state: inout State)
+    func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item>
 }
 
 extension SelectionBehavior {
     // Default behavior for up/down navigation.
-    func handleArrow(
-        direction: Direction,
-        state: inout State
-    ) {
+    func handleArrow(direction: Direction, state: inout State) {
         switch direction {
         case .up:
             if state.activeIndex > 0 {
@@ -226,17 +201,4 @@ extension SelectionBehavior {
             break
         }
     }
-}
-
-protocol ContentRenderer {
-    associatedtype Item: DisplayablePickerItem
-    associatedtype State
-
-    func render(
-        items: [Item],
-        state: State,
-        context: ScrollRenderContext,
-        using input: PickerInput,
-        screenWidth: Int
-    )
 }

@@ -27,12 +27,17 @@ enum PickerTextFormatter {
     ///   - maxWidth: The maximum width allowed.
     /// - Returns: The truncated text with ellipsis if it was truncated.
     static func truncate(_ text: String, maxWidth: Int) -> String {
-        guard text.count > maxWidth else { return text }
-        guard maxWidth > 1 else { return "" }
+        guard text.count > maxWidth else {
+            return text
+        }
+        
+        guard maxWidth > 1 else {
+            return ""
+        }
 
         let truncatePoint = maxWidth - 1
         let truncated = String(text.prefix(truncatePoint))
+        
         return truncated + "…"
     }
 }
-

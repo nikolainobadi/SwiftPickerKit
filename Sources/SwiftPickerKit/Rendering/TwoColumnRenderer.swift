@@ -7,15 +7,7 @@
 
 /// Renderer for two-column layout with left column for selection and right column for display.
 struct TwoColumnRenderer<Item: DisplayablePickerItem>: ContentRenderer {
-    typealias State = TwoColumnState<Item>
-
-    func render(
-        items: [Item],
-        state: State,
-        context: ScrollRenderContext,
-        using input: PickerInput,
-        screenWidth: Int
-    ) {
+    func render(items: [Item], state: TwoColumnState<Item>, context: ScrollRenderContext, input: PickerInput, screenWidth: Int) {
         let leftColumnWidth = screenWidth / 2
         let rightColumnWidth = screenWidth - leftColumnWidth
 

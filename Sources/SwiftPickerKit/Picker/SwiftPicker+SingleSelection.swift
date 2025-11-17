@@ -1,11 +1,11 @@
 //
-//  InteractivePicker+SingleSelection.swift
+//  SwiftPicker+SingleSelection.swift
 //  SwiftPickerKit
 //
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-public extension InteractivePicker {
+public extension SwiftPicker {
     func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item]) throws -> Item {
         guard let item = singleSelection(prompt: prompt, items: items) else {
             throw SwiftPickerError.selectionCancelled
