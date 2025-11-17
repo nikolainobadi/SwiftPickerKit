@@ -129,19 +129,18 @@ private extension SelectionHandler {
     func renderFrame() {
         let (rows, cols) = pickerInput.readScreenSize()
 
-        // The selected item must be set BEFORE computing headerHeight,
-        // so headerHeight matches what the renderer will actually draw.
+        // Must set BEFORE computing headerHeight
         currentSelectedItem = state.options[state.activeIndex].item
 
         let headerH = headerHeight
         let footerH = footerHeight
 
         // Rows available strictly between header and footer
-        let displayable = max(1, rows - headerH - footerH)
+        let visibleRows = max(1, rows - headerH - footerH)
 
         let engine = ScrollEngine(
             totalItems: state.options.count,
-            displayableCount: displayable
+            visibleRows: visibleRows
         )
 
         let (start, end) = engine.bounds(activeIndex: state.activeIndex)
@@ -160,8 +159,6 @@ private extension SelectionHandler {
 
         // ---------------------------------------------------------
         // TOP SCROLL ARROW
-        // Uses the header's spacer line (last header row).
-        // Does NOT consume extra list rows.
         // ---------------------------------------------------------
         if showUp {
             let arrowRow = headerH - 1
@@ -170,7 +167,6 @@ private extension SelectionHandler {
 
         // ---------------------------------------------------------
         // LIST ITEMS
-        // Start rendering on the first row immediately after the header.
         // ---------------------------------------------------------
         let listStartRow = headerH
 
@@ -178,17 +174,25 @@ private extension SelectionHandler {
             let option = state.options[index]
             let row = listStartRow + offset
             let isActive = (index == state.activeIndex)
-            renderOption(option: option, isActive: isActive, row: row, col: 0, screenWidth: cols)
+
+            renderOption(
+                option: option,
+                isActive: isActive,
+                row: row,
+                col: 0,
+                screenWidth: cols
+            )
         }
 
         // ---------------------------------------------------------
-        // FOOTER (no arrows inside)
+        // FOOTER
         // ---------------------------------------------------------
-        footerRenderer.renderFooter(instructionText: state.bottomLineText)
+        footerRenderer.renderFooter(
+            instructionText: state.bottomLineText
+        )
 
         // ---------------------------------------------------------
         // BOTTOM SCROLL ARROW
-        // Renders on the first footer line (blank spacer).
         // ---------------------------------------------------------
         if showDown {
             let footerStartRow = rows - footerH
