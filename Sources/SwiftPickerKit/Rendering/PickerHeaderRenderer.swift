@@ -3,81 +3,117 @@
 //  SwiftPickerKit
 //
 
+//
+//  PickerHeaderRenderer.swift
+//  SwiftPickerKit
+//
+
 import ANSITerminal
 
 struct PickerHeaderRenderer {
     private let pickerInput: PickerInput
-    
-    init(pickerInput: PickerInput) {
+    private let dividerStyle: PickerDividerStyle
+
+    init(pickerInput: PickerInput, dividerStyle: PickerDividerStyle = .single) {
         self.pickerInput = pickerInput
+        self.dividerStyle = dividerStyle
     }
 }
 
 // MARK: - Render
 extension PickerHeaderRenderer {
+
+    /// Renders the header and returns the number of lines consumed.
+    @discardableResult
     func renderHeader(
         prompt: String,
         topLineText: String,
         selectedItem: (any DisplayablePickerItem)?,
         screenWidth: Int,
         showScrollUpIndicator: Bool
-    ) {
+    ) -> Int {
+
         pickerInput.clearScreen()
         pickerInput.moveToHome()
-        
-        // TOP-LINE TEXT
-        pickerInput.write(center(topLineText, width: screenWidth) + "\n")
-        renderDivider(width: screenWidth)
-        
-        // PROMPT (supports multi-line)
-        let lines = prompt
-            .split(separator: "\n", omittingEmptySubsequences: false)
-            .map(String.init)
-        
-        for line in lines {
-            let max = screenWidth - 2
-            let truncated = line.count > max
-                ? PickerTextFormatter.truncate(line, maxWidth: max)
+
+        var height = 0
+
+        // =========================================================
+        // TOP-LINE (e.g. "InteractivePicker (single-selection)")
+        // =========================================================
+        height += writeCentered(topLineText, width: screenWidth)
+
+        // =========================================================
+        // DIVIDER
+        // =========================================================
+        height += writeDivider(width: screenWidth)
+
+        // =========================================================
+        // MULTI-LINE PROMPT
+        // =========================================================
+        let lines = prompt.split(separator: "\n", omittingEmptySubsequences: false)
+
+        for raw in lines {
+            let line = String(raw)
+            let maxWidth = screenWidth - 2
+            let text = line.count > maxWidth
+                ? PickerTextFormatter.truncate(line, maxWidth: maxWidth)
                 : line
-            pickerInput.write(center(truncated, width: screenWidth) + "\n")
+
+            height += writeCentered(text, width: screenWidth)
         }
-        
-        renderDivider(width: screenWidth)
-        
-        // SELECTED ITEM
+
+        // Small breathing room after prompt
+        height += writeNewline()
+
+        // =========================================================
+        // SELECTED ITEM: caller may move this to footer later
+        // =========================================================
         if let item = selectedItem {
-            renderDivider(width: screenWidth)
-            renderSelectedItem(item, width: screenWidth)
-            renderDivider(width: screenWidth)
-            pickerInput.write("\n")
+            height += writeDivider(width: screenWidth)
+            height += writeCentered("Selected: \(item.displayName)".foreColor(51), width: screenWidth)
+            height += writeDivider(width: screenWidth)
+            height += writeNewline()
         }
-        
-        // SCROLL UP ARROW
+
+        // =========================================================
+        // OPTIONAL SCROLL UP INDICATOR
+        // =========================================================
         if showScrollUpIndicator {
             pickerInput.write("↑".lightGreen + "\n")
+            height += 1
         }
-        
-        // Gap before list
-        pickerInput.write("\n")
+
+        // =========================================================
+        // SPACER BEFORE LIST
+        // =========================================================
+        height += writeNewline()
+
+        return height
     }
 }
 
 // MARK: - Helpers
 private extension PickerHeaderRenderer {
-    func renderDivider(width: Int) {
-        pickerInput.write(String(repeating: "─", count: width) + "\n")
+
+    @discardableResult
+    func writeDivider(width: Int) -> Int {
+        let line = dividerStyle.makeLine(width: width)
+        guard !line.isEmpty else { return 0 }
+        pickerInput.write(line + "\n")
+        return 1
     }
-    
-    func center(_ text: String, width: Int) -> String {
-        PickerTextFormatter.centerText(text, inWidth: width)
+
+    @discardableResult
+    func writeCentered(_ text: String, width: Int) -> Int {
+        pickerInput.write(PickerTextFormatter.centerText(text, inWidth: width))
+        pickerInput.write("\n")
+        return 1
     }
-    
-    func renderSelectedItem(_ item: any DisplayablePickerItem, width: Int) {
-        let text = "Selected: \(item.displayName)"
-        let maxWidth = width - 2
-        let use = text.count > maxWidth ? PickerTextFormatter.truncate(text, maxWidth: maxWidth) : text
-        
-        let centered = PickerTextFormatter.centerText(use, inWidth: width)
-        pickerInput.write(centered.foreColor(51) + "\n")
+
+    @discardableResult
+    func writeNewline() -> Int {
+        pickerInput.write("\n")
+        return 1
     }
 }
