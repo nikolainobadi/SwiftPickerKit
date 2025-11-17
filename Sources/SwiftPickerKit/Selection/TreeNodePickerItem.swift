@@ -239,11 +239,9 @@ final class TreeNavigationBehavior<Item: TreeNodePickerItem>: SelectionBehavior 
         switch char {
 
         case .space:
-            descendIntoChild(state: state)
             return .continueLoop
 
         case .backspace:
-            ascendToParent(state: state)
             return .continueLoop
 
         case .enter:
