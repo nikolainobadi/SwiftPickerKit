@@ -187,7 +187,7 @@ final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
     var topLineText: String { "Tree Navigation" }
 
     var bottomLineText: String {
-        "Use arrows, space to enter, backspace to go up, enter to select"
+        "Arrows: Up/Down highlight, Right enters, Left goes up, Enter selects"
     }
 
     func toggleSelection(at index: Int) {}
@@ -224,37 +224,26 @@ final class TreeNavigationBehavior<Item: TreeNodePickerItem>: SelectionBehavior 
         switch direction {
         case .up:
             state.activeIndex -= 1
+            state.clampIndex()
         case .down:
             state.activeIndex += 1
-        default: break
+            state.clampIndex()
+        case .right:
+            descendIntoChild(state: state)
+        case .left:
+            ascendToParent(state: state)
         }
-        state.clampIndex()
     }
 
     func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item> {
         switch char {
 
         case .space:
-            guard !state.currentItems.isEmpty else { return .continueLoop }
-            let selected = state.currentItems[state.activeIndex]
-            if selected.hasChildren {
-                let children = selected.loadChildren()
-                if children.isEmpty { return .continueLoop }
-
-                state.stack.append(state.currentItems)
-                state.currentItems = children
-                state.activeIndex = 0
-                state.clampIndex()
-            }
+            descendIntoChild(state: state)
             return .continueLoop
 
         case .backspace:
-            guard !state.currentItems.isEmpty else { return .continueLoop }
-            if let previous = state.stack.popLast() {
-                state.currentItems = previous
-                state.activeIndex = 0
-                state.clampIndex()
-            }
+            ascendToParent(state: state)
             return .continueLoop
 
         case .enter:
@@ -274,6 +263,29 @@ final class TreeNavigationBehavior<Item: TreeNodePickerItem>: SelectionBehavior 
         case .quit:
             return .finishSingle(nil)
         }
+    }
+
+    private func descendIntoChild(state: State) {
+        guard !state.currentItems.isEmpty else { return }
+        let selected = state.currentItems[state.activeIndex]
+        guard selected.hasChildren else { return }
+
+        let children = selected.loadChildren()
+        guard !children.isEmpty else { return }
+
+        state.stack.append(state.currentItems)
+        state.currentItems = children
+        state.activeIndex = 0
+        state.clampIndex()
+    }
+
+    private func ascendToParent(state: State) {
+        guard !state.currentItems.isEmpty else { return }
+        guard let previous = state.stack.popLast() else { return }
+
+        state.currentItems = previous
+        state.activeIndex = 0
+        state.clampIndex()
     }
 }
 
