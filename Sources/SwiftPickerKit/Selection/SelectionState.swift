@@ -24,6 +24,9 @@ final class SelectionState<Item: DisplayablePickerItem> {
     }
 }
 
+// MARK: - BaseSelectionState Conformance
+extension SelectionState: BaseSelectionState { }
+
 extension SelectionState {
     var selectedOptions: [Option<Item>] {
         options.filter { $0.isSelected }

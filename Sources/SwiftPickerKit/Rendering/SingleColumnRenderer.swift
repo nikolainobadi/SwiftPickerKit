@@ -6,9 +6,11 @@
 //
 
 struct SingleColumnRenderer<Item: DisplayablePickerItem>: ContentRenderer {
+    typealias State = SelectionState<Item>
+
     func render(
         items: [Item],
-        state: SelectionState<Item>,
+        state: State,
         context: ScrollRenderContext,
         using input: PickerInput,
         screenWidth: Int

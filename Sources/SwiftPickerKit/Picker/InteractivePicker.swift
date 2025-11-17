@@ -93,7 +93,10 @@ internal extension InteractivePicker {
         isSingle: Bool,
         newScreen: Bool
     ) -> SelectionOutcome<Item>
-    where B.Item == Item, Item: DisplayablePickerItem
+    where
+        B.Item == Item,
+        B.State == SelectionState<Item>,
+        Item: DisplayablePickerItem
     {
         if newScreen {
             pickerInput.enterAlternativeScreen()

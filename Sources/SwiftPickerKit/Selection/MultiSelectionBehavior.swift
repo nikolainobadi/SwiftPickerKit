@@ -6,7 +6,9 @@
 //
 
 struct MultiSelectionBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
-    func handleSpecialChar(char: SpecialChar, state: SelectionState<Item>) -> SelectionOutcome<Item> {
+    typealias State = SelectionState<Item>
+
+    func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item> {
         switch char {
         case .enter:
             return .finishMulti(state.selectedOptions.map { $0.item })

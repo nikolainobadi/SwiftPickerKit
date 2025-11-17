@@ -9,11 +9,14 @@ final class SelectionHandler<
     Item: DisplayablePickerItem,
     Behavior: SelectionBehavior,
     Renderer: ContentRenderer
-> where Behavior.Item == Item, Renderer.Item == Item {
-
+> where
+    Behavior.Item == Item,
+    Renderer.Item == Item,
+    Behavior.State == Renderer.State
+{
     private let behavior: Behavior
     private let pickerInput: PickerInput
-    private let state: SelectionState<Item>
+    private var state: Behavior.State
 
     private let headerRenderer: PickerHeaderRenderer
     private let footerRenderer: PickerFooterRenderer
@@ -23,7 +26,7 @@ final class SelectionHandler<
     private var currentSelectedItem: Item?
 
     init(
-        state: SelectionState<Item>,
+        state: Behavior.State,
         pickerInput: PickerInput,
         behavior: Behavior,
         renderer: Renderer
@@ -88,7 +91,7 @@ extension SelectionHandler {
 
         // Delegate movement to the behavior so more complex
         // layouts (two-column, file explorer, etc.) can control it.
-        behavior.handleArrow(direction: dir, state: state)
+        behavior.handleArrow(direction: dir, state: &state)
 
         renderFrame()
     }
@@ -190,24 +193,25 @@ enum SelectionOutcome<Item> {
 
 protocol SelectionBehavior {
     associatedtype Item: DisplayablePickerItem
+    associatedtype State: BaseSelectionState<Item>
 
     func handleSpecialChar(
         char: SpecialChar,
-        state: SelectionState<Item>
+        state: State
     ) -> SelectionOutcome<Item>
 
-    /// New: behaviors own arrow-key navigation.
+    /// Behaviors own arrow-key navigation.
     func handleArrow(
         direction: Direction,
-        state: SelectionState<Item>
+        state: inout State
     )
 }
 
 extension SelectionBehavior {
-    // Default behavior: same as your old SelectionHandler logic.
+    // Default behavior for up/down navigation.
     func handleArrow(
         direction: Direction,
-        state: SelectionState<Item>
+        state: inout State
     ) {
         switch direction {
         case .up:
@@ -226,10 +230,11 @@ extension SelectionBehavior {
 
 protocol ContentRenderer {
     associatedtype Item: DisplayablePickerItem
+    associatedtype State
 
     func render(
         items: [Item],
-        state: SelectionState<Item>,
+        state: State,
         context: ScrollRenderContext,
         using input: PickerInput,
         screenWidth: Int
