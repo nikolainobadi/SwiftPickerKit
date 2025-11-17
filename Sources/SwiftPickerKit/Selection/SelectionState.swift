@@ -6,35 +6,27 @@
 //
 
 final class SelectionState<Item: DisplayablePickerItem> {
-    let topLine: Int
     let prompt: String
     let isSingleSelection: Bool
 
-    var activeLine: Int
+    // Model
     var options: [Option<Item>]
+    var activeIndex: Int = 0
 
-    // Header-rendering state
+    // Header state
     var selectedItemForHeader: Item?
-    var isShowingScrollUpIndicator: Bool = false
+    var isShowingScrollUpIndicator = false
 
-    init(options: [Option<Item>], topLine: Int, prompt: String, isSingleSelection: Bool) {
+    init(options: [Option<Item>], prompt: String, isSingleSelection: Bool) {
         self.prompt = prompt
         self.options = options
-        self.topLine = topLine
-        self.activeLine = topLine      // first option is at this line
         self.isSingleSelection = isSingleSelection
     }
 }
 
-
-// MARK: - Helper Methods
 extension SelectionState {
     var selectedOptions: [Option<Item>] {
         options.filter { $0.isSelected }
-    }
-
-    var rangeOfLines: (minimum: Int, maximum: Int) {
-        (topLine, topLine + options.count - 1)
     }
 
     var topLineText: String {
@@ -49,14 +41,16 @@ extension SelectionState {
         }
     }
 
-    func toggleSelection(at line: Int) {
-        if let i = options.firstIndex(where: { $0.line == line }) {
-            options[i].isSelected.toggle()
-        }
+    func toggleSelection(at index: Int) {
+        guard options.indices.contains(index) else { return }
+        options[index].isSelected.toggle()
     }
 
     func showAsSelected(_ option: Option<Item>) -> Bool {
-        isSingleSelection ? option.line == activeLine : option.isSelected
+        if isSingleSelection {
+            return false // single selection only highlights activeIndex
+        }
+        return option.isSelected
     }
 }
 
@@ -64,10 +58,7 @@ extension SelectionState {
 // MARK: - Dependencies
 struct Option<Item: DisplayablePickerItem> {
     let item: Item
-    let line: Int
     var isSelected: Bool = false
 
-    var title: String {
-        item.displayName
-    }
+    var title: String { item.displayName }
 }

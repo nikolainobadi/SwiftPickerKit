@@ -11,7 +11,7 @@ struct MultiSelectionBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
         case .enter:
             return .finishMulti(state.selectedOptions.map { $0.item })
         case .space:
-            state.toggleSelection(at: state.activeLine)
+            state.toggleSelection(at: state.activeIndex)
             return .continueLoop
         case .quit:
             return .finishMulti([])

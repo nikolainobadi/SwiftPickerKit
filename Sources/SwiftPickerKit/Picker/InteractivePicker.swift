@@ -103,12 +103,11 @@ internal extension InteractivePicker {
         pickerInput.clearScreen()
         pickerInput.moveToHome()
         
-        let topLine = pickerInput.readCursorPos().row + PickerPadding.top
-        let options = items.enumerated().map { Option(item: $1, line: topLine + $0) }
+        // No more topLine, no more line-based options
+        let options = items.map { Option(item: $0) }
 
         let state = SelectionState(
             options: options,
-            topLine: topLine,
             prompt: prompt,
             isSingleSelection: isSingle
         )
