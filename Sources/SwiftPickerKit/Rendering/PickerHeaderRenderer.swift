@@ -2,15 +2,10 @@
 //  PickerHeaderRenderer.swift
 //  SwiftPickerKit
 //
-//  Created by Nikolai Nobadi on 11/16/25.
-//
 
 import ANSITerminal
 
-/// A reusable component for rendering picker headers consistently across different selection modes.
-/// Handles rendering of top line text, title, selected item display, and scroll indicators.
 struct PickerHeaderRenderer {
-    /// The input handler for writing to the terminal.
     private let pickerInput: PickerInput
     
     init(pickerInput: PickerInput) {
@@ -18,77 +13,71 @@ struct PickerHeaderRenderer {
     }
 }
 
-
-// MARK: - Actions
+// MARK: - Render
 extension PickerHeaderRenderer {
-    /// Renders the complete header section for a picker.
-    /// - Parameters:
-    ///   - topLineText: The text to display at the top of the header (centered).
-    ///   - title: The main title text to display.
-    ///   - selectedItem: The currently selected item to display (if any).
-    ///   - screenWidth: The width of the screen for centering and truncation.
-    ///   - showScrollUpIndicator: Whether to show the scroll up indicator (↑).
     func renderHeader(
+        prompt: String,
         topLineText: String,
-        title: String,
         selectedItem: (any DisplayablePickerItem)?,
         screenWidth: Int,
         showScrollUpIndicator: Bool
     ) {
         pickerInput.clearScreen()
         pickerInput.moveToHome()
-        pickerInput.write(centerText(topLineText, inWidth: screenWidth))
-        pickerInput.write("\n")
-        pickerInput.write("\n")
-
-        // Render selected item between topLineText and title
-        if let selectedItem = selectedItem {
-            renderSelectedItem(selectedItem, screenWidth: screenWidth)
+        
+        // TOP-LINE TEXT
+        pickerInput.write(center(topLineText, width: screenWidth) + "\n")
+        renderDivider(width: screenWidth)
+        
+        // PROMPT (supports multi-line)
+        let lines = prompt
+            .split(separator: "\n", omittingEmptySubsequences: false)
+            .map(String.init)
+        
+        for line in lines {
+            let max = screenWidth - 2
+            let truncated = line.count > max
+                ? PickerTextFormatter.truncate(line, maxWidth: max)
+                : line
+            pickerInput.write(center(truncated, width: screenWidth) + "\n")
+        }
+        
+        renderDivider(width: screenWidth)
+        
+        // SELECTED ITEM
+        if let item = selectedItem {
+            renderDivider(width: screenWidth)
+            renderSelectedItem(item, width: screenWidth)
+            renderDivider(width: screenWidth)
             pickerInput.write("\n")
         }
-
-        // Truncate and center title if needed
-        let maxTitleWidth = screenWidth - 2
-        let truncatedTitle = title.count > maxTitleWidth
-            ? PickerTextFormatter.truncate(title, maxWidth: maxTitleWidth)
-            : title
-        pickerInput.write(centerText(truncatedTitle, inWidth: screenWidth))
-        pickerInput.write("\n")
+        
+        // SCROLL UP ARROW
         if showScrollUpIndicator {
-            pickerInput.write("↑".lightGreen)
+            pickerInput.write("↑".lightGreen + "\n")
         }
+        
+        // Gap before list
+        pickerInput.write("\n")
     }
 }
 
-
-// MARK: - Private Methods
+// MARK: - Helpers
 private extension PickerHeaderRenderer {
-    /// Renders the currently selected item inline during header rendering.
-    /// Uses PickerTextFormatter for consistent text formatting.
-    /// - Parameters:
-    ///   - item: The item to display.
-    ///   - screenWidth: The width of the screen for centering.
-    func renderSelectedItem(_ item: any DisplayablePickerItem, screenWidth: Int) {
-        let itemName = item.displayName
-        let textWithLabel = "Selected: \(itemName)"
-
-        // Truncate if too long for screen width
-        let maxWidth = screenWidth - 2
-        let finalText = textWithLabel.count > maxWidth
-            ? PickerTextFormatter.truncate(textWithLabel, maxWidth: maxWidth)
-            : textWithLabel
-
-        // Center and display in cyan color
-        let centeredText = PickerTextFormatter.centerText(finalText, inWidth: screenWidth)
-        pickerInput.write(centeredText.foreColor(51))  // Cyan color
+    func renderDivider(width: Int) {
+        pickerInput.write(String(repeating: "─", count: width) + "\n")
     }
-
-    /// Centers the given text within the specified width.
-    /// - Parameters:
-    ///   - text: The text to center.
-    ///   - width: The width within which to center the text.
-    /// - Returns: The centered text.
-    func centerText(_ text: String, inWidth width: Int) -> String {
+    
+    func center(_ text: String, width: Int) -> String {
         PickerTextFormatter.centerText(text, inWidth: width)
+    }
+    
+    func renderSelectedItem(_ item: any DisplayablePickerItem, width: Int) {
+        let text = "Selected: \(item.displayName)"
+        let maxWidth = width - 2
+        let use = text.count > maxWidth ? PickerTextFormatter.truncate(text, maxWidth: maxWidth) : text
+        
+        let centered = PickerTextFormatter.centerText(use, inWidth: width)
+        pickerInput.write(centered.foreColor(51) + "\n")
     }
 }

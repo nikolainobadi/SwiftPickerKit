@@ -24,17 +24,77 @@ public extension InteractivePicker {
 }
 
 
-// MARK: - Helper Methods
+// MARK: - High-Level API
+public extension InteractivePicker {
+    func singleSelection<Item: DisplayablePickerItem>(
+        prompt: String,
+        items: [Item],
+        newScreen: Bool = true
+    ) -> Item? {
+        let behavior = SingleSelectionBehavior<Item>()
+        let outcome = runSelection(
+            prompt: prompt,
+            items: items,
+            behavior: behavior,
+            isSingle: true,
+            newScreen: newScreen
+        )
+        
+        switch outcome {
+        case .finishSingle(let item):
+            return item
+        default:
+            return nil
+        }
+    }
+
+    func requiredSingleSelection<Item: DisplayablePickerItem>(
+        prompt: String,
+        items: [Item],
+        newScreen: Bool = true
+    ) throws -> Item {
+        guard let value = singleSelection(prompt: prompt, items: items, newScreen: newScreen) else {
+            throw SwiftPickerError.selectionCancelled
+        }
+        return value
+    }
+
+    func multiSelection<Item: DisplayablePickerItem>(
+        prompt: String,
+        items: [Item],
+        newScreen: Bool = true
+    ) -> [Item] {
+        let behavior = MultiSelectionBehavior<Item>()
+        let outcome = runSelection(
+            prompt: prompt,
+            items: items,
+            behavior: behavior,
+            isSingle: false,
+            newScreen: newScreen
+        )
+        
+        switch outcome {
+        case .finishMulti(let items):
+            return items
+        default:
+            return []
+        }
+    }
+}
+
+
+// MARK: - Core Selection Runner
 internal extension InteractivePicker {
     @discardableResult
     func runSelection<Item, B: SelectionBehavior>(
-        title: PickerPrompt,
+        prompt: String,
         items: [Item],
         behavior: B,
         isSingle: Bool,
         newScreen: Bool
-    ) -> SelectionOutcome<Item> where B.Item == Item, Item: DisplayablePickerItem {
-        
+    ) -> SelectionOutcome<Item>
+    where B.Item == Item, Item: DisplayablePickerItem
+    {
         if newScreen {
             pickerInput.enterAlternativeScreen()
         }
@@ -45,31 +105,30 @@ internal extension InteractivePicker {
         
         let topLine = pickerInput.readCursorPos().row + PickerPadding.top
         let options = items.enumerated().map { Option(item: $1, line: topLine + $0) }
+
         let state = SelectionState(
             options: options,
             topLine: topLine,
-            title: title.title,
+            prompt: prompt,
             isSingleSelection: isSingle
         )
         
-        let handler = SelectionHandler(state: state, pickerInput: pickerInput, behavior: behavior)
+        let handler = SelectionHandler(
+            state: state,
+            pickerInput: pickerInput,
+            behavior: behavior
+        )
+        
         let outcome = handler.captureUserInput()
-        
         handler.endSelection()
-        
         return outcome
     }
 }
 
 
-// MARK: - Dependencies
-enum Direction {
-    case up, down, left, right
-}
-
-enum SpecialChar {
-    case enter, space, quit, backspace
-}
+// MARK: - Dependencies (unchanged)
+enum Direction { case up, down, left, right }
+enum SpecialChar { case enter, space, quit, backspace }
 
 protocol TextInput {
     func getInput(_ prompt: String) -> String

@@ -6,9 +6,9 @@
 //
 
 public extension InteractivePicker {
-    func multiSelection<Item: DisplayablePickerItem>(title prompt: PickerPrompt, items: [Item]) -> [Item] {
+    func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item]) -> [Item] {
         let outcome = runSelection(
-            title: prompt,
+            prompt: prompt,
             items: items,
             behavior: MultiSelectionBehavior<Item>(),
             isSingle: false,
