@@ -5,11 +5,6 @@
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-//
-//  SelectionHandler.swift
-//  SwiftPickerKit
-//
-
 final class SelectionHandler<
     Item: DisplayablePickerItem,
     Behavior: SelectionBehavior,
@@ -45,7 +40,6 @@ final class SelectionHandler<
 }
 
 // MARK: Input Loop
-
 extension SelectionHandler {
     func captureUserInput() -> SelectionOutcome<Item> {
         SignalHandler.setupSignalHandlers { [pickerInput] in
@@ -65,7 +59,10 @@ extension SelectionHandler {
 
             if pickerInput.keyPressed() {
                 if let special = pickerInput.readSpecialChar() {
-                    let outcome = behavior.handleSpecialChar(char: special, state: state)
+                    let outcome = behavior.handleSpecialChar(
+                        char: special,
+                        state: state
+                    )
 
                     switch outcome {
                     case .continueLoop:
@@ -89,27 +86,15 @@ extension SelectionHandler {
     func handleArrowKeys() {
         guard let dir = pickerInput.readDirectionKey() else { return }
 
-        switch dir {
-        case .up:
-            if state.activeIndex > 0 {
-                state.activeIndex -= 1
-                renderFrame()
-            }
+        // Delegate movement to the behavior so more complex
+        // layouts (two-column, file explorer, etc.) can control it.
+        behavior.handleArrow(direction: dir, state: state)
 
-        case .down:
-            if state.activeIndex < state.options.count - 1 {
-                state.activeIndex += 1
-                renderFrame()
-            }
-
-        case .left, .right:
-            break
-        }
+        renderFrame()
     }
 }
 
 // MARK: Rendering
-
 private extension SelectionHandler {
 
     var footerHeight: Int {
@@ -119,20 +104,20 @@ private extension SelectionHandler {
     /// Must mirror PickerHeaderRenderer output.
     var headerHeight: Int {
         var height = 0
-        height += 1                         // top line
-        height += 1                         // divider
+        height += 1 // top line
+        height += 1 // divider
         height += state.prompt.split(
             separator: "\n",
             omittingEmptySubsequences: false
         ).count
-        height += 1                         // blank after prompt
+        height += 1 // blank after prompt
 
         if currentSelectedItem != nil {
-            height += 3                     // divider + Selected + divider
-            height += 1                     // blank after selected block
+            height += 3 // divider + Selected + divider
+            height += 1 // blank after selected block
         }
 
-        height += 1                         // spacer before list
+        height += 1 // spacer before list
         return height
     }
 
@@ -196,6 +181,7 @@ private extension SelectionHandler {
 }
 
 // MARK: - Dependencies
+
 enum SelectionOutcome<Item> {
     case continueLoop
     case finishSingle(Item?)
@@ -205,11 +191,42 @@ enum SelectionOutcome<Item> {
 protocol SelectionBehavior {
     associatedtype Item: DisplayablePickerItem
 
-    func handleSpecialChar(char: SpecialChar, state: SelectionState<Item>) -> SelectionOutcome<Item>
+    func handleSpecialChar(
+        char: SpecialChar,
+        state: SelectionState<Item>
+    ) -> SelectionOutcome<Item>
+
+    /// New: behaviors own arrow-key navigation.
+    func handleArrow(
+        direction: Direction,
+        state: SelectionState<Item>
+    )
+}
+
+extension SelectionBehavior {
+    // Default behavior: same as your old SelectionHandler logic.
+    func handleArrow(
+        direction: Direction,
+        state: SelectionState<Item>
+    ) {
+        switch direction {
+        case .up:
+            if state.activeIndex > 0 {
+                state.activeIndex -= 1
+            }
+        case .down:
+            if state.activeIndex < state.options.count - 1 {
+                state.activeIndex += 1
+            }
+        case .left, .right:
+            break
+        }
+    }
 }
 
 protocol ContentRenderer {
     associatedtype Item: DisplayablePickerItem
+
     func render(
         items: [Item],
         state: SelectionState<Item>,
