@@ -125,12 +125,15 @@ private extension SelectionHandler {
         let (rows, cols) = pickerInput.readScreenSize()
         let displayable = max(1, rows - totalReservedSpace)
 
-        let half = displayable / 2
-        let start = max(0, state.activeIndex - half)
-        let end = min(state.options.count, start + displayable)
+        let window = ScrollWindow(
+            totalItems: state.options.count,
+            displayableCount: displayable
+        )
+
+        let (start, end) = window.bounds(activeIndex: state.activeIndex)
 
         currentSelectedItem = state.options[state.activeIndex].item
-        showScrollUp = (start > 0)
+        showScrollUp = window.showScrollUp(start: start)
 
         headerRenderer.renderHeader(
             prompt: state.prompt,
@@ -147,7 +150,8 @@ private extension SelectionHandler {
             renderOption(option: option, isActive: isActive, row: row, col: 0, screenWidth: cols)
         }
 
-        let showDown = (end < state.options.count)
+        let showDown = window.showScrollDown(end: end)
+
         footerRenderer.renderFooter(
             showScrollDownIndicator: showDown,
             instructionText: state.bottomLineText
@@ -189,4 +193,27 @@ enum SelectionOutcome<Item> {
     case continueLoop
     case finishSingle(Item?)
     case finishMulti([Item])
+}
+
+struct ScrollWindow {
+    let totalItems: Int
+    let displayableCount: Int
+
+    func bounds(activeIndex: Int) -> (start: Int, end: Int) {
+        guard totalItems > 0 else { return (0, 0) }
+
+        let half = displayableCount / 2
+        let start = max(0, activeIndex - half)
+        let end = min(totalItems, start + displayableCount)
+
+        return (start, end)
+    }
+
+    func showScrollUp(start: Int) -> Bool {
+        start > 0
+    }
+
+    func showScrollDown(end: Int) -> Bool {
+        end < totalItems
+    }
 }
