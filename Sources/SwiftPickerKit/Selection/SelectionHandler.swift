@@ -5,6 +5,13 @@
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
+//
+//  SelectionHandler.swift
+//  SwiftPickerKit
+//
+//  Created by Nikolai Nobadi on 11/16/25.
+//
+
 final class SelectionHandler<Item: DisplayablePickerItem, Behavior: SelectionBehavior>
 where Behavior.Item == Item {
 
@@ -14,20 +21,23 @@ where Behavior.Item == Item {
 
     private let headerRenderer: PickerHeaderRenderer
     private let footerRenderer: PickerFooterRenderer
+    private let scrollRenderer: ScrollRenderer
 
     private var currentSelectedItem: Item?
-    private var showScrollUp = false
 
     init(state: SelectionState<Item>, pickerInput: PickerInput, behavior: Behavior) {
         self.state = state
         self.behavior = behavior
         self.pickerInput = pickerInput
+
         self.headerRenderer = .init(pickerInput: pickerInput)
         self.footerRenderer = .init(pickerInput: pickerInput)
+        self.scrollRenderer = .init(pickerInput: pickerInput)
     }
 }
 
-// MARK: Input Loop
+// MARK: - Input Loop
+
 extension SelectionHandler {
     func captureUserInput() -> SelectionOutcome<Item> {
         SignalHandler.setupSignalHandlers { [pickerInput] in
@@ -44,11 +54,12 @@ extension SelectionHandler {
 
         while true {
             pickerInput.clearBuffer()
-            if pickerInput.keyPressed() {
 
-                // Special chars: enter, quit, space
+            if pickerInput.keyPressed() {
+                // Special chars: enter / space / quit
                 if let special = pickerInput.readSpecialChar() {
                     let outcome = behavior.handleSpecialChar(char: special, state: state)
+
                     switch outcome {
                     case .continueLoop:
                         renderFrame()
@@ -90,72 +101,99 @@ extension SelectionHandler {
     }
 }
 
-// MARK: Rendering
+// MARK: - Rendering
+
 private extension SelectionHandler {
 
     var footerHeight: Int {
         footerRenderer.height()
     }
 
+    /// Must mirror PickerHeaderRenderer's output structure.
     var headerHeight: Int {
         var height = 0
         height += 1 // top line
         height += 1 // divider
         height += state.prompt.split(separator: "\n", omittingEmptySubsequences: false).count
-        height += 1 // blank
+        height += 1 // blank after prompt
 
         if currentSelectedItem != nil {
-            height += 3 // divider + text + divider
-            height += 1 // blank
+            height += 3 // divider + "Selected" + divider
+            height += 1 // blank after selected block
         }
 
-        if showScrollUp {
-            height += 1
-        }
-
-        height += 1 // blank before list
+        height += 1 // spacer before list
         return height
-    }
-
-    var totalReservedSpace: Int {
-        headerHeight + footerHeight
     }
 
     func renderFrame() {
         let (rows, cols) = pickerInput.readScreenSize()
-        let displayable = max(1, rows - totalReservedSpace)
 
-        let window = ScrollWindow(
+        // The selected item must be set BEFORE computing headerHeight,
+        // so headerHeight matches what the renderer will actually draw.
+        currentSelectedItem = state.options[state.activeIndex].item
+
+        let headerH = headerHeight
+        let footerH = footerHeight
+
+        // Rows available strictly between header and footer
+        let displayable = max(1, rows - headerH - footerH)
+
+        let engine = ScrollEngine(
             totalItems: state.options.count,
             displayableCount: displayable
         )
 
-        let (start, end) = window.bounds(activeIndex: state.activeIndex)
+        let (start, end) = engine.bounds(activeIndex: state.activeIndex)
+        let showUp = engine.showScrollUp(start: start)
+        let showDown = engine.showScrollDown(end: end)
 
-        currentSelectedItem = state.options[state.activeIndex].item
-        showScrollUp = window.showScrollUp(start: start)
-
+        // ---------------------------------------------------------
+        // HEADER (clears screen and moves to home)
+        // ---------------------------------------------------------
         headerRenderer.renderHeader(
             prompt: state.prompt,
             topLineText: state.topLineText,
             selectedItem: currentSelectedItem,
-            screenWidth: cols,
-            showScrollUpIndicator: showScrollUp
+            screenWidth: cols
         )
 
-        for (renderRow, i) in (start..<end).enumerated() {
-            let option = state.options[i]
-            let row = headerHeight + renderRow
-            let isActive = (i == state.activeIndex)
+        // ---------------------------------------------------------
+        // TOP SCROLL ARROW
+        // Uses the header's spacer line (last header row).
+        // Does NOT consume extra list rows.
+        // ---------------------------------------------------------
+        if showUp {
+            let arrowRow = headerH - 1
+            scrollRenderer.renderUpArrow(at: arrowRow)
+        }
+
+        // ---------------------------------------------------------
+        // LIST ITEMS
+        // Start rendering on the first row immediately after the header.
+        // ---------------------------------------------------------
+        let listStartRow = headerH
+
+        for (offset, index) in (start..<end).enumerated() {
+            let option = state.options[index]
+            let row = listStartRow + offset
+            let isActive = (index == state.activeIndex)
             renderOption(option: option, isActive: isActive, row: row, col: 0, screenWidth: cols)
         }
 
-        let showDown = window.showScrollDown(end: end)
+        // ---------------------------------------------------------
+        // FOOTER (no arrows inside)
+        // ---------------------------------------------------------
+        footerRenderer.renderFooter(instructionText: state.bottomLineText)
 
-        footerRenderer.renderFooter(
-            showScrollDownIndicator: showDown,
-            instructionText: state.bottomLineText
-        )
+        // ---------------------------------------------------------
+        // BOTTOM SCROLL ARROW
+        // Renders on the first footer line (blank spacer).
+        // ---------------------------------------------------------
+        if showDown {
+            let footerStartRow = rows - footerH
+            scrollRenderer.renderDownArrow(at: footerStartRow)
+        }
     }
 
     func renderOption(option: Option<Item>, isActive: Bool, row: Int, col: Int, screenWidth: Int) {
@@ -181,8 +219,8 @@ private extension SelectionHandler {
     }
 }
 
-
 // MARK: - Dependencies
+
 protocol SelectionBehavior {
     associatedtype Item: DisplayablePickerItem
 
@@ -193,27 +231,4 @@ enum SelectionOutcome<Item> {
     case continueLoop
     case finishSingle(Item?)
     case finishMulti([Item])
-}
-
-struct ScrollWindow {
-    let totalItems: Int
-    let displayableCount: Int
-
-    func bounds(activeIndex: Int) -> (start: Int, end: Int) {
-        guard totalItems > 0 else { return (0, 0) }
-
-        let half = displayableCount / 2
-        let start = max(0, activeIndex - half)
-        let end = min(totalItems, start + displayableCount)
-
-        return (start, end)
-    }
-
-    func showScrollUp(start: Int) -> Bool {
-        start > 0
-    }
-
-    func showScrollDown(end: Int) -> Bool {
-        end < totalItems
-    }
 }

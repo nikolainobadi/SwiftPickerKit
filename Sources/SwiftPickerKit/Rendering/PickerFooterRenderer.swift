@@ -5,6 +5,11 @@
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
+//
+//  PickerFooterRenderer.swift
+//  SwiftPickerKit
+//
+
 import ANSITerminal
 
 struct PickerFooterRenderer {
@@ -12,43 +17,43 @@ struct PickerFooterRenderer {
     private let dividerStyle: PickerDividerStyle
 
     /// Height of the footer block (number of rows)
-    /// You can tune this; it stays consistent.
-    private let footerHeight: Int = 3   // arrow / blank / instructions
+    /// Always consistent. Scroll arrows are now handled elsewhere.
+    private let footerHeight: Int = 3   // spacer / divider / instructions
 
     init(pickerInput: PickerInput, dividerStyle: PickerDividerStyle = .single) {
         self.pickerInput = pickerInput
         self.dividerStyle = dividerStyle
     }
 }
- 
-// MARK: - Helpers
-extension PickerFooterRenderer {
-    /// Returns the total number of terminal rows the footer occupies.
-    func height() -> Int {
-        return footerHeight
-    }
-    
-    /// Renders the footer anchored at the bottom of the terminal window.
-    ///
-    /// - Parameters:
-    ///   - showScrollDownIndicator: Whether to show ↓
-    ///   - instructionText: Final instruction line (ex: "Tap 'enter' to select. Type 'q' to quit.")
-    @discardableResult
-    func renderFooter(
-        showScrollDownIndicator: Bool,
-        instructionText: String
-    ) -> Int {
 
+// MARK: - Render
+extension PickerFooterRenderer {
+
+    /// Returns number of rows consumed by footer.
+    func height() -> Int {
+        footerHeight
+    }
+
+    /// Renders footer anchored at bottom of terminal.
+    ///
+    /// Structure:
+    ///     1. Blank spacer line
+    ///     2. Divider line
+    ///     3. Instruction text
+    ///
+    /// Scroll arrows are rendered by ScrollRenderer, not here.
+    @discardableResult
+    func renderFooter(instructionText: String) -> Int {
         let (rows, cols) = pickerInput.readScreenSize()
         let startRow = max(0, rows - footerHeight)
 
         // ===============================================
-        // CLEAR THE FOOTER BLOCK
+        // CLEAR FOOTER BLOCK
         // ===============================================
         pickerInput.moveTo(startRow, 0)
 
         for _ in 0..<footerHeight {
-            pickerInput.write("\u{1B}[2K")  // clear whole line
+            pickerInput.write("\u{1B}[2K") // clear line
             pickerInput.write("\n")
         }
 
@@ -59,26 +64,20 @@ extension PickerFooterRenderer {
 
         var used = 0
 
-        // ↓ Scroll-down indicator
-        if showScrollDownIndicator {
-            pickerInput.write("↓".lightGreen + "\n")
+        // 1. Blank spacer line
+        pickerInput.write("\n")
+        used += 1
+
+        // 2. Divider
+        let divider = dividerStyle.makeLine(width: cols)
+        if !divider.isEmpty {
+            pickerInput.write(divider + "\n")
         } else {
             pickerInput.write("\n")
         }
         used += 1
 
-        // Blank spacer line
-        pickerInput.write("\n")
-        used += 1
-
-        // Divider before instructions (optional — clean look)
-        let divider = dividerStyle.makeLine(width: cols)
-        if !divider.isEmpty {
-            pickerInput.write(divider + "\n")
-            used += 1
-        }
-
-        // Instructions
+        // 3. Instructions
         pickerInput.write(instructionText)
         used += 1
 
