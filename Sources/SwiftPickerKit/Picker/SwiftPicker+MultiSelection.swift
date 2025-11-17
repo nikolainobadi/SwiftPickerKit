@@ -1,11 +1,11 @@
 //
-//  InteractivePicker+MultiSelection.swift
+//  SwiftPicker+MultiSelection.swift
 //  SwiftPickerKit
 //
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-public extension InteractivePicker {
+public extension SwiftPicker {
     func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item]) -> [Item] {
         let outcome = runSelection(
             prompt: prompt,

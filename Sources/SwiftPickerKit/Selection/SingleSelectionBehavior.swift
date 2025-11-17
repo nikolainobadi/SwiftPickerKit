@@ -6,10 +6,13 @@
 //
 
 struct SingleSelectionBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
-    func handleSpecialChar(char: SpecialChar, state: SelectionState<Item>) -> SelectionOutcome<Item> {
+    typealias State = SelectionState<Item>
+
+    func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item> {
         switch char {
         case .enter:
-            let item = state.options.first(where: { $0.line == state.activeLine })?.item
+            let item = state.options[state.activeIndex].item
+
             return .finishSingle(item)
         case .quit:
             return .finishSingle(nil)

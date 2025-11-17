@@ -23,7 +23,10 @@ public enum PickerDividerStyle {
         case .none:
             return ""
         case .custom(let token):
-            guard !token.isEmpty else { return "" }
+            guard !token.isEmpty else {
+                return ""
+            }
+            
             return Array(repeating: token, count: max(1, width / token.count)).joined()
         }
     }

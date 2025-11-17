@@ -5,28 +5,44 @@
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-final class SelectionHandler<Item: DisplayablePickerItem, Behavior: SelectionBehavior> where Behavior.Item == Item {
+final class SelectionHandler<
+    Item: DisplayablePickerItem,
+    Behavior: SelectionBehavior,
+    Renderer: ContentRenderer
+> where
+    Behavior.Item == Item,
+    Renderer.Item == Item,
+    Behavior.State == Renderer.State
+{
     private let behavior: Behavior
     private let pickerInput: PickerInput
-    private let state: SelectionState<Item>
+    private var state: Behavior.State
 
     private let headerRenderer: PickerHeaderRenderer
     private let footerRenderer: PickerFooterRenderer
+    private let scrollRenderer: ScrollRenderer
+    private let contentRenderer: Renderer
 
     private var currentSelectedItem: Item?
-    private var showScrollUp = false
 
-    init(state: SelectionState<Item>, pickerInput: PickerInput, behavior: Behavior) {
+    init(
+        state: Behavior.State,
+        pickerInput: PickerInput,
+        behavior: Behavior,
+        renderer: Renderer
+    ) {
         self.state = state
         self.behavior = behavior
         self.pickerInput = pickerInput
 
         self.headerRenderer = .init(pickerInput: pickerInput)
         self.footerRenderer = .init(pickerInput: pickerInput)
+        self.scrollRenderer = .init(pickerInput: pickerInput)
+        self.contentRenderer = renderer
     }
 }
 
-// MARK: - Input Loop
+// MARK: Input Loop
 extension SelectionHandler {
     func captureUserInput() -> SelectionOutcome<Item> {
         SignalHandler.setupSignalHandlers { [pickerInput] in
@@ -46,14 +62,17 @@ extension SelectionHandler {
 
             if pickerInput.keyPressed() {
                 if let special = pickerInput.readSpecialChar() {
-                    let outcome = behavior.handleSpecialChar(char: special, state: state)
+                    let outcome = behavior.handleSpecialChar(
+                        char: special,
+                        state: state
+                    )
+
                     switch outcome {
                     case .continueLoop:
                         renderFrame()
                         continue
-                    case .finishSingle,
-                         .finishMulti:
-                        return outcome   // FIXED: no second call
+                    case .finishSingle, .finishMulti:
+                        return outcome
                     }
                 }
 
@@ -70,120 +89,116 @@ extension SelectionHandler {
     func handleArrowKeys() {
         guard let dir = pickerInput.readDirectionKey() else { return }
 
-        switch dir {
-        case .up:
-            if state.activeLine > state.rangeOfLines.minimum {
-                state.activeLine -= 1
-                renderFrame()
-            }
-        case .down:
-            state.activeLine += 1
-            renderFrame()
-        case .left, .right:
-            break
-        }
+        // Delegate movement to the behavior so more complex
+        // layouts (two-column, file explorer, etc.) can control it.
+        behavior.handleArrow(direction: dir, state: &state)
+
+        renderFrame()
     }
 }
 
-// MARK: - Rendering
+// MARK: Rendering
 private extension SelectionHandler {
     var footerHeight: Int {
         footerRenderer.height()
     }
 
-    var totalReservedSpace: Int {
-        headerHeight + footerHeight
-    }
-    
+    /// Must mirror PickerHeaderRenderer output.
     var headerHeight: Int {
         var height = 0
-
-        height += 1 // topLineText
+        height += 1 // top line
         height += 1 // divider
-
-        // prompt lines
-        height += state.prompt.split(separator: "\n", omittingEmptySubsequences: false).count
-
-        height += 1 // divider
-        height += 1 // blank line
+        height += state.prompt.split(
+            separator: "\n",
+            omittingEmptySubsequences: false
+        ).count
+        
+        height += 1 // blank after prompt
 
         if currentSelectedItem != nil {
-            height += 3 // divider + line + divider
-            height += 1 // blank
+            height += 3 // divider + Selected + divider
+            height += 1 // blank after selected block
         }
 
-        if showScrollUp {
-            height += 1 // ↑
-        }
-
-        height += 1 // final blank before list
-
+        height += 1 // spacer before list
         return height
     }
 
     func renderFrame() {
         let (rows, cols) = pickerInput.readScreenSize()
 
-        let displayable = rows - totalReservedSpace
-        let start = max(0, state.activeLine - displayable)
-        let end = min(start + displayable, state.options.count)
+        currentSelectedItem = state.options[state.activeIndex].item
 
-        currentSelectedItem = state.options.first { $0.line == state.activeLine }?.item
-        showScrollUp = (start > 0)
+        let headerH = headerHeight
+        let footerH = footerHeight
+        let visibleRows = max(1, rows - headerH - footerH)
+        let engine = ScrollEngine(totalItems: state.options.count, visibleRows: visibleRows)
+        let (start, end) = engine.bounds(activeIndex: state.activeIndex)
+        let showUp = engine.showScrollUp(start: start)
+        let showDown = engine.showScrollDown(end: end)
 
         headerRenderer.renderHeader(
             prompt: state.prompt,
             topLineText: state.topLineText,
             selectedItem: currentSelectedItem,
-            screenWidth: cols,
-            showScrollUpIndicator: showScrollUp
+            screenWidth: cols
         )
 
-        for i in start..<end {
-            let option = state.options[i]
-            let row = i - start + headerHeight
-            let isActive = option.line == state.activeLine
-
-            renderOption(option: option, isActive: isActive, row: row, col: 0, screenWidth: cols)
+        if showUp {
+            let arrowRow = headerH - 1
+            scrollRenderer.renderUpArrow(at: arrowRow)
         }
 
-        let showDown = end < state.options.count
+        let context = ScrollRenderContext(startIndex: start, endIndex: end, listStartRow: headerH, visibleRowCount: visibleRows)
+        let items = state.options.map { $0.item }
 
-        footerRenderer.renderFooter(
-            showScrollDownIndicator: showDown,
-            instructionText: state.bottomLineText
-        )
-    }
+        contentRenderer.render(items: items, state: state, context: context, input: pickerInput, screenWidth: cols)
+        footerRenderer.renderFooter(instructionText: state.bottomLineText)
 
-    func renderOption(option: Option<Item>, isActive: Bool, row: Int, col: Int, screenWidth: Int) {
-        pickerInput.moveTo(row, col)
-        pickerInput.moveRight()
-
-        pickerInput.write(
-            state.showAsSelected(option)
-            ? "●".lightGreen
-            : "○".foreColor(250)
-        )
-
-        pickerInput.moveRight()
-
-        let maxWidth = screenWidth - 4
-        let text = PickerTextFormatter.truncate(option.title, maxWidth: maxWidth)
-
-        pickerInput.write(isActive ? text.underline : text.foreColor(250))
+        if showDown {
+            let footerStartRow = rows - footerH
+            scrollRenderer.renderDownArrow(at: footerStartRow)
+        }
     }
 }
 
 
 // MARK: - Dependencies
-protocol SelectionBehavior {
-    associatedtype Item: DisplayablePickerItem
-
-    func handleSpecialChar(char: SpecialChar, state: SelectionState<Item>) -> SelectionOutcome<Item>
-}
-
 enum SelectionOutcome<Item> {
     case continueLoop
     case finishSingle(Item?)
     case finishMulti([Item])
+}
+
+protocol ContentRenderer {
+    associatedtype State
+    associatedtype Item: DisplayablePickerItem
+
+    func render(items: [Item], state: State, context: ScrollRenderContext, input: PickerInput, screenWidth: Int)
+}
+
+protocol SelectionBehavior {
+    associatedtype Item: DisplayablePickerItem
+    associatedtype State: BaseSelectionState<Item>
+
+    func handleArrow(direction: Direction, state: inout State)
+    func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item>
+}
+
+extension SelectionBehavior {
+    // Default behavior for up/down navigation.
+    func handleArrow(direction: Direction, state: inout State) {
+        switch direction {
+        case .up:
+            if state.activeIndex > 0 {
+                state.activeIndex -= 1
+            }
+        case .down:
+            if state.activeIndex < state.options.count - 1 {
+                state.activeIndex += 1
+            }
+        case .left, .right:
+            break
+        }
+    }
 }

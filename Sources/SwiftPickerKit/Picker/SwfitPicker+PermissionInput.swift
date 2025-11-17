@@ -1,11 +1,11 @@
 //
-//  InteractivePicker+PermissionInput.swift
+//  SwiftPicker+PermissionInput.swift
 //  SwiftPickerKit
 //
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-public extension InteractivePicker {
+public extension SwiftPicker {
     /// Prompts the user for permission with a yes/no question.
     /// - Parameter prompt: The prompt message to display to the user.
     /// - Returns: `true` if the user grants permission, `false` otherwise.

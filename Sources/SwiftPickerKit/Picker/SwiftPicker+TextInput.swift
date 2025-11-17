@@ -1,11 +1,11 @@
 //
-//  InteractivePicker+TextInput.swift
+//  SwiftPicker+TextInput.swift
 //  SwiftPickerKit
 //
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-public extension InteractivePicker {
+public extension SwiftPicker {
     /// Prompts the user for input with the given prompt string.
     /// - Parameter prompt: The prompt message to display to the user.
     /// - Returns: The user's input as a String.

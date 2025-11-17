@@ -2,6 +2,8 @@
 //  PickerHeaderRenderer.swift
 //  SwiftPickerKit
 //
+//  Created by Nikolai Nobadi on 11/16/25.
+//
 
 import ANSITerminal
 
@@ -22,8 +24,7 @@ extension PickerHeaderRenderer {
         prompt: String,
         topLineText: String,
         selectedItem: (any DisplayablePickerItem)?,
-        screenWidth: Int,
-        showScrollUpIndicator: Bool
+        screenWidth: Int
     ) -> Int {
 
         pickerInput.clearScreen()
@@ -60,7 +61,7 @@ extension PickerHeaderRenderer {
         height += writeNewline()
 
         // =========================================================
-        // SELECTED ITEM: caller may move this to footer later
+        // SELECTED ITEM (optional)
         // =========================================================
         if let item = selectedItem {
             height += writeDivider(width: screenWidth)
@@ -70,15 +71,8 @@ extension PickerHeaderRenderer {
         }
 
         // =========================================================
-        // OPTIONAL SCROLL UP INDICATOR
-        // =========================================================
-        if showScrollUpIndicator {
-            pickerInput.write("↑".lightGreen + "\n")
-            height += 1
-        }
-
-        // =========================================================
         // SPACER BEFORE LIST
+        // (arrow rendering is now handled by ScrollRenderer)
         // =========================================================
         height += writeNewline()
 
@@ -91,8 +85,13 @@ private extension PickerHeaderRenderer {
     @discardableResult
     func writeDivider(width: Int) -> Int {
         let line = dividerStyle.makeLine(width: width)
-        guard !line.isEmpty else { return 0 }
+        
+        guard !line.isEmpty else {
+            return 0
+        }
+        
         pickerInput.write(line + "\n")
+        
         return 1
     }
 
@@ -100,12 +99,14 @@ private extension PickerHeaderRenderer {
     func writeCentered(_ text: String, width: Int) -> Int {
         pickerInput.write(PickerTextFormatter.centerText(text, inWidth: width))
         pickerInput.write("\n")
+        
         return 1
     }
 
     @discardableResult
     func writeNewline() -> Int {
         pickerInput.write("\n")
+        
         return 1
     }
 }
