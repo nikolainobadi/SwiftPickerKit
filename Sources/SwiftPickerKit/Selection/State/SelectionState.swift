@@ -9,11 +9,8 @@ final class SelectionState<Item: DisplayablePickerItem> {
     let prompt: String
     let isSingleSelection: Bool
 
-    // Model
     var options: [Option<Item>]
     var activeIndex: Int = 0
-
-    // Header state
     var selectedItemForHeader: Item?
     var isShowingScrollUpIndicator = false
 
@@ -24,16 +21,10 @@ final class SelectionState<Item: DisplayablePickerItem> {
     }
 }
 
-// MARK: - BaseSelectionState Conformance
-extension SelectionState: BaseSelectionState { }
-
-extension SelectionState {
-    var selectedOptions: [Option<Item>] {
-        options.filter { $0.isSelected }
-    }
-
+// MARK: - BaseSelectionState
+extension SelectionState: BaseSelectionState {
     var topLineText: String {
-        "InteractivePicker (\(isSingleSelection ? "single" : "multi")-selection)"
+        return "InteractivePicker (\(isSingleSelection ? "single" : "multi")-selection)"
     }
 
     var bottomLineText: String {
@@ -45,18 +36,27 @@ extension SelectionState {
     }
 
     func toggleSelection(at index: Int) {
-        guard options.indices.contains(index) else { return }
+        guard options.indices.contains(index) else {
+            return
+        }
+        
         options[index].isSelected.toggle()
+    }
+}
+
+// MARK: - Selection Helpers
+extension SelectionState {
+    var selectedOptions: [Option<Item>] {
+        options.filter { $0.isSelected }
     }
 
     func showAsSelected(_ option: Option<Item>) -> Bool {
         if isSingleSelection {
-            return false // single selection only highlights activeIndex
+            return false
         }
         return option.isSelected
     }
 }
-
 
 // MARK: - Dependencies
 struct Option<Item: DisplayablePickerItem> {
