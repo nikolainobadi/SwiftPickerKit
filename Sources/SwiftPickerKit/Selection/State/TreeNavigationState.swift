@@ -5,23 +5,21 @@
 //  Created by Nikolai Nobadi on 11/17/25.
 //
 
-final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
-    struct Level {
-        var items: [Item]
-        var activeIndex: Int
-    }
-
+final class TreeNavigationState<Item: TreeNodePickerItem> {
     private(set) var levels: [Level]
-    private var emptyFolderIndicator: (level: Int, index: Int)?
     private var emptyFolderMessage: String?
+    private var emptyFolderIndicator: (level: Int, index: Int)?
+    
     let prompt: String
 
     init(rootItems: [Item], prompt: String) {
-        self.levels = [Level(items: rootItems, activeIndex: 0)]
         self.prompt = prompt
+        self.levels = [.init(items: rootItems, activeIndex: 0)]
     }
+}
 
-    // BaseSelectionState
+// MARK: - BaseSelectionState
+extension TreeNavigationState: BaseSelectionState {
     var options: [Option<Item>] {
         currentItems.map { Option(item: $0) }
     }
@@ -29,10 +27,14 @@ final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
     var activeIndex: Int {
         get { currentLevel.activeIndex }
         set {
-            guard !levels.isEmpty else { return }
+            guard !levels.isEmpty else {
+                return
+            }
+            
             if currentLevel.activeIndex != newValue {
                 clearEmptyFolderHint()
             }
+            
             levels[levels.count - 1].activeIndex = newValue
             clampCurrentLevel()
         }
@@ -42,7 +44,7 @@ final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
 
     var bottomLineText: String {
         // TODO: - these need to be modified for clarity
-        return "Arrows: Up/Down highlight, Right enters, Left goes up, Enter selects"
+        "Arrows: Up/Down highlight, Right enters, Left goes up, Enter selects"
     }
 
     var selectedDetailLines: [String] {
@@ -61,27 +63,21 @@ final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
 
         return lines
     }
-
-    func toggleSelection(at index: Int) {}
 }
 
+// MARK: - Helpers
 extension TreeNavigationState {
-    private var currentLevel: Level {
-        levels.last ?? Level(items: [], activeIndex: 0)
-    }
-
     var currentItems: [Item] {
-        levels.last?.items ?? []
-    }
-
-    var currentSelectedItem: Item? {
-        guard currentItems.indices.contains(activeIndex) else { return nil }
-        return currentItems[activeIndex]
+        return levels.last?.items ?? []
     }
 
     var parentLevelInfo: (index: Int, level: Level)? {
-        guard levels.count > 1 else { return nil }
+        guard levels.count > 1 else {
+            return nil
+        }
+        
         let index = levels.count - 2
+        
         return (index, levels[index])
     }
 
@@ -89,7 +85,9 @@ extension TreeNavigationState {
         guard !levels.isEmpty else {
             return (0, Level(items: [], activeIndex: 0))
         }
+        
         let index = levels.count - 1
+        
         return (index, levels[index])
     }
 
@@ -97,8 +95,73 @@ extension TreeNavigationState {
         clampCurrentLevel()
     }
 
-    private func clampCurrentLevel() {
-        guard !levels.isEmpty else { return }
+    func descendIntoChildIfPossible() {
+        guard let selected = currentSelectedItem, selected.hasChildren else {
+            return
+        }
+        
+        let depth = currentLevelInfo.index
+        let children = selected.loadChildren()
+        
+        guard !children.isEmpty else {
+            emptyFolderIndicator = (level: depth, index: activeIndex)
+            emptyFolderMessage = "'\(selected.displayName)' is empty"
+            return
+        }
+
+        levels.append(.init(items: children, activeIndex: 0))
+        clearEmptyFolderHint()
+    }
+
+    func ascendToParent() {
+        guard levels.count > 1 else {
+            return
+        }
+        
+        levels.removeLast()
+        clearEmptyFolderHint()
+    }
+
+    func breadcrumbPath() -> String {
+        let names: [String] = levels.compactMap { level in
+            guard level.items.indices.contains(level.activeIndex) else {
+                return nil
+            }
+            
+            return level.items[level.activeIndex].displayName
+        }
+
+        return names.joined(separator: " ▸ ")
+    }
+
+    func isEmptyHint(level levelIndex: Int, index: Int) -> Bool {
+        guard let hint = emptyFolderIndicator else {
+            return false
+        }
+        
+        return hint.level == levelIndex && hint.index == index
+    }
+}
+
+// MARK: - Private Helpers
+private extension TreeNavigationState {
+    var currentLevel: Level {
+        return levels.last ?? Level(items: [], activeIndex: 0)
+    }
+
+    var currentSelectedItem: Item? {
+        guard currentItems.indices.contains(activeIndex) else {
+            return nil
+        }
+        
+        return currentItems[activeIndex]
+    }
+
+    func clampCurrentLevel() {
+        guard !levels.isEmpty else {
+            return
+        }
+        
         var level = levels[levels.count - 1]
 
         if level.items.isEmpty {
@@ -112,42 +175,17 @@ extension TreeNavigationState {
         levels[levels.count - 1] = level
     }
 
-    func descendIntoChildIfPossible() {
-        guard let selected = currentSelectedItem, selected.hasChildren else { return }
-        let depth = currentLevelInfo.index
-        let children = selected.loadChildren()
-        guard !children.isEmpty else {
-            emptyFolderIndicator = (level: depth, index: activeIndex)
-            emptyFolderMessage = "'\(selected.displayName)' is empty"
-            return
-        }
-
-        levels.append(Level(items: children, activeIndex: 0))
-        clearEmptyFolderHint()
-    }
-
-    func ascendToParent() {
-        guard levels.count > 1 else { return }
-        levels.removeLast()
-        clearEmptyFolderHint()
-    }
-
-    func breadcrumbPath() -> String {
-        let names: [String] = levels.compactMap { level in
-            guard level.items.indices.contains(level.activeIndex) else { return nil }
-            return level.items[level.activeIndex].displayName
-        }
-
-        return names.joined(separator: " ▸ ")
-    }
-
-    func isEmptyHint(level levelIndex: Int, index: Int) -> Bool {
-        guard let hint = emptyFolderIndicator else { return false }
-        return hint.level == levelIndex && hint.index == index
-    }
-
-    private func clearEmptyFolderHint() {
+    func clearEmptyFolderHint() {
         emptyFolderIndicator = nil
         emptyFolderMessage = nil
+    }
+}
+
+
+// MARK: - Dependencies
+extension TreeNavigationState {
+    struct Level {
+        var items: [Item]
+        var activeIndex: Int
     }
 }

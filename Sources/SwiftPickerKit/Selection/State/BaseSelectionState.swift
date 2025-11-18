@@ -22,4 +22,6 @@ protocol BaseSelectionState<Item> {
 
 extension BaseSelectionState {
     var selectedDetailLines: [String] { [] }
+    
+    func toggleSelection(at index: Int) { }
 }
