@@ -41,7 +41,8 @@ final class TreeNavigationState<Item: TreeNodePickerItem>: BaseSelectionState {
     var topLineText: String { "Tree Navigation" }
 
     var bottomLineText: String {
-        "Arrows: Up/Down highlight, Right enters, Left goes up, Enter selects"
+        // TODO: - these need to be modified for clarity
+        return "Arrows: Up/Down highlight, Right enters, Left goes up, Enter selects"
     }
 
     var selectedDetailLines: [String] {
