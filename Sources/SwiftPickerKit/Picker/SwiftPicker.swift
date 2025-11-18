@@ -5,7 +5,7 @@
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-public struct SwiftPicker {
+public struct SwiftPicker: CommandLinePicker {
     let textInput: TextInput
     let pickerInput: PickerInput
     
