@@ -24,6 +24,8 @@ public protocol CommandLineTreeNavigation {
     ) throws -> Item
 }
 
+
+// MARK: - CommandLineTreeNavigation Convenience
 public extension CommandLineTreeNavigation {
     func treeNavigation<Item: TreeNodePickerItem>(
         _ prompt: String,

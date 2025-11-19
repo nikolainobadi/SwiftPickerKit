@@ -12,6 +12,8 @@ public protocol CommandLineSelection {
     func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool) -> [Item]
 }
 
+
+// MARK: - CommandLineSelection Convenience
 public extension CommandLineSelection {
     func singleSelection<Item: DisplayablePickerItem>(_ prompt: String, items: [Item], layout: PickerLayout<Item> = .singleColumn, newScreen: Bool = true) -> Item? {
         return singleSelection(prompt: prompt, items: items, layout: layout, newScreen: newScreen)

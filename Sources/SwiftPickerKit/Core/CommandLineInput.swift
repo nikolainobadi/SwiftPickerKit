@@ -14,6 +14,8 @@ public protocol CommandLineInput {
     func getRequiredInput(prompt: String) throws -> String
 }
 
+
+// MARK: - CommandLineInput Convenience
 public extension CommandLineInput {
     func getInput(_ prompt: String) -> String {
         return getInput(prompt: prompt)
