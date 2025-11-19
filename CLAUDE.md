@@ -107,7 +107,7 @@ Quick reference (see guide for full details):
 - Tests mirror production structure (e.g., `Tests/SwiftPickerKitTests/Selection/`)
 - Use `SwiftPickerTesting.MockSwiftPicker` for testing without terminal I/O
 - Follow behavior-driven test naming from the guide
-- Use `makeSUT` pattern with proper memory leak tracking
+- Use `makeSUT` pattern (memory leak tracking NOT required for this project)
 - Target coverage on selection flows and renderer trimming
 
 ## Terminal & ANSITerminal
@@ -131,6 +131,6 @@ Quick reference (see guide for full details):
 
 - Behavior-driven unit tests (Swift Testing preferred)
 - Use `makeSUT` pattern for test organization
-- Track memory leaks with `trackForMemoryLeaks`
+- Memory leak tracking NOT required for this project
 - Type-safe assertions (`#expect`, `#require`)
 - Use `waitUntil` for async/reactive testing

@@ -9,8 +9,14 @@ import Testing
 @testable import SwiftPickerKit
 
 struct SwiftPickerCommandLineInputTests {
-    @Test("CommandLineInput getInput returns text input response")
-    func commandLineInputGetInputReturnsTextInputResponse() {
+    @Test("Starting values empty")
+    func emptyStartingValues() {
+        let (_, textInput) = makeSUT(responses: [])
+        #expect(textInput.capturedPrompts.isEmpty)
+    }
+
+    @Test("Returns text response when prompted for input")
+    func returnsTextResponseWhenPromptedForInput() {
         let prompt = "Enter project name"
         let expectedResponse = "SwiftPicker"
         let (sut, textInput) = makeSUT(responses: [expectedResponse])
@@ -22,8 +28,8 @@ struct SwiftPickerCommandLineInputTests {
         #expect(textInput.capturedPrompts == [prompt])
     }
 
-    @Test("CommandLineInput getRequiredInput returns non-empty response")
-    func commandLineInputGetRequiredInputReturnsNonEmptyResponse() throws {
+    @Test("Provides non-empty text when input is required")
+    func providesNonEmptyTextWhenInputIsRequired() throws {
         let expectedResponse = "value"
         let (sut, _) = makeSUT(responses: [expectedResponse])
         let commandLineInput: CommandLineInput = sut
@@ -33,8 +39,8 @@ struct SwiftPickerCommandLineInputTests {
         #expect(result == expectedResponse)
     }
 
-    @Test("CommandLineInput getRequiredInput throws when response is empty")
-    func commandLineInputGetRequiredInputThrowsWhenResponseIsEmpty() {
+    @Test("Throws error when required input is empty")
+    func throwsErrorWhenRequiredInputIsEmpty() {
         let (sut, _) = makeSUT(responses: [""])
         let commandLineInput: CommandLineInput = sut
 
