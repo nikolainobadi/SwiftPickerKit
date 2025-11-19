@@ -13,3 +13,13 @@ public protocol CommandLineInput {
     /// Prompts the user for input with the given prompt string and requires input.
     func getRequiredInput(prompt: String) throws -> String
 }
+
+public extension CommandLineInput {
+    func getInput(_ prompt: String) -> String {
+        return getInput(prompt: prompt)
+    }
+
+    func getRequiredInput(_ prompt: String) throws -> String {
+        return try getRequiredInput(prompt: prompt)
+    }
+}

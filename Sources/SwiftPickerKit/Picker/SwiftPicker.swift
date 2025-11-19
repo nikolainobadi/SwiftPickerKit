@@ -5,7 +5,7 @@
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-public struct SwiftPicker: CommandLinePicker {
+public struct SwiftPicker {
     let textInput: TextInput
     let pickerInput: PickerInput
     
@@ -20,42 +20,6 @@ public struct SwiftPicker: CommandLinePicker {
 public extension SwiftPicker {
     init() {
         self.init(textInput: DefaultTextInput(), pickerInput: DefaultPickerInput())
-    }
-}
-
-
-// MARK: - High-Level API
-public extension SwiftPicker {
-    func singleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], newScreen: Bool = true) -> Item? {
-        let behavior = SingleSelectionBehavior<Item>()
-        let outcome = runSelection(prompt: prompt, items: items, behavior: behavior, isSingle: true, newScreen: newScreen)
-        
-        switch outcome {
-        case .finishSingle(let item):
-            return item
-        default:
-            return nil
-        }
-    }
-
-    func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], newScreen: Bool = true) throws -> Item {
-        guard let value = singleSelection(prompt: prompt, items: items, newScreen: newScreen) else {
-            throw SwiftPickerError.selectionCancelled
-        }
-        
-        return value
-    }
-
-    func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], newScreen: Bool = true) -> [Item] {
-        let behavior = MultiSelectionBehavior<Item>()
-        let outcome = runSelection(prompt: prompt, items: items, behavior: behavior, isSingle: false, newScreen: newScreen)
-        
-        switch outcome {
-        case .finishMulti(let items):
-            return items
-        default:
-            return []
-        }
     }
 }
 
