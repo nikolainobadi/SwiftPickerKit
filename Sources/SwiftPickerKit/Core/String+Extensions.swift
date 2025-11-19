@@ -6,40 +6,44 @@
 //
 
 extension String {
-
     /// Wraps a full multiline string into lines that fit a given width,
     /// preserving blank lines and paragraph breaks.
     func wrapToWidth(maxWidth: Int) -> [String] {
-        self
-            .split(separator: "\n", omittingEmptySubsequences: false)
+        split(separator: "\n", omittingEmptySubsequences: false)
             .flatMap { line in
-                if line.trimmingCharacters(in: .whitespaces).isEmpty {
-                    return [""] // preserve blank line
+                guard !line.trimmingCharacters(in: .whitespaces).isEmpty else {
+                    return [""]
                 }
+
                 return line.wrapOneLine(maxWidth: maxWidth)
             }
     }
 }
 
-private extension Substring {
 
+// MARK: - Substring Helpers
+private extension Substring {
     /// Wraps a single line (no newlines) into visual rows.
     func wrapOneLine(maxWidth: Int) -> [String] {
         guard maxWidth > 2 else { return [String(self)] }
 
-        let words = self.split(separator: " ")
+        let words = split(separator: " ")
         var lines: [String] = []
         var current = ""
 
         for word in words {
             if current.isEmpty {
                 current = String(word)
-            } else if current.count + 1 + word.count <= maxWidth {
-                current += " \(word)"
-            } else {
-                lines.append(current)
-                current = String(word)
+                continue
             }
+
+            if current.count + 1 + word.count <= maxWidth {
+                current += " \(word)"
+                continue
+            }
+
+            lines.append(current)
+            current = String(word)
         }
 
         if !current.isEmpty {
