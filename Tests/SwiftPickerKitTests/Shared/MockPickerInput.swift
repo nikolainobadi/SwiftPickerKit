@@ -22,6 +22,7 @@ final class MockPickerInput: PickerInput {
     private(set) var didExitAlternativeScreen = false
     private(set) var didEnableNormalInput = false
     private(set) var writtenText: [String] = []
+    private(set) var moveToCalls: [(row: Int, col: Int)] = []
 
     private let screenSize: (rows: Int, cols: Int)
 
@@ -71,7 +72,9 @@ extension MockPickerInput {
         didEnterAlternativeScreen = true
     }
 
-    func moveTo(_ row: Int, _ col: Int) {}
+    func moveTo(_ row: Int, _ col: Int) {
+        moveToCalls.append((row, col))
+    }
 
     func readDirectionKey() -> Direction? {
         guard let next = events.first else { return nil }

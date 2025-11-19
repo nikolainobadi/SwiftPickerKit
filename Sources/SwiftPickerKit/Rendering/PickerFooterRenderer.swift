@@ -5,11 +5,6 @@
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-//
-//  PickerFooterRenderer.swift
-//  SwiftPickerKit
-//
-
 import ANSITerminal
 
 struct PickerFooterRenderer {
@@ -18,7 +13,7 @@ struct PickerFooterRenderer {
 
     /// Height of the footer block (number of rows)
     /// Always consistent. Scroll arrows are now handled elsewhere.
-    private let footerHeight: Int = 3   // spacer / divider / instructions
+    private let footerHeight: Int = 3 // spacer / divider / instructions
 
     init(pickerInput: PickerInput, dividerStyle: PickerDividerStyle = .single) {
         self.pickerInput = pickerInput
@@ -27,8 +22,8 @@ struct PickerFooterRenderer {
 }
 
 // MARK: - Render
-extension PickerFooterRenderer {
 
+extension PickerFooterRenderer {
     /// Returns number of rows consumed by footer.
     func height() -> Int {
         footerHeight
@@ -52,7 +47,7 @@ extension PickerFooterRenderer {
         // ===============================================
         pickerInput.moveTo(startRow, 0)
 
-        for _ in 0..<footerHeight {
+        for _ in 0 ..< footerHeight {
             pickerInput.write("\u{1B}[2K") // clear line
             pickerInput.write("\n")
         }
