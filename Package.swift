@@ -32,7 +32,10 @@ let package = Package(
         ),
         .testTarget(
             name: "SwiftPickerKitTests",
-            dependencies: ["SwiftPickerKit"]
+            dependencies: [
+                "SwiftPickerKit",
+                "SwiftPickerTesting"
+            ]
         ),
     ]
 )
