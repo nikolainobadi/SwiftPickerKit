@@ -35,5 +35,5 @@ The picker relies on `ANSITerminal` escape sequences; always leave the screen cl
 - Use `waitUntil` for async/reactive testing
 
 ## Imports
-@~/.config/sharedAIConfig/guidelines/shared-formatting.md
-@~/.config/sharedAIConfig/guidelines/iOS_Unit_Testing_Guide.md
+@~/.codex/guidelines/shared-formatting-codex.md
+@~/.codex/guidelines/ios_unit_testing_codex_instructions.md
