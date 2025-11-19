@@ -74,6 +74,63 @@ extension MockSwiftPickerTests {
 }
 
 
+// MARK: - Permission Tests
+extension MockSwiftPickerTests {
+    @Test("Starts with empty permission prompt history")
+    func startsWithEmptyPermissionPromptHistory() {
+        let sut = makeSUT()
+
+        #expect(sut.capturedPermissionPrompts.isEmpty)
+    }
+
+    @Test("Records permission prompts in order")
+    func recordsPermissionPromptsInOrder() {
+        let prompts = ["Delete?", "Retry?"]
+        let sut = makeSUT(permissionResult: .init(type: .ordered([true, false])))
+
+        _ = sut.getPermission(prompt: prompts[0])
+        _ = sut.getPermission(prompt: prompts[1])
+
+        #expect(sut.capturedPermissionPrompts == prompts)
+    }
+
+    @Test("Returns configured permission responses sequentially")
+    func returnsConfiguredPermissionResponsesSequentially() {
+        let responses: [Bool] = [true, false, true]
+        let sut = makeSUT(permissionResult: .init(type: .ordered(responses)))
+
+        #expect(sut.getPermission(prompt: "one") == responses[0])
+        #expect(sut.getPermission(prompt: "two") == responses[1])
+        #expect(sut.getPermission(prompt: "three") == responses[2])
+    }
+
+    @Test("Returns prompt specific permission responses from dictionary")
+    func returnsPromptSpecificPermissionResponsesFromDictionary() {
+        let mapping = ["allow?": true, "deny?": false]
+        let sut = makeSUT(permissionResult: .init(type: .dictionary(mapping)))
+
+        #expect(sut.getPermission(prompt: "allow?") == true)
+        #expect(sut.getPermission(prompt: "deny?") == false)
+    }
+
+    @Test("requiredPermission throws when response is false")
+    func requiredPermissionThrowsWhenResponseIsFalse() {
+        let sut = makeSUT(permissionResult: .init(type: .ordered([false])))
+
+        #expect(throws: SwiftPickerError.self) {
+            try sut.requiredPermission(prompt: "allow?")
+        }
+    }
+
+    @Test("requiredPermission continues when response is true")
+    func requiredPermissionContinuesWhenResponseIsTrue() throws {
+        let sut = makeSUT(permissionResult: .init(type: .ordered([true])))
+
+        try sut.requiredPermission(prompt: "allow?")
+    }
+}
+
+
 // MARK: - Input Response Tests
 extension MockSwiftPickerTests {
     @Test("Returns configured sequential responses")
@@ -176,7 +233,10 @@ extension MockSwiftPickerTests {
 
 // MARK: - SUT
 private extension MockSwiftPickerTests {
-    func makeSUT(inputResult: MockInputResult = .init()) -> MockSwiftPicker {
-        return .init(inputResult: inputResult)
+    func makeSUT(
+        inputResult: MockInputResult = .init(),
+        permissionResult: MockPermissionResult = .init()
+    ) -> MockSwiftPicker {
+        return .init(inputResult: inputResult, permissionResult: permissionResult)
     }
 }
