@@ -13,6 +13,7 @@ public final class MockSwiftPicker {
     private var inputResult: MockInputResult
     private var permissionResult: MockPermissionResult
     private var selectionResult: MockSelectionResult
+    private var treeNavigationResult: MockTreeNavigationResult
 
     /// Captured prompts provide a simple way for tests to assert which strings were displayed.
     public private(set) var capturedPrompts: [String] = []
@@ -22,15 +23,19 @@ public final class MockSwiftPicker {
     public private(set) var capturedSingleSelectionPrompts: [String] = []
     /// Captured multi selection prompts mirror the picker request text.
     public private(set) var capturedMultiSelectionPrompts: [String] = []
+    /// Captured tree navigation prompts mirror the hierarchical picker requests.
+    public private(set) var capturedTreeNavigationPrompts: [String] = []
 
     public init(
         inputResult: MockInputResult = .init(),
         permissionResult: MockPermissionResult = .init(),
-        selectionResult: MockSelectionResult = .init()
+        selectionResult: MockSelectionResult = .init(),
+        treeNavigationResult: MockTreeNavigationResult = .init()
     ) {
         self.inputResult = inputResult
         self.permissionResult = permissionResult
         self.selectionResult = selectionResult
+        self.treeNavigationResult = treeNavigationResult
     }
 }
 
@@ -99,5 +104,46 @@ extension MockSwiftPicker: CommandLineSelection {
             }
             return items[index]
         }
+    }
+}
+
+
+// MARK: - CommandLineTreeNavigation
+extension MockSwiftPicker: CommandLineTreeNavigation {
+    public func treeNavigation<Item: TreeNodePickerItem>(
+        prompt: String,
+        rootItems: [Item],
+        allowSelectingFolders: Bool,
+        startInsideFirstRoot: Bool,
+        newScreen: Bool
+    ) -> Item? {
+        capturedTreeNavigationPrompts.append(prompt)
+        let response = treeNavigationResult.nextOutcome(for: prompt)
+
+        guard let index = response.selectedRootIndex, rootItems.indices.contains(index) else {
+            return nil
+        }
+
+        return rootItems[index]
+    }
+
+    public func requiredTreeNavigation<Item: TreeNodePickerItem>(
+        prompt: String,
+        rootItems: [Item],
+        allowSelectingFolders: Bool,
+        startInsideFirstRoot: Bool,
+        newScreen: Bool
+    ) throws -> Item {
+        guard let value = treeNavigation(
+            prompt: prompt,
+            rootItems: rootItems,
+            allowSelectingFolders: allowSelectingFolders,
+            startInsideFirstRoot: startInsideFirstRoot,
+            newScreen: newScreen
+        ) else {
+            throw SwiftPickerError.selectionCancelled
+        }
+
+        return value
     }
 }

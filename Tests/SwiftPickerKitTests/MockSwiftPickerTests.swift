@@ -324,17 +324,132 @@ extension MockSwiftPickerTests {
 }
 
 
+// MARK: - Tree Navigation Tests
+extension MockSwiftPickerTests {
+    @Test("Starts with empty tree navigation history")
+    func startsWithEmptyTreeNavigationHistory() {
+        let sut = makeSUT()
+
+        #expect(sut.capturedTreeNavigationPrompts.isEmpty)
+    }
+
+    @Test("Records tree navigation prompts in order")
+    func recordsTreeNavigationPromptsInOrder() {
+        let prompts = ["Choose folder", "Choose project"]
+        let sut = makeSUT(treeNavigationResult: .init(type: .ordered([.index(0), .index(0)])))
+
+        _ = sut.treeNavigation(
+            prompt: prompts[0],
+            rootItems: makeTreeNodes(["first"]),
+            allowSelectingFolders: true,
+            startInsideFirstRoot: false,
+            newScreen: false
+        )
+
+        _ = sut.treeNavigation(
+            prompt: prompts[1],
+            rootItems: makeTreeNodes(["second"]),
+            allowSelectingFolders: true,
+            startInsideFirstRoot: false,
+            newScreen: false
+        )
+
+        #expect(sut.capturedTreeNavigationPrompts == prompts)
+    }
+
+    @Test("Returns tree navigation items using configured indexes")
+    func returnsTreeNavigationItemsUsingConfiguredIndexes() {
+        let nodes = makeTreeNodes(["first", "second"])
+        let sut = makeSUT(treeNavigationResult: .init(type: .ordered([.index(1)])))
+
+        let result = sut.treeNavigation(
+            prompt: "Pick folder",
+            rootItems: nodes,
+            allowSelectingFolders: true,
+            startInsideFirstRoot: false,
+            newScreen: false
+        )
+
+        #expect(result == nodes[1])
+    }
+
+    @Test("Returns nil when tree navigation outcome is missing")
+    func returnsNilWhenTreeNavigationOutcomeIsMissing() {
+        let sut = makeSUT(treeNavigationResult: .init(type: .ordered([.none])))
+
+        let result = sut.treeNavigation(
+            prompt: "Pick folder",
+            rootItems: makeTreeNodes(["only"]),
+            allowSelectingFolders: true,
+            startInsideFirstRoot: false,
+            newScreen: false
+        )
+
+        #expect(result == nil)
+    }
+
+    @Test("requiredTreeNavigation throws when selection missing")
+    func requiredTreeNavigationThrowsWhenSelectionMissing() {
+        let sut = makeSUT(treeNavigationResult: .init(type: .ordered([.none])))
+
+        #expect(throws: SwiftPickerError.self) {
+            try sut.requiredTreeNavigation(
+                prompt: "Pick folder",
+                rootItems: makeTreeNodes(["only"]),
+                allowSelectingFolders: true,
+                startInsideFirstRoot: false,
+                newScreen: false
+            )
+        }
+    }
+
+    @Test("requiredTreeNavigation returns item when index maps")
+    func requiredTreeNavigationReturnsItemWhenIndexMaps() throws {
+        let nodes = makeTreeNodes(["first", "second"])
+        let sut = makeSUT(treeNavigationResult: .init(type: .ordered([.index(1)])))
+
+        let result = try sut.requiredTreeNavigation(
+            prompt: "Pick folder",
+            rootItems: nodes,
+            allowSelectingFolders: true,
+            startInsideFirstRoot: false,
+            newScreen: false
+        )
+
+        #expect(result == nodes[1])
+    }
+}
+
+
 // MARK: - SUT
 private extension MockSwiftPickerTests {
     func makeSUT(
         inputResult: MockInputResult = .init(),
         permissionResult: MockPermissionResult = .init(),
-        selectionResult: MockSelectionResult = .init()
+        selectionResult: MockSelectionResult = .init(),
+        treeNavigationResult: MockTreeNavigationResult = .init()
     ) -> MockSwiftPicker {
         return .init(
             inputResult: inputResult,
             permissionResult: permissionResult,
-            selectionResult: selectionResult
+            selectionResult: selectionResult,
+            treeNavigationResult: treeNavigationResult
         )
     }
+
+    func makeTreeNodes(_ names: [String]) -> [MockTreeNode] {
+        return names.map { MockTreeNode(name: $0) }
+    }
+}
+
+
+// MARK: - Helpers
+private struct MockTreeNode: TreeNodePickerItem, Equatable {
+    let name: String
+    var children: [MockTreeNode] = []
+
+    var displayName: String { name }
+    var hasChildren: Bool { !children.isEmpty }
+    func loadChildren() -> [MockTreeNode] { children }
+    var metadata: TreeNodeMetadata? { nil }
 }
