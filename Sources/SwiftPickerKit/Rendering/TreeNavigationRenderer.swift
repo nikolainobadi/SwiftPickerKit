@@ -12,7 +12,7 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         items: [Item],
         state: State,
         context: ScrollRenderContext,
-        input: PickerInput,
+        input: any PickerInput,
         screenWidth: Int
     ) {
         var row = context.listStartRow

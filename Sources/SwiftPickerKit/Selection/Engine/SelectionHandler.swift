@@ -181,7 +181,7 @@ protocol ContentRenderer {
     associatedtype State
     associatedtype Item: DisplayablePickerItem
 
-    func render(items: [Item], state: State, context: ScrollRenderContext, input: PickerInput, screenWidth: Int)
+    func render(items: [Item], state: State, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int)
 }
 
 protocol SelectionBehavior {
