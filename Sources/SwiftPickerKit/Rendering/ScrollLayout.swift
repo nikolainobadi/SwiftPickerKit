@@ -11,6 +11,6 @@ struct ScrollLayout {
     let footerHeight: Int
     
     var availableListRows: Int {
-        rows - headerHeight - footerHeight
+        return rows - headerHeight - footerHeight
     }
 }
