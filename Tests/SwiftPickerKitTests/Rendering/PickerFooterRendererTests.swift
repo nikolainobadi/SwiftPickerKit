@@ -9,18 +9,24 @@ import Testing
 @testable import SwiftPickerKit
 
 struct PickerFooterRendererTests {
-    @Test("height always returns footer block size")
-    func heightAlwaysReturnsFooterBlockSize() {
-        let sut = PickerFooterRenderer(pickerInput: MockPickerInput())
+    @Test("Starting values empty")
+    func emptyStartingValues() {
+        let (_, pickerInput) = makeSUT()
+        #expect(pickerInput.writtenText.isEmpty)
+        #expect(pickerInput.moveToCalls.isEmpty)
+    }
+
+    @Test("Reserves three rows for footer display")
+    func reservesThreeRowsForFooterDisplay() {
+        let (sut, _) = makeSUT()
 
         #expect(sut.height() == 3)
     }
 
-    @Test("renderFooter clears block and writes spacer divider and instructions")
-    func renderFooterClearsAndWritesFooterContent() {
+    @Test("Displays divider and instruction text in footer area")
+    func displaysDividerAndInstructionTextInFooterArea() {
         let instructionText = "Use arrows • Enter to confirm"
-        let pickerInput = MockPickerInput(screenSize: (rows: 20, cols: 8))
-        let sut = PickerFooterRenderer(pickerInput: pickerInput, dividerStyle: .double)
+        let (sut, pickerInput) = makeSUT(screenSize: (rows: 20, cols: 8), dividerStyle: .double)
 
         let used = sut.renderFooter(instructionText: instructionText)
 
@@ -34,11 +40,10 @@ struct PickerFooterRendererTests {
         #expect(trailingWrites[2] == instructionText)
     }
 
-    @Test("renderFooter falls back to newline when divider style is none")
-    func renderFooterFallsBackToNewlineWhenDividerStyleIsNone() {
-        let pickerInput = MockPickerInput(screenSize: (rows: 15, cols: 5))
-        let sut = PickerFooterRenderer(pickerInput: pickerInput, dividerStyle: .none)
+    @Test("Omits divider when style is set to none")
+    func omitsDividerWhenStyleIsSetToNone() {
         let instructions = "Confirm?"
+        let (sut, pickerInput) = makeSUT(screenSize: (rows: 15, cols: 5), dividerStyle: .none)
 
         _ = sut.renderFooter(instructionText: instructions)
 
@@ -48,5 +53,18 @@ struct PickerFooterRendererTests {
         let trailingWrites = Array(pickerInput.writtenText.suffix(2))
         #expect(trailingWrites[0] == "\n")
         #expect(trailingWrites[1] == instructions)
+    }
+}
+
+
+// MARK: - Helpers
+private extension PickerFooterRendererTests {
+    func makeSUT(
+        screenSize: (rows: Int, cols: Int) = (40, 100),
+        dividerStyle: PickerDividerStyle = .single
+    ) -> (PickerFooterRenderer, MockPickerInput) {
+        let pickerInput = MockPickerInput(screenSize: screenSize)
+        let sut = PickerFooterRenderer(pickerInput: pickerInput, dividerStyle: dividerStyle)
+        return (sut, pickerInput)
     }
 }
