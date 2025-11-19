@@ -3,8 +3,8 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Required Guidelines (MUST READ)
-@~/.config/sharedAIConfig/guidelines/shared-formatting.md
-@~/.config/sharedAIConfig/guidelines/iOS_Unit_Testing_Guide.md
+@~/.claude/guidelines/shared-formatting-claude.md
+@~/.claude/guidelines/ios_unit_testing_claude_instructions.md
 
 **CRITICAL: These are not optional suggestions - they are mandatory requirements.**
 
