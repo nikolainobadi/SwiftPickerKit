@@ -65,28 +65,9 @@ private final class StubTextInput: TextInput {
     }
 }
 
-private struct NoOpPickerInput: PickerInput {
-    func cursorOff() {}
-    func moveRight() {}
-    func moveToHome() {}
-    func clearBuffer() {}
-    func clearScreen() {}
-    func enableNormalInput() {}
-    func keyPressed() -> Bool { false }
-    func write(_ text: String) {}
-    func exitAlternativeScreen() {}
-    func enterAlternativeScreen() {}
-    func moveTo(_ row: Int, _ col: Int) {}
-    func readDirectionKey() -> Direction? { nil }
-    func readSpecialChar() -> SpecialChar? { nil }
-    func readCursorPos() -> (row: Int, col: Int) { (0, 0) }
-    func readScreenSize() -> (rows: Int, cols: Int) { (0, 0) }
-}
-
-
 // MARK: - Helpers
 private func makeSUT(responses: [String]) -> (SwiftPicker, StubTextInput) {
     let textInput = StubTextInput(responses: responses)
-    let sut = SwiftPicker(textInput: textInput, pickerInput: NoOpPickerInput())
+    let sut = SwiftPicker(textInput: textInput, pickerInput: MockPickerInput())
     return (sut, textInput)
 }
