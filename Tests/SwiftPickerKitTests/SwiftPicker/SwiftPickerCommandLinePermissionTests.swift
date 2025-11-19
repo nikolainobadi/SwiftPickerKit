@@ -9,8 +9,14 @@ import Testing
 @testable import SwiftPickerKit
 
 struct SwiftPickerCommandLinePermissionTests {
-    @Test("CommandLinePermission getPermission returns configured response")
-    func commandLinePermissionGetPermissionReturnsConfiguredResponse() {
+    @Test("Starting values empty")
+    func emptyStartingValues() {
+        let (_, textInput) = makeSUT(permissionResponses: [])
+        #expect(textInput.capturedPermissionPrompts.isEmpty)
+    }
+
+    @Test("Returns configured response when permission requested")
+    func returnsConfiguredResponseWhenPermissionRequested() {
         let expectedResponse = false
         let prompt = "Delete project?"
         let (sut, textInput) = makeSUT(permissionResponses: [expectedResponse])
@@ -22,16 +28,16 @@ struct SwiftPickerCommandLinePermissionTests {
         #expect(textInput.capturedPermissionPrompts == [prompt])
     }
 
-    @Test("CommandLinePermission requiredPermission completes when granted")
-    func commandLinePermissionRequiredPermissionCompletesWhenGranted() throws {
+    @Test("Completes successfully when required permission is granted")
+    func completesSuccessfullyWhenRequiredPermissionIsGranted() throws {
         let (sut, _) = makeSUT(permissionResponses: [true])
         let commandLinePermission: CommandLinePermission = sut
 
         try commandLinePermission.requiredPermission(prompt: "Proceed?")
     }
 
-    @Test("CommandLinePermission requiredPermission throws when denied")
-    func commandLinePermissionRequiredPermissionThrowsWhenDenied() {
+    @Test("Throws error when required permission is denied")
+    func throwsErrorWhenRequiredPermissionIsDenied() {
         let (sut, _) = makeSUT(permissionResponses: [false])
         let commandLinePermission: CommandLinePermission = sut
 
@@ -42,30 +48,9 @@ struct SwiftPickerCommandLinePermissionTests {
 }
 
 
-// MARK: - Test Doubles
-private final class PermissionStubTextInput: TextInput {
-    private var permissionResponses: [Bool]
-    private(set) var capturedPermissionPrompts: [String] = []
-
-    init(permissionResponses: [Bool]) {
-        self.permissionResponses = permissionResponses
-    }
-
-    func getInput(_ prompt: String) -> String {
-        return ""
-    }
-
-    func getPermission(_ prompt: String) -> Bool {
-        capturedPermissionPrompts.append(prompt)
-        guard !permissionResponses.isEmpty else { return true }
-        return permissionResponses.removeFirst()
-    }
-}
-
-
 // MARK: - Helpers
-private func makeSUT(permissionResponses: [Bool]) -> (SwiftPicker, PermissionStubTextInput) {
-    let textInput = PermissionStubTextInput(permissionResponses: permissionResponses)
+private func makeSUT(permissionResponses: [Bool]) -> (SwiftPicker, MockTextInput) {
+    let textInput = MockTextInput(permissionResponses: permissionResponses)
     let sut = SwiftPicker(textInput: textInput, pickerInput: MockPickerInput())
     return (sut, textInput)
 }
