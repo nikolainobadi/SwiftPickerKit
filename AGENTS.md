@@ -21,3 +21,19 @@ Commits are short and imperative (“enable tree navigation”, “refactor dyna
 
 ## Terminal & Configuration Tips
 The picker relies on `ANSITerminal` escape sequences; always leave the screen clean by invoking `pickerInput.exitAlternativeScreen()` after experiments. Avoid blocking calls that lock cursor handling. When testing remotely, disable multiplexers that hijack arrow keys or export `TERM=xterm-256color` to keep color rendering consistent.
+
+## Public API Expectations
+- Clear, well-documented public interfaces
+- Semantic versioning for breaking changes
+- Comprehensive examples in documentation
+
+## Package Testing
+- Behavior-driven unit tests (Swift Testing preferred)
+- Use `makeSUT` pattern for test organization
+- Track memory leaks with `trackForMemoryLeaks`
+- Type-safe assertions (`#expect`, `#require`)
+- Use `waitUntil` for async/reactive testing
+
+## Imports
+@~/.codex/guidelines/shared-formatting-codex.md
+@~/.codex/guidelines/ios_unit_testing_codex_instructions.md
