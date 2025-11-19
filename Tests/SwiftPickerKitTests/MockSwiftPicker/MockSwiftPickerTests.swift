@@ -456,13 +456,8 @@ private extension MockSwiftPickerTests {
         inputResult: MockInputResult = .init(),
         permissionResult: MockPermissionResult = .init(),
         selectionResult: MockSelectionResult = .init(),
-        treeNavigationResult: MockTreeNavigationResult = .init(),
-        fileID: String = #fileID,
-        filePath: String = #filePath,
-        line: Int = #line,
-        column: Int = #column
+        treeNavigationResult: MockTreeNavigationResult = .init()
     ) -> MockSwiftPicker {
-        _ = (fileID, filePath, line, column)
         return makeSwiftPicker(
             inputResult: inputResult,
             permissionResult: permissionResult,
