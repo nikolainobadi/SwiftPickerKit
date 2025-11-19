@@ -9,8 +9,15 @@ import Testing
 @testable import SwiftPickerKit
 
 struct SwiftPickerCommandLineSelectionTests {
-    @Test("CommandLineSelection singleSelection returns selected item")
-    func singleSelectionReturnsSelectedItem() {
+    @Test("Starting values empty")
+    func emptyStartingValues() {
+        let (_, pickerInput) = makeSUT()
+        #expect(pickerInput.writtenText.isEmpty)
+        #expect(pickerInput.moveToCalls.isEmpty)
+    }
+
+    @Test("Returns selected item when user confirms choice")
+    func returnsSelectedItemWhenUserConfirmsChoice() {
         let items = ["First", "Second"]
         let (sut, pickerInput) = makeSUT()
         let selection: CommandLineSelection = sut
@@ -28,8 +35,8 @@ struct SwiftPickerCommandLineSelectionTests {
         #expect(result == items[0])
     }
 
-    @Test("CommandLineSelection singleSelection returns nil when quit")
-    func singleSelectionReturnsNilWhenQuit() {
+    @Test("Returns nil when user quits selection")
+    func returnsNilWhenUserQuitsSelection() {
         let items = ["Alpha", "Beta"]
         let (sut, pickerInput) = makeSUT()
         let selection: CommandLineSelection = sut
@@ -47,8 +54,8 @@ struct SwiftPickerCommandLineSelectionTests {
         #expect(result == nil)
     }
 
-    @Test("CommandLineSelection requiredSingleSelection throws when user quits")
-    func requiredSingleSelectionThrowsWhenUserQuits() {
+    @Test("Throws error when user quits required selection")
+    func throwsErrorWhenUserQuitsRequiredSelection() {
         let items = ["Red", "Blue"]
         let (sut, pickerInput) = makeSUT()
         let selection: CommandLineSelection = sut
@@ -66,8 +73,8 @@ struct SwiftPickerCommandLineSelectionTests {
         }
     }
 
-    @Test("CommandLineSelection multiSelection returns selected items")
-    func multiSelectionReturnsSelectedItems() {
+    @Test("Returns multiple selected items when confirmed")
+    func returnsMultipleSelectedItemsWhenConfirmed() {
         let items = ["One", "Two", "Three"]
         let (sut, pickerInput) = makeSUT()
         let selection: CommandLineSelection = sut
@@ -90,8 +97,8 @@ struct SwiftPickerCommandLineSelectionTests {
         #expect(result.contains(items[1]))
     }
 
-    @Test("CommandLineSelection multiSelection returns empty when quit")
-    func multiSelectionReturnsEmptyWhenQuit() {
+    @Test("Returns empty array when user quits multi-selection")
+    func returnsEmptyArrayWhenUserQuitsMultiSelection() {
         let items = ["Spring", "Summer"]
         let (sut, pickerInput) = makeSUT()
         let selection: CommandLineSelection = sut
@@ -115,20 +122,8 @@ struct SwiftPickerCommandLineSelectionTests {
 private extension SwiftPickerCommandLineSelectionTests {
     func makeSUT() -> (SwiftPicker, MockPickerInput) {
         let pickerInput = MockPickerInput()
-        let textInput = SelectionTextInputStub()
+        let textInput = MockTextInput()
         let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput)
         return (sut, pickerInput)
-    }
-}
-
-
-// MARK: - Test Doubles
-private final class SelectionTextInputStub: TextInput {
-    func getInput(_ prompt: String) -> String {
-        return ""
-    }
-
-    func getPermission(_ prompt: String) -> Bool {
-        return true
     }
 }
