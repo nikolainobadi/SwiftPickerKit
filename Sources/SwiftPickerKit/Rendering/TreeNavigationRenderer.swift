@@ -6,19 +6,9 @@
 //
 
 struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
-    typealias State = TreeNavigationState<Item>
-
-    func render(
-        items: [Item],
-        state: State,
-        context: ScrollRenderContext,
-        input: any PickerInput,
-        screenWidth: Int
-    ) {
+    func render(items: [Item], state: TreeNavigationState<Item>, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int) {
         var row = context.listStartRow
         let maxRowExclusive = context.listStartRow + context.visibleRowCount
-
-        // ---------- Breadcrumb line ----------
         let breadcrumb = state.breadcrumbPath()
 
         if !breadcrumb.isEmpty, row < maxRowExclusive {
@@ -29,7 +19,7 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         }
 
         if row < maxRowExclusive {
-            row += 1 // spacer before columns
+            row += 1
         }
 
         let columnStartRow = row
@@ -37,7 +27,6 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         let columnWidth = max(10, (screenWidth - columnSpacing) / 2)
         let rightColumnStart = min(screenWidth - columnWidth, columnWidth + columnSpacing)
 
-        // Render parent column (left)
         if let parentInfo = state.parentLevelInfo {
             let parent = parentInfo.level
             let engine = ScrollEngine(totalItems: parent.items.count, visibleRows: context.visibleRowCount)
@@ -70,7 +59,6 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
             )
         }
 
-        // Render current column (right)
         let currentInfo = state.currentLevelInfo
         renderColumn(
             items: currentInfo.level.items,
@@ -91,16 +79,10 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
     }
 }
 
+
+// MARK: - Private Methods
 private extension TreeNavigationRenderer {
-    func renderEmptyColumn(
-        title: String,
-        message: String,
-        startRow: Int,
-        startCol: Int,
-        columnWidth: Int,
-        maxRowExclusive: Int,
-        input: PickerInput
-    ) {
+    func renderEmptyColumn(title: String, message: String, startRow: Int, startCol: Int, columnWidth: Int, maxRowExclusive: Int, input: PickerInput) {
         guard startRow < maxRowExclusive else { return }
         renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, input: input)
         let row = startRow + 1
@@ -110,22 +92,7 @@ private extension TreeNavigationRenderer {
         input.write(truncated.foreColor(240))
     }
 
-    func renderColumn(
-        items: [Item],
-        activeIndex: Int,
-        startIndex: Int,
-        endIndex: Int,
-        title: String,
-        isActiveColumn: Bool,
-        levelIndex: Int,
-        startRow: Int,
-        startCol: Int,
-        columnWidth: Int,
-        maxRowExclusive: Int,
-        emptyPlaceholder: String,
-        input: PickerInput,
-        state: State
-    ) {
+    func renderColumn(items: [Item], activeIndex: Int, startIndex: Int, endIndex: Int, title: String, isActiveColumn: Bool, levelIndex: Int, startRow: Int, startCol: Int, columnWidth: Int, maxRowExclusive: Int, emptyPlaceholder: String, input: PickerInput, state: State) {
         guard startRow < maxRowExclusive else { return }
         renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, input: input)
 
@@ -177,13 +144,7 @@ private extension TreeNavigationRenderer {
         }
     }
 
-    func renderColumnHeader(
-        title: String,
-        startRow: Int,
-        startCol: Int,
-        columnWidth: Int,
-        input: PickerInput
-    ) {
+    func renderColumnHeader(title: String, startRow: Int, startCol: Int, columnWidth: Int, input: PickerInput) {
         input.moveTo(startRow, startCol)
         let header = PickerTextFormatter.truncate(title.uppercased(), maxWidth: max(4, columnWidth - 1))
         input.write(header.foreColor(102))
