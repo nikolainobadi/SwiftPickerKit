@@ -6,10 +6,10 @@
 //
 
 public struct SwiftPicker {
-    let textInput: TextInput
-    let pickerInput: PickerInput
+    internal let textInput: TextInput
+    internal let pickerInput: PickerInput
     
-    init(textInput: TextInput, pickerInput: PickerInput) {
+    internal init(textInput: TextInput, pickerInput: PickerInput) {
         self.textInput = textInput
         self.pickerInput = pickerInput
     }
@@ -71,8 +71,13 @@ internal extension SwiftPicker {
 
 
 // MARK: - Dependencies (unchanged)
-enum Direction { case up, down, left, right }
-enum SpecialChar { case enter, space, quit, backspace }
+enum Direction {
+    case up, down, left, right
+}
+
+enum SpecialChar {
+    case enter, space, quit, backspace
+}
 
 protocol TextInput {
     func getInput(_ prompt: String) -> String
@@ -95,65 +100,6 @@ protocol PickerInput {
     func readSpecialChar() -> SpecialChar?
     func readCursorPos() -> (row: Int, col: Int)
     func readScreenSize() -> (rows: Int, cols: Int)
-}
-
-extension SwiftPicker {
-    public func singleSelection<Item: DisplayablePickerItem>(
-        prompt: String,
-        items: [Item],
-        layout: PickerLayout<Item> = .singleColumn,
-        newScreen: Bool = true
-    ) -> Item? {
-        switch runSelection(
-            prompt: prompt,
-            items: items,
-            layout: layout,
-            isSingle: true,
-            newScreen: newScreen
-        ) {
-        case .finishSingle(let item):
-            return item
-        default:
-            return nil
-        }
-    }
-
-    public func requiredSingleSelection<Item: DisplayablePickerItem>(
-        prompt: String,
-        items: [Item],
-        layout: PickerLayout<Item> = .singleColumn,
-        newScreen: Bool = true
-    ) throws -> Item {
-        guard let value = singleSelection(
-            prompt: prompt,
-            items: items,
-            layout: layout,
-            newScreen: newScreen
-        ) else {
-            throw SwiftPickerError.selectionCancelled
-        }
-        return value
-    }
-    
-    public func multiSelection<Item: DisplayablePickerItem>(
-        prompt: String,
-        items: [Item],
-        layout: PickerLayout<Item> = .singleColumn,
-        newScreen: Bool = true
-    ) -> [Item] {
-        switch runSelection(
-            prompt: prompt,
-            items: items,
-            layout: layout,
-            isSingle: false,
-            newScreen: newScreen
-        ) {
-        case .finishMulti(let items):
-            return items
-        default:
-            return []
-        }
-    }
 }
 
 internal extension SwiftPicker {

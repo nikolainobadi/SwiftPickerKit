@@ -29,7 +29,7 @@ public extension CommandLineTreeNavigation {
         _ prompt: String,
         rootItems: [Item],
         allowSelectingFolders: Bool = true,
-        startInsideFirstRoot: Bool = true,
+        startInsideFirstRoot: Bool = false,
         newScreen: Bool = true
     ) -> Item? {
         return treeNavigation(
@@ -45,7 +45,7 @@ public extension CommandLineTreeNavigation {
         _ prompt: String,
         rootItems: [Item],
         allowSelectingFolders: Bool = true,
-        startInsideFirstRoot: Bool = true,
+        startInsideFirstRoot: Bool = false,
         newScreen: Bool = true
     ) throws -> Item {
         return try requiredTreeNavigation(
