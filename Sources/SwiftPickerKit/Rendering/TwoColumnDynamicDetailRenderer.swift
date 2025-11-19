@@ -6,13 +6,11 @@
 //
 
 struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRenderer {
-    typealias State = TwoColumnDynamicDetailState<Item>
-
     func render(
         items: [Item],
-        state: State,
+        state: TwoColumnDynamicDetailState<Item>,
         context: ScrollRenderContext,
-        input: PickerInput,
+        input: any PickerInput,
         screenWidth: Int
     ) {
         let leftWidth = max(18, screenWidth / 3)
