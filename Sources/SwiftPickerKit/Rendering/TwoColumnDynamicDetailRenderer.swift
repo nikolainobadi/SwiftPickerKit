@@ -6,19 +6,12 @@
 //
 
 struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRenderer {
-    func render(
-        items: [Item],
-        state: TwoColumnDynamicDetailState<Item>,
-        context: ScrollRenderContext,
-        input: any PickerInput,
-        screenWidth: Int
-    ) {
+    func render(items: [Item], state: TwoColumnDynamicDetailState<Item>, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int) {
         let leftWidth = max(18, screenWidth / 3)
         let rightWidth = screenWidth - leftWidth - 3
 
         var row = context.listStartRow
 
-        // LEFT COLUMN (same as static)
         for index in context.startIndex..<context.endIndex {
             let option = state.left.options[index]
             let isActive = index == state.activeIndex
@@ -36,7 +29,6 @@ struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRende
             row += 1
         }
 
-        // RIGHT COLUMN — dynamic text
         let item = state.left.options[state.activeIndex].item
         let lines = state.detailForItem(item).wrapToWidth(maxWidth: rightWidth)
 
@@ -50,8 +42,12 @@ struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRende
             row += 1
         }
     }
+}
 
-    private func optionMarker(option: Option<Item>, isActive: Bool, isSingle: Bool) -> String {
+
+// MARK: - Private Methods
+private extension TwoColumnDynamicDetailRenderer {
+    func optionMarker(option: Option<Item>, isActive: Bool, isSingle: Bool) -> String {
         if isSingle { return isActive ? "●".lightGreen : "○".foreColor(250) }
         return option.isSelected ? "●".lightGreen : "○".foreColor(250)
     }
