@@ -231,12 +231,110 @@ extension MockSwiftPickerTests {
 }
 
 
+// MARK: - Selection Tests
+extension MockSwiftPickerTests {
+    @Test("Starts with empty single and multi selection histories")
+    func startsWithEmptySelectionHistories() {
+        let sut = makeSUT()
+
+        #expect(sut.capturedSingleSelectionPrompts.isEmpty)
+        #expect(sut.capturedMultiSelectionPrompts.isEmpty)
+    }
+
+    @Test("Records single selection prompts in order")
+    func recordsSingleSelectionPromptsInOrder() {
+        let prompts = ["Pick a color", "Pick a shape"]
+        let sut = makeSUT(selectionResult: .init(singleType: .ordered([.index(0), .index(1)])))
+
+        _ = sut.singleSelection(prompt: prompts[0], items: ["red"], layout: .singleColumn, newScreen: false)
+        _ = sut.singleSelection(prompt: prompts[1], items: ["square"], layout: .singleColumn, newScreen: false)
+
+        #expect(sut.capturedSingleSelectionPrompts == prompts)
+    }
+
+    @Test("Records multi selection prompts in order")
+    func recordsMultiSelectionPromptsInOrder() {
+        let prompts = ["Pick toppings", "Pick extras"]
+        let sut = makeSUT(selectionResult: .init(multiType: .ordered([.indices([]), .indices([])])))
+
+        _ = sut.multiSelection(prompt: prompts[0], items: ["cheese"], layout: .singleColumn, newScreen: false)
+        _ = sut.multiSelection(prompt: prompts[1], items: ["sauce"], layout: .singleColumn, newScreen: false)
+
+        #expect(sut.capturedMultiSelectionPrompts == prompts)
+    }
+
+    @Test("Returns items using configured single selection indexes")
+    func returnsItemsUsingConfiguredSingleSelectionIndexes() {
+        let items = ["red", "blue", "green"]
+        let sut = makeSUT(selectionResult: .init(singleType: .ordered([.index(1)])))
+
+        let selection = sut.singleSelection(prompt: "Pick color", items: items, layout: .singleColumn, newScreen: false)
+
+        #expect(selection == items[1])
+    }
+
+    @Test("Returns nil when single selection index is missing")
+    func returnsNilWhenSingleSelectionIndexIsMissing() {
+        let items = ["red", "blue"]
+        let sut = makeSUT(selectionResult: .init(singleType: .ordered([.none])))
+
+        let selection = sut.singleSelection(prompt: "Pick color", items: items, layout: .singleColumn, newScreen: false)
+
+        #expect(selection == nil)
+    }
+
+    @Test("requiredSingleSelection throws when response is nil")
+    func requiredSingleSelectionThrowsWhenResponseIsNil() {
+        let sut = makeSUT(selectionResult: .init(singleType: .ordered([.none])))
+
+        #expect(throws: SwiftPickerError.self) {
+            try sut.requiredSingleSelection(prompt: "Pick color", items: ["red"], layout: .singleColumn, newScreen: false)
+        }
+    }
+
+    @Test("requiredSingleSelection returns item when index maps to value")
+    func requiredSingleSelectionReturnsItemWhenIndexMapsToValue() throws {
+        let items = ["red", "blue"]
+        let sut = makeSUT(selectionResult: .init(singleType: .ordered([.index(1)])))
+
+        let value = try sut.requiredSingleSelection(prompt: "Pick color", items: items, layout: .singleColumn, newScreen: false)
+
+        #expect(value == items[1])
+    }
+
+    @Test("multiSelection returns items for configured indexes")
+    func multiSelectionReturnsItemsForConfiguredIndexes() {
+        let items = ["pepperoni", "mushroom", "olive"]
+        let sut = makeSUT(selectionResult: .init(multiType: .ordered([.indices([0, 2])])))
+
+        let result = sut.multiSelection(prompt: "Pick toppings", items: items, layout: .singleColumn, newScreen: false)
+
+        #expect(result == ["pepperoni", "olive"])
+    }
+
+    @Test("multiSelection ignores indexes outside of bounds")
+    func multiSelectionIgnoresIndexesOutsideOfBounds() {
+        let items = ["pepperoni", "mushroom"]
+        let sut = makeSUT(selectionResult: .init(multiType: .ordered([.indices([0, 5])])))
+
+        let result = sut.multiSelection(prompt: "Pick toppings", items: items, layout: .singleColumn, newScreen: false)
+
+        #expect(result == ["pepperoni"])
+    }
+}
+
+
 // MARK: - SUT
 private extension MockSwiftPickerTests {
     func makeSUT(
         inputResult: MockInputResult = .init(),
-        permissionResult: MockPermissionResult = .init()
+        permissionResult: MockPermissionResult = .init(),
+        selectionResult: MockSelectionResult = .init()
     ) -> MockSwiftPicker {
-        return .init(inputResult: inputResult, permissionResult: permissionResult)
+        return .init(
+            inputResult: inputResult,
+            permissionResult: permissionResult,
+            selectionResult: selectionResult
+        )
     }
 }
