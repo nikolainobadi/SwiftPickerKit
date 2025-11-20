@@ -47,14 +47,6 @@ extension MockSwiftPicker: CommandLineInput {
 
         return inputResult.nextResponse(for: prompt)
     }
-
-    public func getRequiredInput(prompt: String) throws -> String {
-        let value = getInput(prompt: prompt)
-        guard !value.isEmpty else {
-            throw SwiftPickerError.inputRequired
-        }
-        return value
-    }
 }
 
 
@@ -63,12 +55,6 @@ extension MockSwiftPicker: CommandLinePermission {
     public func getPermission(prompt: String) -> Bool {
         capturedPermissionPrompts.append(prompt)
         return permissionResult.nextResponse(for: prompt)
-    }
-
-    public func requiredPermission(prompt: String) throws {
-        guard getPermission(prompt: prompt) else {
-            throw SwiftPickerError.selectionCancelled
-        }
     }
 }
 

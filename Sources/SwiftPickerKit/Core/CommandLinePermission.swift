@@ -9,9 +9,6 @@
 public protocol CommandLinePermission {
     /// Prompts the user for permission with a yes/no question.
     func getPermission(prompt: String) -> Bool
-
-    /// Prompts the user for permission and requires `true` to continue.
-    func requiredPermission(prompt: String) throws
 }
 
 
@@ -19,6 +16,12 @@ public protocol CommandLinePermission {
 public extension CommandLinePermission {
     func getPermission(_ prompt: String) -> Bool {
         return getPermission(prompt: prompt)
+    }
+
+    func requiredPermission(prompt: String) throws {
+        guard getPermission(prompt: prompt) else {
+            throw SwiftPickerError.selectionCancelled
+        }
     }
 
     func requiredPermission(_ prompt: String) throws {
