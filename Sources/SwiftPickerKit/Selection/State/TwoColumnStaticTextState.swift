@@ -7,11 +7,11 @@
 
 final class TwoColumnStaticTextState<Item: DisplayablePickerItem> {
     private let rawRightText: String
-    
-    var left: SelectionState<Item>
 
-    init(left: SelectionState<Item>, rightText: String) {
-        self.left = left
+    var leftState: SelectionState<Item>
+
+    init(leftState: SelectionState<Item>, rightText: String) {
+        self.leftState = leftState
         self.rawRightText = rightText
     }
 
@@ -23,16 +23,16 @@ final class TwoColumnStaticTextState<Item: DisplayablePickerItem> {
 
 extension TwoColumnStaticTextState: BaseSelectionState {
     var activeIndex: Int {
-        get { left.activeIndex }
-        set { left.activeIndex = newValue }
+        get { leftState.activeIndex }
+        set { leftState.activeIndex = newValue }
     }
 
-    var options: [Option<Item>] { left.options }
-    var prompt: String { left.prompt }
-    var topLineText: String { left.topLineText }
-    var bottomLineText: String { left.bottomLineText }
+    var options: [Option<Item>] { leftState.options }
+    var prompt: String { leftState.prompt }
+    var topLineText: String { leftState.topLineText }
+    var bottomLineText: String { leftState.bottomLineText }
 
     func toggleSelection(at index: Int) {
-        left.toggleSelection(at: index)
+        leftState.toggleSelection(at: index)
     }
 }

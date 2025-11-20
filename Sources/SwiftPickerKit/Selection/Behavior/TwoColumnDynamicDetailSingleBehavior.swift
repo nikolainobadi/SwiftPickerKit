@@ -11,7 +11,7 @@ struct TwoColumnDynamicDetailSingleBehavior<Item: DisplayablePickerItem>: Select
     func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item> {
         switch char {
         case .enter:
-            let item = state.left.options[state.activeIndex].item
+            let item = state.leftState.options[state.activeIndex].item
             return .finishSingle(item)
 
         case .quit:

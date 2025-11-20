@@ -14,7 +14,7 @@ struct TwoColumnStaticTextSingleBehavior<Item: DisplayablePickerItem>: Selection
     ) -> SelectionOutcome<Item> {
         switch char {
         case .enter:
-            let left = state.left
+            let left = state.leftState
             let item = left.options[left.activeIndex].item
             return .finishSingle(item)
 

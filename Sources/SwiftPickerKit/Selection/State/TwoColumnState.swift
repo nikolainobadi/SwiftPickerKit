@@ -9,13 +9,13 @@
 /// The left column acts as the primary selection target.
 final class TwoColumnState<Item: DisplayablePickerItem> {
     /// Primary selection column (left side)
-    var left: SelectionState<Item>
+    var leftState: SelectionState<Item>
 
     /// Secondary display items (right side)
     var rightItems: [Item]
 
-    init(left: SelectionState<Item>, rightItems: [Item]) {
-        self.left = left
+    init(leftState: SelectionState<Item>, rightItems: [Item]) {
+        self.leftState = leftState
         self.rightItems = rightItems
     }
 }
@@ -23,27 +23,27 @@ final class TwoColumnState<Item: DisplayablePickerItem> {
 // MARK: - BaseSelectionState Conformance
 extension TwoColumnState: BaseSelectionState {
     var activeIndex: Int {
-        get { left.activeIndex }
-        set { left.activeIndex = newValue }
+        get { leftState.activeIndex }
+        set { leftState.activeIndex = newValue }
     }
 
     var options: [Option<Item>] {
-        left.options
+        leftState.options
     }
 
     var prompt: String {
-        left.prompt
+        leftState.prompt
     }
 
     var topLineText: String {
-        left.topLineText
+        leftState.topLineText
     }
 
     var bottomLineText: String {
-        left.bottomLineText
+        leftState.bottomLineText
     }
 
     func toggleSelection(at index: Int) {
-        left.toggleSelection(at: index)
+        leftState.toggleSelection(at: index)
     }
 }

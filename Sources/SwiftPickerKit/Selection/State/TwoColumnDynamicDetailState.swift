@@ -6,27 +6,27 @@
 //
 
 final class TwoColumnDynamicDetailState<Item: DisplayablePickerItem> {
-    var left: SelectionState<Item>
+    var leftState: SelectionState<Item>
     let detailForItem: (Item) -> String
 
-    init(left: SelectionState<Item>, detailForItem: @escaping (Item) -> String) {
-        self.left = left
+    init(leftState: SelectionState<Item>, detailForItem: @escaping (Item) -> String) {
+        self.leftState = leftState
         self.detailForItem = detailForItem
     }
 }
 
 extension TwoColumnDynamicDetailState: BaseSelectionState {
     var activeIndex: Int {
-        get { left.activeIndex }
-        set { left.activeIndex = newValue }
+        get { leftState.activeIndex }
+        set { leftState.activeIndex = newValue }
     }
 
-    var options: [Option<Item>] { left.options }
-    var prompt: String { left.prompt }
-    var topLineText: String { left.topLineText }
-    var bottomLineText: String { left.bottomLineText }
+    var options: [Option<Item>] { leftState.options }
+    var prompt: String { leftState.prompt }
+    var topLineText: String { leftState.topLineText }
+    var bottomLineText: String { leftState.bottomLineText }
 
     func toggleSelection(at index: Int) {
-        left.toggleSelection(at: index)
+        leftState.toggleSelection(at: index)
     }
 }

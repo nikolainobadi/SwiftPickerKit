@@ -241,8 +241,8 @@ private extension TwoColumnDynamicDetailRendererTests {
         }
         let leftState = SelectionState(options: options, prompt: "Test", isSingleSelection: isSingle)
         leftState.activeIndex = activeIndex
-        
-        return .init(left: leftState, detailForItem: detailForItem)
+
+        return .init(leftState: leftState, detailForItem: detailForItem)
     }
 
     func makeContext(startIndex: Int, endIndex: Int, listStartRow: Int = 0, visibleRowCount: Int = 10) -> ScrollRenderContext {

@@ -244,8 +244,8 @@ private extension TwoColumnStaticTextRendererTests {
         }
         let leftState = SelectionState(options: options, prompt: "Test", isSingleSelection: isSingle)
         leftState.activeIndex = activeIndex
-        
-        return .init(left: leftState, rightText: rightText)
+
+        return .init(leftState: leftState, rightText: rightText)
     }
 
     func makeContext(startIndex: Int, endIndex: Int, listStartRow: Int = 0, visibleRowCount: Int = 10) -> ScrollRenderContext {
