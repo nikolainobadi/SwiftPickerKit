@@ -186,15 +186,6 @@ private extension SingleColumnRendererTests {
     }
 
     func makeContext(startIndex: Int, endIndex: Int, listStartRow: Int = 0, visibleRowCount: Int = 10) -> ScrollRenderContext {
-        ScrollRenderContext(startIndex: startIndex, endIndex: endIndex, listStartRow: listStartRow, visibleRowCount: visibleRowCount)
+        return .init(startIndex: startIndex, endIndex: endIndex, listStartRow: listStartRow, visibleRowCount: visibleRowCount)
     }
-}
-
-
-// MARK: - Test Items
-private struct TestItem: DisplayablePickerItem {
-    let name: String
-
-    var displayName: String { name }
-    var description: String { "Description for \(name)" }
 }
