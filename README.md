@@ -55,7 +55,7 @@ Add the package to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/nikolainobadi/SwiftPickerKit", from: "0.1.0")
+    .package(url: "https://github.com/nikolainobadi/SwiftPickerKit", from: "0.5.0")
 ]
 ```
 
