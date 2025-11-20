@@ -6,9 +6,7 @@
 //
 
 struct SingleSelectionBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
-    typealias State = SelectionState<Item>
-
-    func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item> {
+    func handleSpecialChar(char: SpecialChar, state: SelectionState<Item>) -> SelectionOutcome<Item> {
         switch char {
         case .enter:
             let item = state.options[state.activeIndex].item
