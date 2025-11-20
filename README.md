@@ -14,6 +14,7 @@
 - [Usage](#usage)
   - [Basic Single Selection](#basic-single-selection)
   - [Multi-Selection](#multi-selection)
+  - [Controlling Header Display](#controlling-header-display)
   - [Two-Column Layout with Static Detail](#two-column-layout-with-static-detail)
   - [Two-Column Layout with Dynamic Detail](#two-column-layout-with-dynamic-detail)
   - [Tree Navigation](#tree-navigation)
@@ -55,7 +56,7 @@ Add the package to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/nikolainobadi/SwiftPickerKit", from: "0.5.0")
+    .package(url: "https://github.com/nikolainobadi/SwiftPickerKit", from: "0.6.0")
 ]
 ```
 
@@ -64,8 +65,17 @@ Then include it in your target:
 ```swift
 .target(
     name: "YourTarget",
-    dependencies: ["SwiftPickerKit"]
-)
+    dependencies: [
+        .product(name: "SwiftPickerKit", package: "SwiftPickerKit"),
+        ]
+),
+.testTarget(
+    name: "YourTestTarget",
+    dependencies: [
+        "YourTarget",
+        .product(name: "SwiftPickerTesting", package: "SwiftPickerKit")
+    ]
+),
 ```
 
 ## Usage
@@ -103,6 +113,35 @@ let selected = picker.multiSelection(
 
 print("Selected \(selected.count) items")
 ```
+
+### Controlling Header Display
+
+The `showSelectedItemText` parameter controls whether the currently selected item's text is displayed in the picker header:
+
+```swift
+let picker = SwiftPicker()
+let items = ["Option 1", "Option 2", "Option 3"]
+
+// Show selected item text in header (default: true)
+picker.singleSelection(
+    prompt: "Choose an option",
+    items: items,
+    layout: .singleColumn,
+    newScreen: true,
+    showSelectedItemText: true
+)
+
+// Hide selected item text from header
+picker.singleSelection(
+    prompt: "Choose an option",
+    items: items,
+    layout: .singleColumn,
+    newScreen: true,
+    showSelectedItemText: false
+)
+```
+
+This parameter is available for all selection methods: `singleSelection`, `multiSelection`, and `treeNavigation`.
 
 ### Two-Column Layout with Static Detail
 
