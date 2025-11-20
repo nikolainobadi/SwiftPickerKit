@@ -75,7 +75,7 @@ extension MockSwiftPicker: CommandLinePermission {
 
 // MARK: - CommandLineSelection
 extension MockSwiftPicker: CommandLineSelection {
-    public func singleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool) -> Item? {
+    public func singleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool) -> Item? {
         capturedSingleSelectionPrompts.append(prompt)
         let response = selectionResult.nextSingleOutcome(for: prompt)
 
@@ -86,15 +86,15 @@ extension MockSwiftPicker: CommandLineSelection {
         return items[index]
     }
 
-    public func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool) throws -> Item {
-        guard let value = singleSelection(prompt: prompt, items: items, layout: layout, newScreen: newScreen) else {
+    public func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool) throws -> Item {
+        guard let value = singleSelection(prompt: prompt, items: items, layout: layout, newScreen: newScreen, showSelectedItemText: showSelectedItemText) else {
             throw SwiftPickerError.selectionCancelled
         }
 
         return value
     }
 
-    public func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool) -> [Item] {
+    public func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool) -> [Item] {
         capturedMultiSelectionPrompts.append(prompt)
         let response = selectionResult.nextMultiOutcome(for: prompt)
 

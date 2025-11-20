@@ -44,7 +44,11 @@ extension TwoColumnStaticTextState: BaseSelectionState {
     var bottomLineText: String {
         return leftState.bottomLineText
     }
-    
+
+    var showSelectedItemText: Bool {
+        return leftState.showSelectedItemText
+    }
+
     func toggleSelection(at index: Int) {
         leftState.toggleSelection(at: index)
     }

@@ -29,7 +29,8 @@ struct SwiftPickerCommandLineSelectionTests {
             prompt: "Pick one",
             items: items,
             layout: .singleColumn,
-            newScreen: false
+            newScreen: false,
+            showSelectedItemText: true
         )
 
         #expect(result == items[0])
@@ -48,7 +49,8 @@ struct SwiftPickerCommandLineSelectionTests {
             prompt: "Pick one",
             items: items,
             layout: .singleColumn,
-            newScreen: false
+            newScreen: false,
+            showSelectedItemText: true
         )
 
         #expect(result == nil)
@@ -68,7 +70,8 @@ struct SwiftPickerCommandLineSelectionTests {
                 prompt: "Pick color",
                 items: items,
                 layout: .singleColumn,
-                newScreen: false
+                newScreen: false,
+                showSelectedItemText: true
             )
         }
     }
@@ -89,7 +92,8 @@ struct SwiftPickerCommandLineSelectionTests {
             prompt: "Pick many",
             items: items,
             layout: .singleColumn,
-            newScreen: false
+            newScreen: false,
+            showSelectedItemText: true
         )
 
         #expect(result.count == 2)
@@ -110,7 +114,8 @@ struct SwiftPickerCommandLineSelectionTests {
             prompt: "Pick seasons",
             items: items,
             layout: .singleColumn,
-            newScreen: false
+            newScreen: false,
+            showSelectedItemText: true
         )
 
         #expect(result.isEmpty)
