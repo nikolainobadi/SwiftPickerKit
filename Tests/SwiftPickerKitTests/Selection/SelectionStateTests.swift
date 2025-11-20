@@ -106,7 +106,7 @@ struct SelectionStateTests {
 
 // MARK: - SUT
 private extension SelectionStateTests {
-    func makeSUT(optionCount: Int = 1, isSingleSelection: Bool = true, selectedIndices: Set<Int> = [], prompt: String = "Prompt", activeIndex: Int = 0, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> (SelectionState<TestItem>, [Option<TestItem>]) {
+    func makeSUT(optionCount: Int = 1, isSingleSelection: Bool = true, selectedIndices: Set<Int> = [], prompt: String = "Prompt", activeIndex: Int = 0) -> (SelectionState<TestItem>, [Option<TestItem>]) {
         let options = TestFactory.makeOptions(count: optionCount, selectedIndices: selectedIndices)
         let sut = SelectionState(options: options, prompt: prompt, isSingleSelection: isSingleSelection)
         sut.activeIndex = activeIndex

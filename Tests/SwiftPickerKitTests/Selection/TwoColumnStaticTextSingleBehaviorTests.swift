@@ -61,7 +61,7 @@ struct TwoColumnStaticTextSingleBehaviorTests {
 
 // MARK: - SUT
 private extension TwoColumnStaticTextSingleBehaviorTests {
-    func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> (TwoColumnStaticTextSingleBehavior<TestItem>, TwoColumnStaticTextState<TestItem>) {
+    func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0) -> (TwoColumnStaticTextSingleBehavior<TestItem>, TwoColumnStaticTextState<TestItem>) {
         let options = items.map { Option(item: $0) }
         let left = SelectionState(options: options, prompt: "Prompt", isSingleSelection: true)
         left.activeIndex = activeIndex

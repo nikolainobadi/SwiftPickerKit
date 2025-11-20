@@ -62,7 +62,7 @@ struct SingleSelectionBehaviorTests {
 
 // MARK: - SUT
 private extension SingleSelectionBehaviorTests {
-    func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> (SingleSelectionBehavior<TestItem>, SelectionState<TestItem>) {
+    func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0) -> (SingleSelectionBehavior<TestItem>, SelectionState<TestItem>) {
         let options = items.map { Option(item: $0) }
         let state = SelectionState(options: options, prompt: "Prompt", isSingleSelection: true)
         state.activeIndex = activeIndex

@@ -145,7 +145,7 @@ struct TreeNavigationBehaviorTests {
 
 // MARK: - SUT
 private extension TreeNavigationBehaviorTests {
-    func makeSUT(rootItems: [TreeTestItem] = TestFactory.makeTreeItems(names: ["Root"]), allowSelectingFolders: Bool = true, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> (TreeNavigationBehavior<TreeTestItem>, TreeNavigationState<TreeTestItem>) {
+    func makeSUT(rootItems: [TreeTestItem] = TestFactory.makeTreeItems(names: ["Root"]), allowSelectingFolders: Bool = true) -> (TreeNavigationBehavior<TreeTestItem>, TreeNavigationState<TreeTestItem>) {
         let state = TreeNavigationState(rootItems: rootItems, prompt: "Prompt")
         let sut = TreeNavigationBehavior<TreeTestItem>(allowSelectingFolders: allowSelectingFolders)
         return (sut, state)

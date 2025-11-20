@@ -1,0 +1,133 @@
+//
+//  SwiftPickerCommandLineTreeNavigationTests.swift
+//  SwiftPickerKit
+//
+//  Created by Nikolai Nobadi on 04/09/24.
+//
+
+import Testing
+@testable import SwiftPickerKit
+
+struct SwiftPickerCommandLineTreeNavigationTests {
+    @Test("Starting values empty")
+    func emptyStartingValues() {
+        let (_, pickerInput) = makeSUT()
+        #expect(pickerInput.writtenText.isEmpty)
+        #expect(pickerInput.moveToCalls.isEmpty)
+    }
+
+    @Test("Selects folder when allowed")
+    func selectsFolderWhenAllowed() {
+        let child = TestFactory.makeTreeItem(name: "Child")
+        let root = TestFactory.makeTreeItem(name: "Root", children: [child])
+        let (sut, pickerInput) = makeSUT()
+        let selection: CommandLineTreeNavigation = sut
+
+        pickerInput.pressKey = true
+        pickerInput.enqueueSpecialChar(.enter)
+
+        let result = selection.treeNavigation(
+            prompt: "Pick",
+            rootItems: [root],
+            allowSelectingFolders: true,
+            startInsideFirstRoot: false,
+            newScreen: false
+        )
+
+        #expect(result?.displayName == root.displayName)
+    }
+
+    @Test("Selects leaf when folders disallowed")
+    func selectsLeafWhenFoldersDisallowed() {
+        let child = TestFactory.makeTreeItem(name: "Child")
+        let root = TestFactory.makeTreeItem(name: "Root", children: [child])
+        let (sut, pickerInput) = makeSUT()
+        let selection: CommandLineTreeNavigation = sut
+
+        pickerInput.pressKey = true
+        pickerInput.enqueueDirectionKey(.right)
+        pickerInput.enqueueSpecialChar(.enter)
+
+        let result = selection.treeNavigation(
+            prompt: "Pick leaf",
+            rootItems: [root],
+            allowSelectingFolders: false,
+            startInsideFirstRoot: false,
+            newScreen: false
+        )
+
+        #expect(result?.displayName == child.displayName)
+    }
+
+    @Test("Starts inside first root when requested")
+    func startsInsideFirstRootWhenRequested() {
+        let child = TestFactory.makeTreeItem(name: "Child")
+        let root = TestFactory.makeTreeItem(name: "Root", children: [child])
+        let (sut, pickerInput) = makeSUT()
+        let selection: CommandLineTreeNavigation = sut
+
+        pickerInput.pressKey = true
+        pickerInput.enqueueSpecialChar(.enter)
+
+        let result = selection.treeNavigation(
+            prompt: "Pick",
+            rootItems: [root],
+            allowSelectingFolders: false,
+            startInsideFirstRoot: true,
+            newScreen: false
+        )
+
+        #expect(result?.displayName == child.displayName)
+    }
+
+    @Test("Returns nil when user quits navigation")
+    func returnsNilWhenUserQuitsNavigation() {
+        let root = TestFactory.makeTreeItem(name: "Root")
+        let (sut, pickerInput) = makeSUT()
+        let selection: CommandLineTreeNavigation = sut
+
+        pickerInput.pressKey = true
+        pickerInput.enqueueSpecialChar(.quit)
+
+        let result = selection.treeNavigation(
+            prompt: "Quit",
+            rootItems: [root],
+            allowSelectingFolders: true,
+            startInsideFirstRoot: false,
+            newScreen: false
+        )
+
+        #expect(result == nil)
+    }
+
+    @Test("Throws when required navigation is cancelled")
+    func throwsWhenRequiredNavigationIsCancelled() {
+        let root = TestFactory.makeTreeItem(name: "Root")
+        let (sut, pickerInput) = makeSUT()
+        let selection: CommandLineTreeNavigation = sut
+
+        pickerInput.pressKey = true
+        pickerInput.enqueueSpecialChar(.quit)
+
+        #expect(throws: SwiftPickerError.self) {
+            _ = try selection.requiredTreeNavigation(
+                prompt: "Quit",
+                rootItems: [root],
+                allowSelectingFolders: true,
+                startInsideFirstRoot: false,
+                newScreen: false
+            )
+        }
+    }
+}
+
+
+// MARK: - SUT
+private extension SwiftPickerCommandLineTreeNavigationTests {
+    func makeSUT() -> (SwiftPicker, MockPickerInput) {
+        let pickerInput = MockPickerInput()
+        let textInput = MockTextInput()
+        let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput)
+        return (sut, pickerInput)
+    }
+}

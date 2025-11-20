@@ -61,7 +61,7 @@ struct TwoColumnDynamicDetailSingleBehaviorTests {
 
 // MARK: - SUT
 private extension TwoColumnDynamicDetailSingleBehaviorTests {
-    func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0, fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> (TwoColumnDynamicDetailSingleBehavior<TestItem>, TwoColumnDynamicDetailState<TestItem>) {
+    func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0) -> (TwoColumnDynamicDetailSingleBehavior<TestItem>, TwoColumnDynamicDetailState<TestItem>) {
         let options = items.map { Option(item: $0) }
         let left = SelectionState(options: options, prompt: "Prompt", isSingleSelection: true)
         left.activeIndex = activeIndex

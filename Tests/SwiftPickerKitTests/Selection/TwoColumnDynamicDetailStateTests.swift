@@ -83,7 +83,7 @@ struct TwoColumnDynamicDetailStateTests {
 
 // MARK: - SUT
 private extension TwoColumnDynamicDetailStateTests {
-    func makeSUT(optionCount: Int = 1, selectedIndices: Set<Int> = [], prompt: String = "Prompt", isSingleSelection: Bool = true, detailText: String = "Detail", fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> (TwoColumnDynamicDetailState<TestItem>, SelectionState<TestItem>, [Option<TestItem>], () -> [TestItem]) {
+    func makeSUT(optionCount: Int = 1, selectedIndices: Set<Int> = [], prompt: String = "Prompt", isSingleSelection: Bool = true, detailText: String = "Detail") -> (TwoColumnDynamicDetailState<TestItem>, SelectionState<TestItem>, [Option<TestItem>], () -> [TestItem]) {
         let options = TestFactory.makeOptions(count: optionCount, selectedIndices: selectedIndices)
         let left = SelectionState(options: options, prompt: prompt, isSingleSelection: isSingleSelection)
         let recorder = makeDetailRecorder(text: detailText)

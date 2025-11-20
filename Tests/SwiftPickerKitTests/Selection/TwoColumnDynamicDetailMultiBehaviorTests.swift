@@ -76,7 +76,7 @@ struct TwoColumnDynamicDetailMultiBehaviorTests {
 
 // MARK: - SUT
 private extension TwoColumnDynamicDetailMultiBehaviorTests {
-    func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0, selectedIndices: Set<Int> = [], fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> (TwoColumnDynamicDetailMultiBehavior<TestItem>, TwoColumnDynamicDetailState<TestItem>) {
+    func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0, selectedIndices: Set<Int> = []) -> (TwoColumnDynamicDetailMultiBehavior<TestItem>, TwoColumnDynamicDetailState<TestItem>) {
         var options = items.map { Option(item: $0) }
         selectedIndices.forEach { index in
             if options.indices.contains(index) {

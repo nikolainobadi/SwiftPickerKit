@@ -78,7 +78,7 @@ struct MultiSelectionBehaviorTests {
 
 // MARK: - SUT
 private extension MultiSelectionBehaviorTests {
-    func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0, selectedIndices: Set<Int> = [], fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> (MultiSelectionBehavior<TestItem>, SelectionState<TestItem>) {
+    func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0, selectedIndices: Set<Int> = []) -> (MultiSelectionBehavior<TestItem>, SelectionState<TestItem>) {
         var options = items.map { Option(item: $0) }
         selectedIndices.forEach { index in
             if options.indices.contains(index) {

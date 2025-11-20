@@ -121,7 +121,7 @@ struct TreeNavigationStateTests {
 
 // MARK: - SUT
 private extension TreeNavigationStateTests {
-    func makeSUT(rootItems: [TreeTestItem], prompt: String = "Prompt", fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> (TreeNavigationState<TreeTestItem>, [TreeTestItem]) {
+    func makeSUT(rootItems: [TreeTestItem], prompt: String = "Prompt") -> (TreeNavigationState<TreeTestItem>, [TreeTestItem]) {
         let sut = TreeNavigationState(rootItems: rootItems, prompt: prompt)
         return (sut, rootItems)
     }

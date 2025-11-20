@@ -74,7 +74,7 @@ struct TwoColumnStaticTextStateTests {
 
 // MARK: - SUT
 private extension TwoColumnStaticTextStateTests {
-    func makeSUT(optionCount: Int = 1, selectedIndices: Set<Int> = [], prompt: String = "Prompt", isSingleSelection: Bool = true, rightText: String = "Right text", fileID: String = #fileID, filePath: String = #filePath, line: Int = #line, column: Int = #column) -> (TwoColumnStaticTextState<TestItem>, SelectionState<TestItem>, [Option<TestItem>]) {
+    func makeSUT(optionCount: Int = 1, selectedIndices: Set<Int> = [], prompt: String = "Prompt", isSingleSelection: Bool = true, rightText: String = "Right text") -> (TwoColumnStaticTextState<TestItem>, SelectionState<TestItem>, [Option<TestItem>]) {
         let options = TestFactory.makeOptions(count: optionCount, selectedIndices: selectedIndices)
         let left = SelectionState(options: options, prompt: prompt, isSingleSelection: isSingleSelection)
         let sut = TwoColumnStaticTextState(leftState: left, rightText: rightText)
