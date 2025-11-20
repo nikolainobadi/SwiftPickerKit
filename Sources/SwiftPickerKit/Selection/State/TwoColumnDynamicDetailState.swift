@@ -15,16 +15,29 @@ final class TwoColumnDynamicDetailState<Item: DisplayablePickerItem> {
     }
 }
 
+
+// MARK: - BaseSelectionState
 extension TwoColumnDynamicDetailState: BaseSelectionState {
     var activeIndex: Int {
         get { leftState.activeIndex }
         set { leftState.activeIndex = newValue }
     }
 
-    var options: [Option<Item>] { leftState.options }
-    var prompt: String { leftState.prompt }
-    var topLineText: String { leftState.topLineText }
-    var bottomLineText: String { leftState.bottomLineText }
+    var options: [Option<Item>] {
+        return leftState.options
+    }
+    
+    var prompt: String {
+        return leftState.prompt
+    }
+    
+    var topLineText: String {
+        return leftState.topLineText
+    }
+    
+    var bottomLineText: String {
+        return leftState.bottomLineText
+    }
 
     func toggleSelection(at index: Int) {
         leftState.toggleSelection(at: index)

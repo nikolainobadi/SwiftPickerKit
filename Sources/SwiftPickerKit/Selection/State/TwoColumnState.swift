@@ -28,19 +28,19 @@ extension TwoColumnState: BaseSelectionState {
     }
 
     var options: [Option<Item>] {
-        leftState.options
+        return leftState.options
     }
 
     var prompt: String {
-        leftState.prompt
+        return leftState.prompt
     }
 
     var topLineText: String {
-        leftState.topLineText
+        return leftState.topLineText
     }
 
     var bottomLineText: String {
-        leftState.bottomLineText
+        return leftState.bottomLineText
     }
 
     func toggleSelection(at index: Int) {
