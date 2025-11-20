@@ -17,6 +17,6 @@ enum TestFactory {
     }
     
     static func makeItem(name: String) -> TestItem {
-        TestItem(name: name)
+        return .init(name: name)
     }
 }

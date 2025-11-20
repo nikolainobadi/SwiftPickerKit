@@ -18,7 +18,7 @@ struct SingleColumnRendererTests {
 
     @Test("Renders single item at correct row position")
     func rendersSingleItemAtCorrectRowPosition() {
-        let items = [TestItem(name: "First")]
+        let items = [TestFactory.makeItem(name: "First")]
         let state = makeState(items: items, isSingle: true)
         let context = makeContext(startIndex: 0, endIndex: 1, listStartRow: 5)
         let (sut, pickerInput) = makeSUT()
@@ -31,7 +31,7 @@ struct SingleColumnRendererTests {
 
     @Test("Displays active item with filled marker in single selection mode")
     func displaysActiveItemWithFilledMarkerInSingleSelectionMode() {
-        let items = [TestItem(name: "Active")]
+        let items = [TestFactory.makeItem(name: "Active")]
         let state = makeState(items: items, isSingle: true, activeIndex: 0)
         let context = makeContext(startIndex: 0, endIndex: 1)
         let (sut, pickerInput) = makeSUT()
@@ -44,7 +44,7 @@ struct SingleColumnRendererTests {
 
     @Test("Displays inactive item with empty marker in single selection mode")
     func displaysInactiveItemWithEmptyMarkerInSingleSelectionMode() {
-        let items = [TestItem(name: "First"), TestItem(name: "Second")]
+        let items = makeItems(names: ["First", "Second"])
         let state = makeState(items: items, isSingle: true, activeIndex: 0)
         let context = makeContext(startIndex: 0, endIndex: 2)
         let (sut, pickerInput) = makeSUT()
@@ -57,7 +57,7 @@ struct SingleColumnRendererTests {
 
     @Test("Displays selected items with filled marker in multi-selection mode")
     func displaysSelectedItemsWithFilledMarkerInMultiSelectionMode() {
-        let items = [TestItem(name: "Item")]
+        let items = [TestFactory.makeItem(name: "Item")]
         let state = makeState(items: items, isSingle: false, selectedIndices: [0])
         let context = makeContext(startIndex: 0, endIndex: 1)
         let (sut, pickerInput) = makeSUT()
@@ -70,7 +70,7 @@ struct SingleColumnRendererTests {
 
     @Test("Displays unselected items with empty marker in multi-selection mode")
     func displaysUnselectedItemsWithEmptyMarkerInMultiSelectionMode() {
-        let items = [TestItem(name: "Unselected")]
+        let items = [TestFactory.makeItem(name: "Unselected")]
         let state = makeState(items: items, isSingle: false)
         let context = makeContext(startIndex: 0, endIndex: 1)
         let (sut, pickerInput) = makeSUT()
@@ -83,7 +83,7 @@ struct SingleColumnRendererTests {
 
     @Test("Applies underline formatting to active item text")
     func appliesUnderlineFormattingToActiveItemText() {
-        let items = [TestItem(name: "Active")]
+        let items = [TestFactory.makeItem(name: "Active")]
         let state = makeState(items: items, isSingle: true, activeIndex: 0)
         let context = makeContext(startIndex: 0, endIndex: 1)
         let (sut, pickerInput) = makeSUT()
@@ -96,7 +96,7 @@ struct SingleColumnRendererTests {
 
     @Test("Renders multiple items in sequential rows")
     func rendersMultipleItemsInSequentialRows() {
-        let items = [TestItem(name: "First"), TestItem(name: "Second"), TestItem(name: "Third")]
+        let items = makeItems(names: ["First", "Second", "Third"])
         let state = makeState(items: items, isSingle: true)
         let context = makeContext(startIndex: 0, endIndex: 3, listStartRow: 10)
         let (sut, pickerInput) = makeSUT()
@@ -111,7 +111,7 @@ struct SingleColumnRendererTests {
 
     @Test("Renders only visible items within scroll window")
     func rendersOnlyVisibleItemsWithinScrollWindow() {
-        let items = [TestItem(name: "Item1"), TestItem(name: "Item2"), TestItem(name: "Item3")]
+        let items = makeItems(names: ["Item1", "Item2", "Item3"])
         let state = makeState(items: items, isSingle: true)
         let context = makeContext(startIndex: 1, endIndex: 2)
         let (sut, pickerInput) = makeSUT()
@@ -125,7 +125,7 @@ struct SingleColumnRendererTests {
     @Test("Truncates text when exceeding screen width")
     func truncatesTextWhenExceedingScreenWidth() {
         let longName = String(repeating: "A", count: 100)
-        let items = [TestItem(name: longName)]
+        let items = [TestFactory.makeItem(name: longName)]
         let state = makeState(items: items, isSingle: true)
         let context = makeContext(startIndex: 0, endIndex: 1)
         let screenWidth = 20
@@ -139,7 +139,7 @@ struct SingleColumnRendererTests {
 
     @Test("Positions cursor at column zero before moving right")
     func positionsCursorAtColumnZeroBeforeMovingRight() {
-        let items = [TestItem(name: "Item")]
+        let items = [TestFactory.makeItem(name: "Item")]
         let state = makeState(items: items, isSingle: true)
         let context = makeContext(startIndex: 0, endIndex: 1)
         let (sut, pickerInput) = makeSUT()
@@ -152,7 +152,7 @@ struct SingleColumnRendererTests {
     @Test("Writes item display names to output")
     func writesItemDisplayNamesToOutput() {
         let itemName = "TestItem"
-        let items = [TestItem(name: itemName)]
+        let items = [TestFactory.makeItem(name: itemName)]
         let state = makeState(items: items, isSingle: true)
         let context = makeContext(startIndex: 0, endIndex: 1)
         let (sut, pickerInput) = makeSUT()
@@ -187,5 +187,9 @@ private extension SingleColumnRendererTests {
 
     func makeContext(startIndex: Int, endIndex: Int, listStartRow: Int = 0, visibleRowCount: Int = 10) -> ScrollRenderContext {
         return .init(startIndex: startIndex, endIndex: endIndex, listStartRow: listStartRow, visibleRowCount: visibleRowCount)
+    }
+
+    func makeItems(names: [String]) -> [TestItem] {
+        names.map { TestFactory.makeItem(name: $0) }
     }
 }
