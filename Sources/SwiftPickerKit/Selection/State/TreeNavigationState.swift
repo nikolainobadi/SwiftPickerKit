@@ -6,10 +6,11 @@
 //
 
 final class TreeNavigationState<Item: TreeNodePickerItem> {
-    let prompt: String
     private(set) var levels: [Level]
     private var emptyFolderMessage: String?
     private var emptyFolderIndicator: (level: Int, index: Int)?
+    
+    let prompt: String
 
     init(rootItems: [Item], prompt: String) {
         self.prompt = prompt
