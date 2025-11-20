@@ -7,12 +7,6 @@
 
 extension SwiftPicker: CommandLinePermission {
     public func getPermission(prompt: String) -> Bool {
-        textInput.getPermission(prompt)
-    }
-
-    public func requiredPermission(prompt: String) throws {
-        guard getPermission(prompt: prompt) else {
-            throw SwiftPickerError.selectionCancelled
-        }
+        return textInput.getPermission(prompt)
     }
 }

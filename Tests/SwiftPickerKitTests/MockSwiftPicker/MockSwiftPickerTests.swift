@@ -263,8 +263,8 @@ extension MockSwiftPickerTests {
         let selectionResult = makeSelectionResult(singleType: .ordered([.index(0), .index(1)]))
         let sut = makeSUT(selectionResult: selectionResult)
 
-        _ = sut.singleSelection(prompt: prompts[0], items: ["red"], layout: .singleColumn, newScreen: false)
-        _ = sut.singleSelection(prompt: prompts[1], items: ["square"], layout: .singleColumn, newScreen: false)
+        _ = sut.singleSelection(prompt: prompts[0], items: ["red"], layout: .singleColumn, newScreen: false, showSelectedItemText: true)
+        _ = sut.singleSelection(prompt: prompts[1], items: ["square"], layout: .singleColumn, newScreen: false, showSelectedItemText: true)
 
         #expect(sut.capturedSingleSelectionPrompts == prompts)
     }
@@ -275,8 +275,8 @@ extension MockSwiftPickerTests {
         let selectionResult = makeSelectionResult(multiType: .ordered([.indices([]), .indices([])]))
         let sut = makeSUT(selectionResult: selectionResult)
 
-        _ = sut.multiSelection(prompt: prompts[0], items: ["cheese"], layout: .singleColumn, newScreen: false)
-        _ = sut.multiSelection(prompt: prompts[1], items: ["sauce"], layout: .singleColumn, newScreen: false)
+        _ = sut.multiSelection(prompt: prompts[0], items: ["cheese"], layout: .singleColumn, newScreen: false, showSelectedItemText: true)
+        _ = sut.multiSelection(prompt: prompts[1], items: ["sauce"], layout: .singleColumn, newScreen: false, showSelectedItemText: true)
 
         #expect(sut.capturedMultiSelectionPrompts == prompts)
     }
@@ -287,7 +287,7 @@ extension MockSwiftPickerTests {
         let selectionResult = makeSelectionResult(singleType: .ordered([.index(1)]))
         let sut = makeSUT(selectionResult: selectionResult)
 
-        let selection = sut.singleSelection(prompt: "Pick color", items: items, layout: .singleColumn, newScreen: false)
+        let selection = sut.singleSelection(prompt: "Pick color", items: items, layout: .singleColumn, newScreen: false, showSelectedItemText: true)
 
         #expect(selection == items[1])
     }
@@ -298,7 +298,7 @@ extension MockSwiftPickerTests {
         let selectionResult = makeSelectionResult(singleType: .ordered([.none]))
         let sut = makeSUT(selectionResult: selectionResult)
 
-        let selection = sut.singleSelection(prompt: "Pick color", items: items, layout: .singleColumn, newScreen: false)
+        let selection = sut.singleSelection(prompt: "Pick color", items: items, layout: .singleColumn, newScreen: false, showSelectedItemText: true)
 
         #expect(selection == nil)
     }
@@ -309,7 +309,7 @@ extension MockSwiftPickerTests {
         let sut = makeSUT(selectionResult: selectionResult)
 
         #expect(throws: SwiftPickerError.self) {
-            try sut.requiredSingleSelection(prompt: "Pick color", items: ["red"], layout: .singleColumn, newScreen: false)
+            try sut.requiredSingleSelection(prompt: "Pick color", items: ["red"], layout: .singleColumn, newScreen: false, showSelectedItemText: true)
         }
     }
 
@@ -319,7 +319,7 @@ extension MockSwiftPickerTests {
         let selectionResult = makeSelectionResult(singleType: .ordered([.index(1)]))
         let sut = makeSUT(selectionResult: selectionResult)
 
-        let value = try sut.requiredSingleSelection(prompt: "Pick color", items: items, layout: .singleColumn, newScreen: false)
+        let value = try sut.requiredSingleSelection(prompt: "Pick color", items: items, layout: .singleColumn, newScreen: false, showSelectedItemText: true)
 
         #expect(value == items[1])
     }
@@ -330,7 +330,7 @@ extension MockSwiftPickerTests {
         let selectionResult = makeSelectionResult(multiType: .ordered([.indices([0, 2])]))
         let sut = makeSUT(selectionResult: selectionResult)
 
-        let result = sut.multiSelection(prompt: "Pick toppings", items: items, layout: .singleColumn, newScreen: false)
+        let result = sut.multiSelection(prompt: "Pick toppings", items: items, layout: .singleColumn, newScreen: false, showSelectedItemText: true)
 
         #expect(result == ["pepperoni", "olive"])
     }
@@ -341,7 +341,7 @@ extension MockSwiftPickerTests {
         let selectionResult = makeSelectionResult(multiType: .ordered([.indices([0, 5])]))
         let sut = makeSUT(selectionResult: selectionResult)
 
-        let result = sut.multiSelection(prompt: "Pick toppings", items: items, layout: .singleColumn, newScreen: false)
+        let result = sut.multiSelection(prompt: "Pick toppings", items: items, layout: .singleColumn, newScreen: false, showSelectedItemText: true)
 
         #expect(result == ["pepperoni"])
     }

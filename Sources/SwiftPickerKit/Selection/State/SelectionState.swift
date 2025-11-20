@@ -8,16 +8,18 @@
 final class SelectionState<Item: DisplayablePickerItem> {
     let prompt: String
     let isSingleSelection: Bool
+    let showSelectedItemText: Bool
 
     var options: [Option<Item>]
     var activeIndex: Int = 0
     var selectedItemForHeader: Item?
     var isShowingScrollUpIndicator = false
 
-    init(options: [Option<Item>], prompt: String, isSingleSelection: Bool) {
+    init(options: [Option<Item>], prompt: String, isSingleSelection: Bool, showSelectedItemText: Bool = true) {
         self.prompt = prompt
         self.options = options
         self.isSingleSelection = isSingleSelection
+        self.showSelectedItemText = showSelectedItemText
     }
 }
 

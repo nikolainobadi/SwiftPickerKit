@@ -6,8 +6,8 @@
 //
 
 extension SwiftPicker: CommandLineSelection {
-    public func singleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool) -> Item? {
-        switch runSelection(prompt: prompt, items: items, layout: layout, isSingle: true, newScreen: newScreen) {
+    public func singleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool = true) -> Item? {
+        switch runSelection(prompt: prompt, items: items, layout: layout, isSingle: true, newScreen: newScreen, showSelectedItemText: showSelectedItemText) {
         case .finishSingle(let item):
             return item
         default:
@@ -15,16 +15,8 @@ extension SwiftPicker: CommandLineSelection {
         }
     }
 
-    public func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool) throws -> Item {
-        guard let value = singleSelection(prompt: prompt, items: items, layout: layout, newScreen: newScreen) else {
-            throw SwiftPickerError.selectionCancelled
-        }
-        
-        return value
-    }
-
-    public func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool) -> [Item] {
-        switch runSelection(prompt: prompt, items: items, layout: layout, isSingle: false, newScreen: newScreen) {
+    public func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool = true) -> [Item] {
+        switch runSelection(prompt: prompt, items: items, layout: layout, isSingle: false, newScreen: newScreen, showSelectedItemText: showSelectedItemText) {
         case .finishMulti(let items):
             return items
         default:
@@ -40,13 +32,6 @@ public extension SwiftPicker {
             print("\nInteractivePicker SingleSelection result:\n  \("✔".green) \(item)\n")
         }
         return selection
-    }
-
-    func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item]) throws -> Item {
-        guard let item = singleSelection(prompt: prompt, items: items) else {
-            throw SwiftPickerError.selectionCancelled
-        }
-        return item
     }
 
     func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item]) -> [Item] {
@@ -68,7 +53,8 @@ internal extension SwiftPicker {
         items: [Item],
         layout: PickerLayout<Item>,
         isSingle: Bool,
-        newScreen: Bool
+        newScreen: Bool,
+        showSelectedItemText: Bool = true
     ) -> SelectionOutcome<Item> {
 
         if newScreen {
@@ -85,7 +71,8 @@ internal extension SwiftPicker {
         let baseState = SelectionState(
             options: options,
             prompt: prompt,
-            isSingleSelection: isSingle
+            isSingleSelection: isSingle,
+            showSelectedItemText: showSelectedItemText
         )
 
         switch layout {

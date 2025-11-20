@@ -9,9 +9,6 @@
 public protocol CommandLineInput {
     /// Prompts the user for input with the given prompt string.
     func getInput(prompt: String) -> String
-
-    /// Prompts the user for input with the given prompt string and requires input.
-    func getRequiredInput(prompt: String) throws -> String
 }
 
 
@@ -19,6 +16,14 @@ public protocol CommandLineInput {
 public extension CommandLineInput {
     func getInput(_ prompt: String) -> String {
         return getInput(prompt: prompt)
+    }
+    
+    func getRequiredInput(prompt: String) throws -> String {
+        let input = getInput(prompt: prompt)
+        if input.isEmpty {
+            throw SwiftPickerError.inputRequired
+        }
+        return input
     }
 
     func getRequiredInput(_ prompt: String) throws -> String {
