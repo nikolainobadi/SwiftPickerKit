@@ -112,8 +112,4 @@ private extension SelectionStateTests {
         sut.activeIndex = activeIndex
         return (sut, options)
     }
-
-    
-
-    
 }
