@@ -14,14 +14,6 @@ public protocol CommandLineTreeNavigation {
         startInsideFirstRoot: Bool,
         newScreen: Bool
     ) -> Item?
-    
-    func requiredTreeNavigation<Item: TreeNodePickerItem>(
-        prompt: String,
-        rootItems: [Item],
-        allowSelectingFolders: Bool,
-        startInsideFirstRoot: Bool,
-        newScreen: Bool
-    ) throws -> Item
 }
 
 
@@ -41,6 +33,25 @@ public extension CommandLineTreeNavigation {
             startInsideFirstRoot: startInsideFirstRoot,
             newScreen: newScreen
         )
+    }
+
+    func requiredTreeNavigation<Item: TreeNodePickerItem>(
+        prompt: String,
+        rootItems: [Item],
+        allowSelectingFolders: Bool,
+        startInsideFirstRoot: Bool,
+        newScreen: Bool
+    ) throws -> Item {
+        guard let selection = treeNavigation(
+            prompt: prompt,
+            rootItems: rootItems,
+            allowSelectingFolders: allowSelectingFolders,
+            startInsideFirstRoot: startInsideFirstRoot,
+            newScreen: newScreen
+        ) else {
+            throw SwiftPickerError.selectionCancelled
+        }
+        return selection
     }
 
     func requiredTreeNavigation<Item: TreeNodePickerItem>(

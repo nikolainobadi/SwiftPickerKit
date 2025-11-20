@@ -46,23 +46,4 @@ extension SwiftPicker: CommandLineTreeNavigation {
             return nil
         }
     }
-
-    public func requiredTreeNavigation<Item: TreeNodePickerItem>(
-        prompt: String,
-        rootItems: [Item],
-        allowSelectingFolders: Bool,
-        startInsideFirstRoot: Bool,
-        newScreen: Bool
-    ) throws -> Item {
-        guard let selection = treeNavigation(
-            prompt: prompt,
-            rootItems: rootItems,
-            allowSelectingFolders: allowSelectingFolders,
-            startInsideFirstRoot: startInsideFirstRoot,
-            newScreen: newScreen
-        ) else {
-            throw SwiftPickerError.selectionCancelled
-        }
-        return selection
-    }
 }

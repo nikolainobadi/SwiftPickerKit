@@ -15,14 +15,6 @@ extension SwiftPicker: CommandLineSelection {
         }
     }
 
-    public func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool = true) throws -> Item {
-        guard let value = singleSelection(prompt: prompt, items: items, layout: layout, newScreen: newScreen, showSelectedItemText: showSelectedItemText) else {
-            throw SwiftPickerError.selectionCancelled
-        }
-
-        return value
-    }
-
     public func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool = true) -> [Item] {
         switch runSelection(prompt: prompt, items: items, layout: layout, isSingle: false, newScreen: newScreen, showSelectedItemText: showSelectedItemText) {
         case .finishMulti(let items):
@@ -40,13 +32,6 @@ public extension SwiftPicker {
             print("\nInteractivePicker SingleSelection result:\n  \("✔".green) \(item)\n")
         }
         return selection
-    }
-
-    func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item]) throws -> Item {
-        guard let item = singleSelection(prompt: prompt, items: items) else {
-            throw SwiftPickerError.selectionCancelled
-        }
-        return item
     }
 
     func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item]) -> [Item] {

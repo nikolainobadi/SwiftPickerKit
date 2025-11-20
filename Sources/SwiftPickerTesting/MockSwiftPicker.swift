@@ -72,14 +72,6 @@ extension MockSwiftPicker: CommandLineSelection {
         return items[index]
     }
 
-    public func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool) throws -> Item {
-        guard let value = singleSelection(prompt: prompt, items: items, layout: layout, newScreen: newScreen, showSelectedItemText: showSelectedItemText) else {
-            throw SwiftPickerError.selectionCancelled
-        }
-
-        return value
-    }
-
     public func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool) -> [Item] {
         capturedMultiSelectionPrompts.append(prompt)
         let response = selectionResult.nextMultiOutcome(for: prompt)
@@ -111,25 +103,5 @@ extension MockSwiftPicker: CommandLineTreeNavigation {
         }
 
         return rootItems[index]
-    }
-
-    public func requiredTreeNavigation<Item: TreeNodePickerItem>(
-        prompt: String,
-        rootItems: [Item],
-        allowSelectingFolders: Bool,
-        startInsideFirstRoot: Bool,
-        newScreen: Bool
-    ) throws -> Item {
-        guard let value = treeNavigation(
-            prompt: prompt,
-            rootItems: rootItems,
-            allowSelectingFolders: allowSelectingFolders,
-            startInsideFirstRoot: startInsideFirstRoot,
-            newScreen: newScreen
-        ) else {
-            throw SwiftPickerError.selectionCancelled
-        }
-
-        return value
     }
 }
