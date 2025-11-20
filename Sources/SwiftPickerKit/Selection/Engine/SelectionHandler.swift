@@ -115,7 +115,7 @@ private extension SelectionHandler {
         
         height += 1 // blank after prompt
 
-        if currentSelectedItem != nil {
+        if state.showSelectedItemText && currentSelectedItem != nil {
             height += 3 // divider + Selected + divider
             height += state.selectedDetailLines.count
             height += 1 // blank after selected block
@@ -148,6 +148,7 @@ private extension SelectionHandler {
             topLineText: state.topLineText,
             selectedItem: currentSelectedItem,
             selectedDetailLines: state.selectedDetailLines,
+            showSelectedItemText: state.showSelectedItemText,
             screenWidth: cols
         )
 

@@ -16,12 +16,14 @@ protocol BaseSelectionState<Item> {
     var topLineText: String { get }
     var bottomLineText: String { get }
     var selectedDetailLines: [String] { get }
+    var showSelectedItemText: Bool { get }
 
     func toggleSelection(at index: Int)
 }
 
 extension BaseSelectionState {
     var selectedDetailLines: [String] { [] }
-    
+    var showSelectedItemText: Bool { true }
+
     func toggleSelection(at index: Int) { }
 }

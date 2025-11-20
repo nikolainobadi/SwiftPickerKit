@@ -21,7 +21,7 @@ struct PickerHeaderRenderer {
 // MARK: - Methods for Rendering
 extension PickerHeaderRenderer {
     @discardableResult
-    func renderHeader(prompt: String, topLineText: String, selectedItem: (any DisplayablePickerItem)?, selectedDetailLines: [String] = [], screenWidth: Int) -> Int {
+    func renderHeader(prompt: String, topLineText: String, selectedItem: (any DisplayablePickerItem)?, selectedDetailLines: [String] = [], showSelectedItemText: Bool = true, screenWidth: Int) -> Int {
         pickerInput.clearScreen()
         pickerInput.moveToHome()
 
@@ -41,7 +41,7 @@ extension PickerHeaderRenderer {
 
         height += writeNewline()
 
-        if let item = selectedItem {
+        if showSelectedItemText, let item = selectedItem {
             height += writeDivider(width: screenWidth)
             height += writeCentered("Selected: \(item.displayName)".foreColor(51), width: screenWidth)
 
