@@ -47,7 +47,7 @@ extension SelectionState: BaseSelectionState {
 // MARK: - Selection Helpers
 extension SelectionState {
     var selectedOptions: [Option<Item>] {
-        options.filter { $0.isSelected }
+        return options.filter { $0.isSelected }
     }
 
     func showAsSelected(_ option: Option<Item>) -> Bool {
@@ -63,5 +63,7 @@ struct Option<Item: DisplayablePickerItem> {
     let item: Item
     var isSelected: Bool = false
 
-    var title: String { item.displayName }
+    var title: String {
+        return item.displayName
+    }
 }

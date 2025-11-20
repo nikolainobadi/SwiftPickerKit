@@ -5,7 +5,7 @@
 //  Created by Nikolai Nobadi on 11/17/25.
 //
 
-final class TreeNavigationBehavior<Item: TreeNodePickerItem>: SelectionBehavior {
+final class TreeNavigationBehavior<Item: TreeNodePickerItem> {
     typealias State = TreeNavigationState<Item>
     
     let allowSelectingFolders: Bool
@@ -13,7 +13,11 @@ final class TreeNavigationBehavior<Item: TreeNodePickerItem>: SelectionBehavior 
     init(allowSelectingFolders: Bool) {
         self.allowSelectingFolders = allowSelectingFolders
     }
+}
 
+
+// MARK: - SelectionBehavior
+extension TreeNavigationBehavior: SelectionBehavior {
     func handleArrow(direction: Direction, state: inout State) {
         switch direction {
         case .up:
@@ -31,15 +35,15 @@ final class TreeNavigationBehavior<Item: TreeNodePickerItem>: SelectionBehavior 
 
     func handleSpecialChar(char: SpecialChar, state: State) -> SelectionOutcome<Item> {
         switch char {
-
         case .space:
             return .continueLoop
-
         case .backspace:
             return .continueLoop
-
         case .enter:
-            guard !state.currentItems.isEmpty else { return .continueLoop }
+            guard !state.currentItems.isEmpty else {
+                return .continueLoop
+            }
+            
             let selected = state.currentItems[state.activeIndex]
             if allowSelectingFolders {
                 // Return the selected folder OR file
@@ -50,8 +54,8 @@ final class TreeNavigationBehavior<Item: TreeNodePickerItem>: SelectionBehavior 
                     return .finishSingle(selected)
                 }
             }
+            
             return .continueLoop
-
         case .quit:
             return .finishSingle(nil)
         }

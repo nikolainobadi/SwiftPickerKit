@@ -13,13 +13,13 @@ struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRende
         var row = context.listStartRow
 
         for index in context.startIndex..<context.endIndex {
-            let option = state.left.options[index]
+            let option = state.leftState.options[index]
             let isActive = index == state.activeIndex
 
             input.moveTo(row, 0)
             input.moveRight()
 
-            let marker = optionMarker(option: option, isActive: isActive, isSingle: state.left.isSingleSelection)
+            let marker = optionMarker(option: option, isActive: isActive, isSingle: state.leftState.isSingleSelection)
             input.write(marker)
             input.moveRight()
 
@@ -29,7 +29,7 @@ struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRende
             row += 1
         }
 
-        let item = state.left.options[state.activeIndex].item
+        let item = state.leftState.options[state.activeIndex].item
         let lines = state.detailForItem(item).wrapToWidth(maxWidth: rightWidth)
 
         row = context.listStartRow

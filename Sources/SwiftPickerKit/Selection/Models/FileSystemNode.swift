@@ -10,38 +10,47 @@ import Foundation
 public struct FileSystemNode: TreeNodePickerItem {
     public let url: URL
     public var metadata: TreeNodeMetadata?
-
-    public var displayName: String { url.lastPathComponent }
-    public var hasChildren: Bool { isDirectory }
-
-    private var isDirectory: Bool {
-        (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
+    
+    public var displayName: String {
+        return url.lastPathComponent
     }
-
+    
+    public var hasChildren: Bool {
+        return isDirectory
+    }
+    
+    private var isDirectory: Bool {
+        return (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
+    }
+    
     public init(url: URL) {
         self.url = url
-
+        
         // Metadata support
         let attrs = try? FileManager.default.attributesOfItem(atPath: url.path)
         let size = attrs?[.size] as? Int ?? 0
         let modified = attrs?[.modificationDate] as? Date
-
+        
         let subtitle = isDirectory
-            ? "Folder"
-            : ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file)
-
+        ? "Folder"
+        : ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file)
+        
         let updated = modified.map {
             "Updated: \($0.formatted(date: .numeric, time: .shortened))"
         }
-
-        self.metadata = TreeNodeMetadata(
+        
+        self.metadata = .init(
             subtitle: subtitle,
             detailLines: updated.map { [$0] } ?? [],
             icon: isDirectory ? "📁" : "📄"
         )
     }
+}
 
-    public func loadChildren() -> [FileSystemNode] {
+
+// MARK: - Helpers
+public extension FileSystemNode {
+    func loadChildren() -> [FileSystemNode] {
         guard isDirectory else { return [] }
 
         let fm = FileManager.default
@@ -60,6 +69,8 @@ public struct FileSystemNode: TreeNodePickerItem {
     }
 }
 
+
+// MARK: - Extension Dependencies
 public extension FileSystemNode {
     static var showHiddenFiles = false
 }

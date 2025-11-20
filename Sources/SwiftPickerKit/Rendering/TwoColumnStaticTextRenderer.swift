@@ -13,14 +13,14 @@ struct TwoColumnStaticTextRenderer<Item: DisplayablePickerItem>: ContentRenderer
         var row = context.listStartRow
 
         for index in context.startIndex..<context.endIndex {
-            let option = state.left.options[index]
-            let isActive = index == state.left.activeIndex
+            let option = state.leftState.options[index]
+            let isActive = index == state.leftState.activeIndex
 
             input.moveTo(row, 0)
             input.moveRight()
 
             let marker: String
-            if state.left.isSingleSelection {
+            if state.leftState.isSingleSelection {
                 marker = isActive ? "●".lightGreen : "○".foreColor(250)
             } else {
                 marker = option.isSelected ? "●".lightGreen : "○".foreColor(250)

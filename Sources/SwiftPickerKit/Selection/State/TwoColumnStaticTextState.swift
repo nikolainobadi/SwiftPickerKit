@@ -7,32 +7,45 @@
 
 final class TwoColumnStaticTextState<Item: DisplayablePickerItem> {
     private let rawRightText: String
-    
-    var left: SelectionState<Item>
 
-    init(left: SelectionState<Item>, rightText: String) {
-        self.left = left
+    var leftState: SelectionState<Item>
+
+    init(leftState: SelectionState<Item>, rightText: String) {
+        self.leftState = leftState
         self.rawRightText = rightText
     }
 
     /// Splits and wraps full text for the right column using runtime width.
     func wrappedRightLines(width: Int) -> [String] {
-        rawRightText.wrapToWidth(maxWidth: width)
+        return rawRightText.wrapToWidth(maxWidth: width)
     }
 }
 
+
+// MARK: - BaseSelectionState
 extension TwoColumnStaticTextState: BaseSelectionState {
     var activeIndex: Int {
-        get { left.activeIndex }
-        set { left.activeIndex = newValue }
+        get { leftState.activeIndex }
+        set { leftState.activeIndex = newValue }
     }
 
-    var options: [Option<Item>] { left.options }
-    var prompt: String { left.prompt }
-    var topLineText: String { left.topLineText }
-    var bottomLineText: String { left.bottomLineText }
-
+    var options: [Option<Item>] {
+        return leftState.options
+    }
+    
+    var prompt: String {
+        return leftState.prompt
+    }
+    
+    var topLineText: String {
+        return leftState.topLineText
+    }
+    
+    var bottomLineText: String {
+        return leftState.bottomLineText
+    }
+    
     func toggleSelection(at index: Int) {
-        left.toggleSelection(at: index)
+        leftState.toggleSelection(at: index)
     }
 }

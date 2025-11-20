@@ -244,19 +244,11 @@ private extension TwoColumnStaticTextRendererTests {
         }
         let leftState = SelectionState(options: options, prompt: "Test", isSingleSelection: isSingle)
         leftState.activeIndex = activeIndex
-        return TwoColumnStaticTextState(left: leftState, rightText: rightText)
+
+        return .init(leftState: leftState, rightText: rightText)
     }
 
     func makeContext(startIndex: Int, endIndex: Int, listStartRow: Int = 0, visibleRowCount: Int = 10) -> ScrollRenderContext {
-        ScrollRenderContext(startIndex: startIndex, endIndex: endIndex, listStartRow: listStartRow, visibleRowCount: visibleRowCount)
+        return .init(startIndex: startIndex, endIndex: endIndex, listStartRow: listStartRow, visibleRowCount: visibleRowCount)
     }
-}
-
-
-// MARK: - Test Items
-private struct TestItem: DisplayablePickerItem {
-    let name: String
-
-    var displayName: String { name }
-    var description: String { "Description for \(name)" }
 }

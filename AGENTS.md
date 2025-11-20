@@ -15,6 +15,7 @@ Use Swift 5.9 features, four-space indentation, and `// MARK:` organization as i
 
 ## Testing Guidelines
 Tests leverage the Swift `Testing` module (`@Test func ...`) and should mirror the production namespace (`Selection` tests under `Tests/SwiftPickerKitTests/Selection`). Prefer `SwiftPickerTesting` mocks over shell-based IO, and name methods after behaviors (`testMultiSelectionHighlightsActiveRow`). Target coverage around selection flows and renderer trimming; capture reports via `swift test --enable-code-coverage` when shipping user-visible changes.
+- When writing unit tests, open and read `@~/.codex/guidelines/ios_unit_testing_codex_instructions.md` at least once per session.
 
 ## Commit & Pull Request Guidelines
 Commits are short and imperative (“enable tree navigation”, “refactor dynamic detail”) and should stay under ~70 characters; squash fixups before review. Each PR needs a scenario summary, linked issue, UX impact statement, and validation notes (commands, demo prompts, screenshots when terminal output changes). Paste `swift test` (and demo) results so reviewers can reproduce quickly.

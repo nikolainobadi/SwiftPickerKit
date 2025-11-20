@@ -126,7 +126,7 @@ internal extension SwiftPicker {
         case .twoColumnStatic(let detailText):
 
             let state = TwoColumnStaticTextState(
-                left: baseState,
+                leftState: baseState,
                 rightText: detailText
             )
             let renderer = TwoColumnStaticTextRenderer<Item>()
@@ -158,7 +158,7 @@ internal extension SwiftPicker {
         case .twoColumnDynamic(let detailForItem):
 
             let state = TwoColumnDynamicDetailState(
-                left: baseState,
+                leftState: baseState,
                 detailForItem: detailForItem
             )
             let renderer = TwoColumnDynamicDetailRenderer<Item>()
