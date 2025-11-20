@@ -17,7 +17,7 @@ final class TwoColumnStaticTextState<Item: DisplayablePickerItem> {
 
     /// Splits and wraps full text for the right column using runtime width.
     func wrappedRightLines(width: Int) -> [String] {
-        rawRightText.wrapToWidth(maxWidth: width)
+        return rawRightText.wrapToWidth(maxWidth: width)
     }
 }
 
