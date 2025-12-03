@@ -91,7 +91,6 @@ extension MockSwiftPicker: CommandLineTreeNavigation {
     public func treeNavigation<Item: TreeNodePickerItem>(
         prompt: String,
         rootItems: [Item],
-        allowSelectingFolders: Bool,
         newScreen: Bool,
         showPromptText: Bool = true,
         showSelectedItemText: Bool = true

@@ -7,12 +7,6 @@
 
 final class TreeNavigationBehavior<Item: TreeNodePickerItem> {
     typealias State = TreeNavigationState<Item>
-    
-    let allowSelectingFolders: Bool
-    
-    init(allowSelectingFolders: Bool) {
-        self.allowSelectingFolders = allowSelectingFolders
-    }
 }
 
 
@@ -45,12 +39,11 @@ extension TreeNavigationBehavior: SelectionBehavior {
             }
             
             let selected = state.currentItems[state.activeIndex]
-            let canSelect = selected.isSelectable && (allowSelectingFolders || !selected.hasChildren)
-            if canSelect {
-                return .finishSingle(selected)
+            guard selected.isSelectable else {
+                return .continueLoop
             }
-            
-            return .continueLoop
+
+            return .finishSingle(selected)
         case .quit:
             return .finishSingle(nil)
         }

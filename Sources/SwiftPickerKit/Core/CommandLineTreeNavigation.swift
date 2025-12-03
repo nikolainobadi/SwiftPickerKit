@@ -10,7 +10,6 @@ public protocol CommandLineTreeNavigation {
     func treeNavigation<Item: TreeNodePickerItem>(
         prompt: String,
         rootItems: [Item],
-        allowSelectingFolders: Bool,
         newScreen: Bool,
         showPromptText: Bool,
         showSelectedItemText: Bool
@@ -23,7 +22,6 @@ public extension CommandLineTreeNavigation {
     func treeNavigation<Item: TreeNodePickerItem>(
         prompt: String,
         rootItems: [Item],
-        allowSelectingFolders: Bool = true,
         newScreen: Bool = true,
         showPromptText: Bool = true,
         showSelectedItemText: Bool = true
@@ -31,7 +29,6 @@ public extension CommandLineTreeNavigation {
         return treeNavigation(
             prompt: prompt,
             rootItems: rootItems,
-            allowSelectingFolders: allowSelectingFolders,
             newScreen: newScreen,
             showPromptText: showPromptText,
             showSelectedItemText: showSelectedItemText
@@ -41,7 +38,6 @@ public extension CommandLineTreeNavigation {
     func treeNavigation<Item: TreeNodePickerItem>(
         _ prompt: String,
         rootItems: [Item],
-        allowSelectingFolders: Bool = true,
         newScreen: Bool = true,
         showPromptText: Bool = true,
         showSelectedItemText: Bool = true
@@ -49,7 +45,6 @@ public extension CommandLineTreeNavigation {
         return treeNavigation(
             prompt: prompt,
             rootItems: rootItems,
-            allowSelectingFolders: allowSelectingFolders,
             newScreen: newScreen,
             showPromptText: showPromptText,
             showSelectedItemText: showSelectedItemText
@@ -59,7 +54,6 @@ public extension CommandLineTreeNavigation {
     func requiredTreeNavigation<Item: TreeNodePickerItem>(
         prompt: String,
         rootItems: [Item],
-        allowSelectingFolders: Bool,
         newScreen: Bool,
         showPromptText: Bool = true,
         showSelectedItemText: Bool = true
@@ -67,7 +61,6 @@ public extension CommandLineTreeNavigation {
         guard let selection = treeNavigation(
             prompt: prompt,
             rootItems: rootItems,
-            allowSelectingFolders: allowSelectingFolders,
             newScreen: newScreen,
             showPromptText: showPromptText,
             showSelectedItemText: showSelectedItemText
@@ -80,7 +73,6 @@ public extension CommandLineTreeNavigation {
     func requiredTreeNavigation<Item: TreeNodePickerItem>(
         _ prompt: String,
         rootItems: [Item],
-        allowSelectingFolders: Bool = true,
         newScreen: Bool = true,
         showPromptText: Bool = true,
         showSelectedItemText: Bool = true
@@ -88,7 +80,6 @@ public extension CommandLineTreeNavigation {
         return try requiredTreeNavigation(
             prompt: prompt,
             rootItems: rootItems,
-            allowSelectingFolders: allowSelectingFolders,
             newScreen: newScreen,
             showPromptText: showPromptText,
             showSelectedItemText: showSelectedItemText

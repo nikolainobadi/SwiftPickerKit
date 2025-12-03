@@ -13,7 +13,3 @@ public protocol TreeNodePickerItem: DisplayablePickerItem {
     var metadata: TreeNodeMetadata? { get }
     var isSelectable: Bool { get }
 }
-
-public extension TreeNodePickerItem {
-    var isSelectable: Bool { true }
-}

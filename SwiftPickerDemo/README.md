@@ -204,12 +204,12 @@ let root = FileSystemNode(url: URL(fileURLWithPath: "/Users/you"))
 if let selection = picker.treeNavigation(
     prompt: "Browse folders",
     rootItems: [root],
-    allowSelectingFolders: true,
-    startInsideFirstRoot: true,
     newScreen: true
 ) {
     print("Selected: \(selection.url.path)")
 }
+
+// Set isSelectable = false on any TreeNodePickerItem to make it navigable-only.
 ```
 
 ## Project Structure

@@ -16,7 +16,6 @@ struct TreeNavigationBehaviorTests {
 
         #expect(state.activeIndex == 0)
         #expect(state.options.count == roots.count)
-        #expect(sut.allowSelectingFolders)
 
         let result = sut.handleSpecialChar(char: .backspace, state: state)
         if case .continueLoop = result {} else {
@@ -74,10 +73,10 @@ struct TreeNavigationBehaviorTests {
         #expect(mutableState.currentItems.map(\.displayName) == roots.map(\.displayName))
     }
 
-    @Test("Enter selects folders when allowed")
-    func enterSelectsFoldersWhenAllowed() {
+    @Test("Enter selects selectable folders")
+    func enterSelectsSelectableFolders() {
         let roots = [TestFactory.makeTreeItem(name: "Root", children: TestFactory.makeTreeItems(names: ["Child"]))]
-        let (sut, state) = makeSUT(rootItems: roots, allowSelectingFolders: true)
+        let (sut, state) = makeSUT(rootItems: roots)
 
         let result = sut.handleSpecialChar(char: .enter, state: state)
 
@@ -85,26 +84,30 @@ struct TreeNavigationBehaviorTests {
         case .finishSingle(let item):
             #expect(item?.displayName == roots[0].displayName)
         default:
-            Issue.record("Expected finishSingle with folder when allowed")
+            Issue.record("Expected finishSingle with selectable folder")
         }
     }
 
-    @Test("Enter skips folders when not allowed")
-    func enterSkipsFoldersWhenNotAllowed() {
-        let roots = [TestFactory.makeTreeItem(name: "Root", children: TestFactory.makeTreeItems(names: ["Child"]))]
-        let (sut, state) = makeSUT(rootItems: roots, allowSelectingFolders: false)
+    @Test("Enter skips non-selectable folders")
+    func enterSkipsNonSelectableFolders() {
+        let roots = [TestFactory.makeTreeItem(
+            name: "Root",
+            children: TestFactory.makeTreeItems(names: ["Child"]),
+            isSelectable: false
+        )]
+        let (sut, state) = makeSUT(rootItems: roots)
 
         let result = sut.handleSpecialChar(char: .enter, state: state)
 
         if case .continueLoop = result {} else {
-            Issue.record("Expected continueLoop when selecting folder is disallowed")
+            Issue.record("Expected continueLoop when folder is not selectable")
         }
     }
 
-    @Test("Enter selects leaf when folders disallowed")
-    func enterSelectsLeafWhenFoldersDisallowed() {
+    @Test("Enter selects leaf nodes")
+    func enterSelectsLeafNodes() {
         let leaves = TestFactory.makeTreeItems(names: ["Leaf"])
-        let (sut, state) = makeSUT(rootItems: leaves, allowSelectingFolders: false)
+        let (sut, state) = makeSUT(rootItems: leaves)
 
         let result = sut.handleSpecialChar(char: .enter, state: state)
 
@@ -119,7 +122,7 @@ struct TreeNavigationBehaviorTests {
     @Test("Enter skips non-selectable items")
     func enterSkipsNonSelectableItems() {
         let leaves = [TestFactory.makeTreeItem(name: "Leaf", isSelectable: false)]
-        let (sut, state) = makeSUT(rootItems: leaves, allowSelectingFolders: true)
+        let (sut, state) = makeSUT(rootItems: leaves)
 
         let result = sut.handleSpecialChar(char: .enter, state: state)
 
@@ -130,7 +133,7 @@ struct TreeNavigationBehaviorTests {
 
     @Test("Enter continues when no items available")
     func enterContinuesWhenNoItemsAvailable() {
-        let (sut, state) = makeSUT(rootItems: [], allowSelectingFolders: true)
+        let (sut, state) = makeSUT(rootItems: [])
 
         let result = sut.handleSpecialChar(char: .enter, state: state)
 
@@ -157,9 +160,9 @@ struct TreeNavigationBehaviorTests {
 
 // MARK: - SUT
 private extension TreeNavigationBehaviorTests {
-    func makeSUT(rootItems: [TreeTestItem] = TestFactory.makeTreeItems(names: ["Root"]), allowSelectingFolders: Bool = true) -> (TreeNavigationBehavior<TreeTestItem>, TreeNavigationState<TreeTestItem>) {
+    func makeSUT(rootItems: [TreeTestItem] = TestFactory.makeTreeItems(names: ["Root"])) -> (TreeNavigationBehavior<TreeTestItem>, TreeNavigationState<TreeTestItem>) {
         let state = TreeNavigationState(rootItems: rootItems, prompt: "Prompt")
-        let sut = TreeNavigationBehavior<TreeTestItem>(allowSelectingFolders: allowSelectingFolders)
+        let sut = TreeNavigationBehavior<TreeTestItem>()
         return (sut, state)
     }
 }

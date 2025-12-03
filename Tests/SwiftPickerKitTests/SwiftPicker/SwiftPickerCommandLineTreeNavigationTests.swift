@@ -16,8 +16,8 @@ struct SwiftPickerCommandLineTreeNavigationTests {
         #expect(pickerInput.moveToCalls.isEmpty)
     }
 
-    @Test("Selects folder when allowed")
-    func selectsFolderWhenAllowed() {
+    @Test("Selects selectable folder")
+    func selectsSelectableFolder() {
         let child = TestFactory.makeTreeItem(name: "Child")
         let root = TestFactory.makeTreeItem(name: "Root", children: [child])
         let (sut, pickerInput) = makeSUT()
@@ -29,15 +29,14 @@ struct SwiftPickerCommandLineTreeNavigationTests {
         let result = selection.treeNavigation(
             prompt: "Pick",
             rootItems: [root],
-            allowSelectingFolders: true,
             newScreen: false
         )
 
         #expect(result?.displayName == child.displayName)
     }
 
-    @Test("Selects leaf when folders disallowed")
-    func selectsLeafWhenFoldersDisallowed() {
+    @Test("Selects leaf nodes")
+    func selectsLeafNodes() {
         let child = TestFactory.makeTreeItem(name: "Child")
         let root = TestFactory.makeTreeItem(name: "Root", children: [child])
         let (sut, pickerInput) = makeSUT()
@@ -49,7 +48,6 @@ struct SwiftPickerCommandLineTreeNavigationTests {
         let result = selection.treeNavigation(
             prompt: "Pick leaf",
             rootItems: [root],
-            allowSelectingFolders: false,
             newScreen: false
         )
 
@@ -69,7 +67,6 @@ struct SwiftPickerCommandLineTreeNavigationTests {
         let result = selection.treeNavigation(
             prompt: "Pick",
             rootItems: [root],
-            allowSelectingFolders: false,
             newScreen: false
         )
 
@@ -88,7 +85,6 @@ struct SwiftPickerCommandLineTreeNavigationTests {
         let result = selection.treeNavigation(
             prompt: "Quit",
             rootItems: [root],
-            allowSelectingFolders: true,
             newScreen: false
         )
 
@@ -108,7 +104,6 @@ struct SwiftPickerCommandLineTreeNavigationTests {
             _ = try selection.requiredTreeNavigation(
                 prompt: "Quit",
                 rootItems: [root],
-                allowSelectingFolders: true,
                 newScreen: false
             )
         }

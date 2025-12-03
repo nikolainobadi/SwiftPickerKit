@@ -366,14 +366,12 @@ extension MockSwiftPickerTests {
         _ = sut.treeNavigation(
             prompt: prompts[0],
             rootItems: makeTreeNodes(["first"]),
-            allowSelectingFolders: true,
             newScreen: false
         )
 
         _ = sut.treeNavigation(
             prompt: prompts[1],
             rootItems: makeTreeNodes(["second"]),
-            allowSelectingFolders: true,
             newScreen: false
         )
 
@@ -389,7 +387,6 @@ extension MockSwiftPickerTests {
         let result = sut.treeNavigation(
             prompt: "Pick folder",
             rootItems: nodes,
-            allowSelectingFolders: true,
             newScreen: false
         )
 
@@ -404,7 +401,6 @@ extension MockSwiftPickerTests {
         let result = sut.treeNavigation(
             prompt: "Pick folder",
             rootItems: makeTreeNodes(["only"]),
-            allowSelectingFolders: true,
             newScreen: false
         )
 
@@ -420,7 +416,6 @@ extension MockSwiftPickerTests {
             try sut.requiredTreeNavigation(
                 prompt: "Pick folder",
                 rootItems: makeTreeNodes(["only"]),
-                allowSelectingFolders: true,
                 newScreen: false
             )
         }
@@ -435,7 +430,6 @@ extension MockSwiftPickerTests {
         let result = try sut.requiredTreeNavigation(
             prompt: "Pick folder",
             rootItems: nodes,
-            allowSelectingFolders: true,
             newScreen: false
         )
 
