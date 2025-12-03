@@ -401,11 +401,14 @@ struct Browse: ParsableCommand {
             startURL = FileManager.default.homeDirectoryForCurrentUser
         }
 
-        let root = FileSystemNode(url: startURL)
+        let rootItem = FileSystemNode(url: startURL)
+        let rootDisplayName = startURL.lastPathComponent.isEmpty ? startURL.path : startURL.lastPathComponent
+        let rootChildren = rootItem.hasChildren ? rootItem.loadChildren() : [rootItem]
+        let root = TreeNavigationRoot(displayName: rootDisplayName, children: rootChildren)
 
         guard let selection = picker.treeNavigation(
             prompt: "Browse folders. Space enters. Backspace goes up.",
-            rootItems: [root],
+            root: root,
             showPromptText: false
         ) else {
             print("\nNo selection made")

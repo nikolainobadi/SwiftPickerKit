@@ -10,6 +10,7 @@ public protocol CommandLineTreeNavigation {
     func treeNavigation<Item: TreeNodePickerItem>(
         prompt: String,
         rootItems: [Item],
+        rootDisplayName: String?,
         newScreen: Bool,
         showPromptText: Bool,
         showSelectedItemText: Bool
@@ -29,6 +30,7 @@ public extension CommandLineTreeNavigation {
         return treeNavigation(
             prompt: prompt,
             rootItems: rootItems,
+            rootDisplayName: nil,
             newScreen: newScreen,
             showPromptText: showPromptText,
             showSelectedItemText: showSelectedItemText
@@ -45,6 +47,40 @@ public extension CommandLineTreeNavigation {
         return treeNavigation(
             prompt: prompt,
             rootItems: rootItems,
+            rootDisplayName: nil,
+            newScreen: newScreen,
+            showPromptText: showPromptText,
+            showSelectedItemText: showSelectedItemText
+        )
+    }
+
+    func treeNavigation<Item: TreeNodePickerItem>(
+        prompt: String,
+        root: TreeNavigationRoot<Item>,
+        newScreen: Bool = true,
+        showPromptText: Bool = true,
+        showSelectedItemText: Bool = true
+    ) -> Item? {
+        return treeNavigation(
+            prompt: prompt,
+            rootItems: root.children,
+            rootDisplayName: root.displayName,
+            newScreen: newScreen,
+            showPromptText: showPromptText,
+            showSelectedItemText: showSelectedItemText
+        )
+    }
+
+    func treeNavigation<Item: TreeNodePickerItem>(
+        _ prompt: String,
+        root: TreeNavigationRoot<Item>,
+        newScreen: Bool = true,
+        showPromptText: Bool = true,
+        showSelectedItemText: Bool = true
+    ) -> Item? {
+        return treeNavigation(
+            prompt: prompt,
+            root: root,
             newScreen: newScreen,
             showPromptText: showPromptText,
             showSelectedItemText: showSelectedItemText
@@ -61,6 +97,7 @@ public extension CommandLineTreeNavigation {
         guard let selection = treeNavigation(
             prompt: prompt,
             rootItems: rootItems,
+            rootDisplayName: nil,
             newScreen: newScreen,
             showPromptText: showPromptText,
             showSelectedItemText: showSelectedItemText
@@ -80,6 +117,41 @@ public extension CommandLineTreeNavigation {
         return try requiredTreeNavigation(
             prompt: prompt,
             rootItems: rootItems,
+            newScreen: newScreen,
+            showPromptText: showPromptText,
+            showSelectedItemText: showSelectedItemText
+        )
+    }
+
+    func requiredTreeNavigation<Item: TreeNodePickerItem>(
+        prompt: String,
+        root: TreeNavigationRoot<Item>,
+        newScreen: Bool,
+        showPromptText: Bool = true,
+        showSelectedItemText: Bool = true
+    ) throws -> Item {
+        guard let selection = treeNavigation(
+            prompt: prompt,
+            root: root,
+            newScreen: newScreen,
+            showPromptText: showPromptText,
+            showSelectedItemText: showSelectedItemText
+        ) else {
+            throw SwiftPickerError.selectionCancelled
+        }
+        return selection
+    }
+
+    func requiredTreeNavigation<Item: TreeNodePickerItem>(
+        _ prompt: String,
+        root: TreeNavigationRoot<Item>,
+        newScreen: Bool = true,
+        showPromptText: Bool = true,
+        showSelectedItemText: Bool = true
+    ) throws -> Item {
+        return try requiredTreeNavigation(
+            prompt: prompt,
+            root: root,
             newScreen: newScreen,
             showPromptText: showPromptText,
             showSelectedItemText: showSelectedItemText

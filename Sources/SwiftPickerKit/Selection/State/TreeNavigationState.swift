@@ -11,15 +11,23 @@ final class TreeNavigationState<Item: TreeNodePickerItem> {
     private var emptyFolderIndicator: (level: Int, index: Int)?
     private(set) var activeColumn: ActiveColumn = .current
     private var hideRootLevel = false
+    private let rootDisplayName: String?
     
     let prompt: String
     private let showPromptTextValue: Bool
     private let showSelectedItemTextValue: Bool
 
-    init(rootItems: [Item], prompt: String, showPromptText: Bool = true, showSelectedItemText: Bool = true) {
+    init(
+        rootItems: [Item],
+        rootDisplayName: String? = nil,
+        prompt: String,
+        showPromptText: Bool = true,
+        showSelectedItemText: Bool = true
+    ) {
         self.prompt = prompt
         self.showPromptTextValue = showPromptText
         self.showSelectedItemTextValue = showSelectedItemText
+        self.rootDisplayName = rootDisplayName
         self.levels = [.init(items: rootItems, activeIndex: 0)]
     }
 }
@@ -64,6 +72,10 @@ extension TreeNavigationState {
     }
 
     func startAtRootContentsIfNeeded() {
+        guard rootDisplayName == nil else {
+            return
+        }
+
         guard levels.count == 1, let rootLevel = levels.first, rootLevel.items.count == 1 else {
             return
         }
@@ -191,6 +203,10 @@ extension TreeNavigationState {
             }
 
             return level.items[level.activeIndex].displayName
+        }
+
+        if let rootDisplayName {
+            return ([rootDisplayName] + names).joined(separator: " ▸ ")
         }
 
         return names.joined(separator: " ▸ ")
@@ -364,9 +380,8 @@ private extension TreeNavigationState {
 
         if levels.isEmpty {
             levels = [newLevel]
-        } else if levels.count == 1 {
-            levels[0] = newLevel
         } else {
+            // Keep existing ancestor levels intact and add/replace the child level.
             levels.append(newLevel)
         }
 
