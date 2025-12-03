@@ -20,6 +20,9 @@ extension TreeNavigationBehavior: SelectionBehavior {
             state.moveSelectionDown()
         case .right:
             if state.isParentColumnActive {
+                guard !state.currentItems.isEmpty else {
+                    return
+                }
                 state.focusCurrentColumn()
             } else {
                 state.descendIntoChildIfPossible()

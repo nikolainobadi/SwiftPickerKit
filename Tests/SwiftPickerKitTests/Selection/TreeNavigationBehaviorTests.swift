@@ -97,6 +97,29 @@ struct TreeNavigationBehaviorTests {
         #expect(mutableState.currentItems.map(\.displayName) == secondChildren.map(\.displayName))
     }
 
+    @Test("Right arrow does nothing when current column is empty")
+    func rightArrowDoesNothingWhenCurrentColumnIsEmpty() {
+        let children = TestFactory.makeTreeItems(names: ["Child"])
+        let roots = [
+            TestFactory.makeTreeItem(name: "First Root", children: children),
+            TestFactory.makeTreeItem(name: "Second Root")
+        ]
+        let (sut, state) = makeSUT(rootItems: roots)
+
+        var mutableState = state
+        sut.handleArrow(direction: .right, state: &mutableState) // enter first root
+        sut.handleArrow(direction: .left, state: &mutableState) // focus parent column
+        sut.handleArrow(direction: .down, state: &mutableState) // move to second root (no children)
+
+        #expect(mutableState.isParentColumnActive)
+        #expect(mutableState.currentItems.isEmpty)
+
+        sut.handleArrow(direction: .right, state: &mutableState) // should be ignored
+
+        #expect(mutableState.isParentColumnActive)
+        #expect(mutableState.currentItems.isEmpty)
+    }
+
     @Test("Hidden root does not surface in parent column")
     func hiddenRootDoesNotSurfaceInParentColumn() {
         let children = TestFactory.makeTreeItems(names: ["Child 1", "Child 2"])
