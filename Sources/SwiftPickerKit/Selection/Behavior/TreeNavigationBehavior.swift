@@ -45,14 +45,9 @@ extension TreeNavigationBehavior: SelectionBehavior {
             }
             
             let selected = state.currentItems[state.activeIndex]
-            if allowSelectingFolders {
-                // Return the selected folder OR file
+            let canSelect = selected.isSelectable && (allowSelectingFolders || !selected.hasChildren)
+            if canSelect {
                 return .finishSingle(selected)
-            } else {
-                // Only allow selecting leaves
-                if !selected.hasChildren {
-                    return .finishSingle(selected)
-                }
             }
             
             return .continueLoop

@@ -513,6 +513,7 @@ private extension MockSwiftPickerTests {
 private struct MockTreeNode: TreeNodePickerItem, Equatable {
     let name: String
     var children: [MockTreeNode] = []
+    var isSelectable: Bool = true
 
     var displayName: String { name }
     var hasChildren: Bool { !children.isEmpty }

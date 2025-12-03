@@ -9,6 +9,7 @@ public struct TreeNode<T>: TreeNodePickerItem {
     public let displayName: String
     public let value: T
     public let metadata: TreeNodeMetadata?
+    public let isSelectable: Bool
     private let childrenLoader: () -> [TreeNode<T>]
 
     // Lazy caching
@@ -21,12 +22,14 @@ public struct TreeNode<T>: TreeNodePickerItem {
         name: String,
         value: T,
         hasChildren: Bool = false,
+        isSelectable: Bool = true,
         metadata: TreeNodeMetadata? = nil,
         loadChildren: @escaping () -> [TreeNode<T>]
     ) {
         self.displayName = name
         self.value = value
         self.metadata = metadata
+        self.isSelectable = isSelectable
         self.childrenLoader = loadChildren
         self._hasChildren = hasChildren
     }

@@ -23,6 +23,10 @@ public struct FileSystemNode: TreeNodePickerItem {
         return (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
     }
     
+    public var isSelectable: Bool {
+        true
+    }
+    
     public init(url: URL) {
         self.url = url
         

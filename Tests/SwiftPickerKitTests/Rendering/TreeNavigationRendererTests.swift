@@ -212,12 +212,14 @@ private struct TestTreeNode: TreeNodePickerItem {
     let hasChildren: Bool
     let children: [TestTreeNode]
     let metadata: TreeNodeMetadata?
+    let isSelectable: Bool
 
-    init(name: String, hasChildren: Bool = false, children: [TestTreeNode] = [], metadata: TreeNodeMetadata? = nil) {
+    init(name: String, hasChildren: Bool = false, children: [TestTreeNode] = [], metadata: TreeNodeMetadata? = nil, isSelectable: Bool = true) {
         self.name = name
         self.hasChildren = hasChildren
         self.children = children
         self.metadata = metadata
+        self.isSelectable = isSelectable
     }
 
     var displayName: String { name }

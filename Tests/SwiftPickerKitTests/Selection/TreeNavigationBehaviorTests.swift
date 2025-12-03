@@ -116,6 +116,18 @@ struct TreeNavigationBehaviorTests {
         }
     }
 
+    @Test("Enter skips non-selectable items")
+    func enterSkipsNonSelectableItems() {
+        let leaves = [TestFactory.makeTreeItem(name: "Leaf", isSelectable: false)]
+        let (sut, state) = makeSUT(rootItems: leaves, allowSelectingFolders: true)
+
+        let result = sut.handleSpecialChar(char: .enter, state: state)
+
+        if case .continueLoop = result {} else {
+            Issue.record("Expected continueLoop when item is not selectable")
+        }
+    }
+
     @Test("Enter continues when no items available")
     func enterContinuesWhenNoItemsAvailable() {
         let (sut, state) = makeSUT(rootItems: [], allowSelectingFolders: true)
