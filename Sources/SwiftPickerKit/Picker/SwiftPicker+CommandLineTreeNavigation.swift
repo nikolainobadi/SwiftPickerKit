@@ -11,7 +11,8 @@ extension SwiftPicker: CommandLineTreeNavigation {
         rootItems: [Item],
         allowSelectingFolders: Bool,
         startInsideFirstRoot: Bool,
-        newScreen: Bool
+        newScreen: Bool,
+        showPromptText: Bool = true
     ) -> Item? {
         if newScreen {
             pickerInput.enterAlternativeScreen()
@@ -20,7 +21,7 @@ extension SwiftPicker: CommandLineTreeNavigation {
         pickerInput.clearScreen()
         pickerInput.moveToHome()
 
-        let state = TreeNavigationState(rootItems: rootItems, prompt: prompt)
+        let state = TreeNavigationState(rootItems: rootItems, prompt: prompt, showPromptText: showPromptText)
         let behavior = TreeNavigationBehavior<Item>(allowSelectingFolders: allowSelectingFolders)
         let renderer = TreeNavigationRenderer<Item>()
 

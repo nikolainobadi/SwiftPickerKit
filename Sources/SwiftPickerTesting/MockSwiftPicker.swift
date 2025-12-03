@@ -93,7 +93,8 @@ extension MockSwiftPicker: CommandLineTreeNavigation {
         rootItems: [Item],
         allowSelectingFolders: Bool,
         startInsideFirstRoot: Bool,
-        newScreen: Bool
+        newScreen: Bool,
+        showPromptText: Bool = true
     ) -> Item? {
         capturedTreeNavigationPrompts.append(prompt)
         let response = treeNavigationResult.nextOutcome(for: prompt)

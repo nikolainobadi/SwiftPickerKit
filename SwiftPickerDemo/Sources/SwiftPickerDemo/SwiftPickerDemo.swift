@@ -407,8 +407,9 @@ struct Browse: ParsableCommand {
             prompt: "Browse folders. Space enters. Backspace goes up.",
             rootItems: [root],
             allowSelectingFolders: true,
-            startInsideFirstRoot: true,
-            newScreen: true
+            startInsideFirstRoot: false,
+            newScreen: true,
+            showPromptText: false
         ) else {
             print("\nNo selection made")
             return

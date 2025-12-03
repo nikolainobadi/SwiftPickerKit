@@ -107,13 +107,16 @@ private extension SelectionHandler {
     var headerHeight: Int {
         var height = 0
         height += 1 // top line
-        height += 1 // divider
-        height += state.prompt.split(
-            separator: "\n",
-            omittingEmptySubsequences: false
-        ).count
-        
-        height += 1 // blank after prompt
+        if state.showPromptText {
+            height += 1 // divider
+            height += state.prompt.split(
+                separator: "\n",
+                omittingEmptySubsequences: false
+            ).count
+            height += 1 // blank after prompt
+        } else {
+            height += 1 // blank after top line
+        }
 
         if state.showSelectedItemText && currentSelectedItem != nil {
             height += 3 // divider + Selected + divider
@@ -149,6 +152,7 @@ private extension SelectionHandler {
             selectedItem: currentSelectedItem,
             selectedDetailLines: state.selectedDetailLines,
             showSelectedItemText: state.showSelectedItemText,
+            showPromptText: state.showPromptText,
             screenWidth: cols
         )
 

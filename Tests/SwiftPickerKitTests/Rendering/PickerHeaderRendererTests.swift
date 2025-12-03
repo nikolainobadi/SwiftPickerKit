@@ -83,6 +83,25 @@ struct PickerHeaderRendererTests {
         #expect(pickerInput.writtenText.contains { $0.contains("pro…") })
         #expect(pickerInput.writtenText.contains { $0.contains("det…") })
     }
+
+    @Test("Hides prompt text when requested")
+    func hidesPromptTextWhenRequested() {
+        let screenWidth = 10
+        let (sut, pickerInput) = makeSUT()
+
+        let height = sut.renderHeader(
+            prompt: "Hidden prompt",
+            topLineText: "Header",
+            selectedItem: nil,
+            showPromptText: false,
+            screenWidth: screenWidth
+        )
+
+        #expect(height == 3)
+        #expect(pickerInput.writtenText.contains { $0.contains("Hidden prompt") } == false)
+        let hasDivider = pickerInput.writtenText.contains { $0.trimmingCharacters(in: .whitespacesAndNewlines).allSatisfy { $0 == "─" } }
+        #expect(hasDivider == false)
+    }
 }
 
 

@@ -21,25 +21,29 @@ struct PickerHeaderRenderer {
 // MARK: - Methods for Rendering
 extension PickerHeaderRenderer {
     @discardableResult
-    func renderHeader(prompt: String, topLineText: String, selectedItem: (any DisplayablePickerItem)?, selectedDetailLines: [String] = [], showSelectedItemText: Bool = true, screenWidth: Int) -> Int {
+    func renderHeader(prompt: String, topLineText: String, selectedItem: (any DisplayablePickerItem)?, selectedDetailLines: [String] = [], showSelectedItemText: Bool = true, showPromptText: Bool = true, screenWidth: Int) -> Int {
         pickerInput.clearScreen()
         pickerInput.moveToHome()
 
         var height = 0
         height += writeCentered(topLineText, width: screenWidth)
-        height += writeDivider(width: screenWidth)
 
-        let lines = prompt.split(separator: "\n", omittingEmptySubsequences: false)
+        if showPromptText {
+            height += writeDivider(width: screenWidth)
+            let lines = prompt.split(separator: "\n", omittingEmptySubsequences: false)
 
-        for raw in lines {
-            let line = String(raw)
-            let maxWidth = screenWidth - 2
-            let text = line.count > maxWidth ? PickerTextFormatter.truncate(line, maxWidth: maxWidth) : line
+            for raw in lines {
+                let line = String(raw)
+                let maxWidth = screenWidth - 2
+                let text = line.count > maxWidth ? PickerTextFormatter.truncate(line, maxWidth: maxWidth) : line
 
-            height += writeCentered(text, width: screenWidth)
+                height += writeCentered(text, width: screenWidth)
+            }
+
+            height += writeNewline()
+        } else {
+            height += writeNewline()
         }
-
-        height += writeNewline()
 
         if showSelectedItemText, let item = selectedItem {
             height += writeDivider(width: screenWidth)

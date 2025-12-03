@@ -11,9 +11,11 @@ final class TreeNavigationState<Item: TreeNodePickerItem> {
     private var emptyFolderIndicator: (level: Int, index: Int)?
     
     let prompt: String
+    private let showPromptTextValue: Bool
 
-    init(rootItems: [Item], prompt: String) {
+    init(rootItems: [Item], prompt: String, showPromptText: Bool = true) {
         self.prompt = prompt
+        self.showPromptTextValue = showPromptText
         self.levels = [.init(items: rootItems, activeIndex: 0)]
     }
 }
@@ -148,6 +150,10 @@ extension TreeNavigationState: BaseSelectionState {
     var bottomLineText: String {
         // TODO: - need to update this to improve clarity
         return "Arrows: Up/Down highlight, Right enters, Left goes up, Enter selects"
+    }
+
+    var showPromptText: Bool {
+        showPromptTextValue
     }
 
     var selectedDetailLines: [String] {
