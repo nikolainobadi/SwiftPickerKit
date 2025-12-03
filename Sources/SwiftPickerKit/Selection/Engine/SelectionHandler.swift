@@ -132,10 +132,14 @@ private extension SelectionHandler {
         let (rows, cols) = pickerInput.readScreenSize()
 
         let options = state.options
-        if options.indices.contains(state.activeIndex) {
-            currentSelectedItem = options[state.activeIndex].item
+        if let focusAware = state as? any FocusAwareSelectionState<Item> {
+            currentSelectedItem = focusAware.focusedItem
         } else {
-            currentSelectedItem = nil
+            if options.indices.contains(state.activeIndex) {
+                currentSelectedItem = options[state.activeIndex].item
+            } else {
+                currentSelectedItem = nil
+            }
         }
 
         let headerH = headerHeight

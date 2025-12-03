@@ -246,7 +246,7 @@ extension TreeNavigationState: BaseSelectionState {
     var selectedDetailLines: [String] {
         var lines: [String] = []
 
-        if let item = currentSelectedItem, let metadata = item.metadata {
+        if let item = activeSelectedItem, let metadata = item.metadata {
             if let subtitle = metadata.subtitle {
                 lines.append(subtitle.foreColor(240))
             }
@@ -261,18 +261,50 @@ extension TreeNavigationState: BaseSelectionState {
     }
 }
 
+extension TreeNavigationState: FocusAwareSelectionState {
+    var focusedItem: Item? {
+        activeSelectedItem
+    }
+}
+
 // MARK: - Private Methods
 private extension TreeNavigationState {
     var currentLevel: Level {
         return levels.last ?? Level(items: [], activeIndex: 0)
     }
 
-    var currentSelectedItem: Item? {
-        guard currentItems.indices.contains(activeIndex) else {
+    var activeItems: [Item] {
+        return isCurrentColumnActive ? currentItems : (parentLevelInfo?.level.items ?? [])
+    }
+
+    var activeSelectedItem: Item? {
+        guard let index = focusedIndex else {
             return nil
         }
 
-        return currentItems[activeIndex]
+        let items = activeItems
+        guard items.indices.contains(index) else {
+            return nil
+        }
+        return items[index]
+    }
+
+    var currentSelectedItem: Item? {
+        let currentIndex = currentLevel.activeIndex
+        guard currentItems.indices.contains(currentIndex) else {
+            return nil
+        }
+
+        return currentItems[currentIndex]
+    }
+
+    var focusedIndex: Int? {
+        switch activeColumn {
+        case .current:
+            return currentLevel.activeIndex
+        case .parent:
+            return parentLevelInfo?.level.activeIndex
+        }
     }
 
     func clampCurrentLevel() {
@@ -293,14 +325,7 @@ private extension TreeNavigationState {
         levels[levels.count - 1] = level
 
         if isParentColumnActive, var parentInfo = parentLevelInfo {
-            if parentInfo.level.items.isEmpty {
-                parentInfo.level.activeIndex = 0
-            } else if parentInfo.level.activeIndex >= parentInfo.level.items.count {
-                parentInfo.level.activeIndex = parentInfo.level.items.count - 1
-            } else if parentInfo.level.activeIndex < 0 {
-                parentInfo.level.activeIndex = 0
-            }
-
+            clampParentLevel(&parentInfo.level)
             levels[parentInfo.index] = parentInfo.level
         }
     }
@@ -327,11 +352,7 @@ private extension TreeNavigationState {
 
         parentInfo.level.activeIndex += delta
 
-        if parentInfo.level.items.isEmpty {
-            parentInfo.level.activeIndex = 0
-        } else {
-            parentInfo.level.activeIndex = min(max(0, parentInfo.level.activeIndex), parentInfo.level.items.count - 1)
-        }
+        clampParentLevel(&parentInfo.level)
 
         levels[parentInfo.index] = parentInfo.level
         clearEmptyFolderHint()
@@ -350,6 +371,16 @@ private extension TreeNavigationState {
         }
 
         clampCurrentLevel()
+    }
+
+    func clampParentLevel(_ level: inout Level) {
+        if level.items.isEmpty {
+            level.activeIndex = 0
+        } else if level.activeIndex >= level.items.count {
+            level.activeIndex = level.items.count - 1
+        } else if level.activeIndex < 0 {
+            level.activeIndex = 0
+        }
     }
 }
 

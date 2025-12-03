@@ -29,3 +29,9 @@ extension BaseSelectionState {
 
     func toggleSelection(at index: Int) { }
 }
+
+/// Optional protocol for states that expose which item is currently focused,
+/// even when the displayed list differs from the active cursor column.
+protocol FocusAwareSelectionState<Item>: BaseSelectionState {
+    var focusedItem: Item? { get }
+}
