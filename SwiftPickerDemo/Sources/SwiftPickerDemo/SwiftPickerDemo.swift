@@ -274,7 +274,7 @@ extension SwiftPickerDemo {
         )
 
         func run() throws {
-            let picker = SwiftPicker()
+            let picker: any CommandLinePicker = SwiftPicker()
 
             struct Mode: DisplayablePickerItem {
                 let name: String
