@@ -15,15 +15,18 @@ extension TreeNavigationBehavior: SelectionBehavior {
     func handleArrow(direction: Direction, state: inout State) {
         switch direction {
         case .up:
-            state.activeIndex -= 1
-            state.clampIndex()
+            state.moveSelectionUp()
         case .down:
-            state.activeIndex += 1
-            state.clampIndex()
+            state.moveSelectionDown()
         case .right:
+            state.focusCurrentColumn()
             state.descendIntoChildIfPossible()
         case .left:
-            state.ascendToParent()
+            if state.isCurrentColumnActive {
+                state.focusParentColumnIfAvailable()
+            } else {
+                state.ascendToParent()
+            }
         }
     }
 

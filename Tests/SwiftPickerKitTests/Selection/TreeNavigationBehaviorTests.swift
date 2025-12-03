@@ -60,17 +60,57 @@ struct TreeNavigationBehaviorTests {
         #expect(mutableState.activeIndex == 0)
     }
 
-    @Test("Ascends to parent on left arrow")
-    func ascendsToParentOnLeftArrow() {
+    @Test("Left arrow focuses parent column before ascending")
+    func leftArrowFocusesParentColumnBeforeAscending() {
         let children = TestFactory.makeTreeItems(names: ["Child"])
         let roots = [TestFactory.makeTreeItem(name: "Root", children: children)]
         let (sut, state) = makeSUT(rootItems: roots)
 
         var mutableState = state
         sut.handleArrow(direction: .right, state: &mutableState)
-        sut.handleArrow(direction: .left, state: &mutableState)
+        sut.handleArrow(direction: .left, state: &mutableState) // switch to parent column
+
+        #expect(mutableState.isParentColumnActive)
+        #expect(mutableState.currentItems.map(\.displayName) == children.map(\.displayName))
+
+        sut.handleArrow(direction: .left, state: &mutableState) // now ascend
 
         #expect(mutableState.currentItems.map(\.displayName) == roots.map(\.displayName))
+    }
+
+    @Test("Parent navigation updates current column children")
+    func parentNavigationUpdatesCurrentColumnChildren() {
+        let firstChildren = TestFactory.makeTreeItems(names: ["First Child"])
+        let secondChildren = TestFactory.makeTreeItems(names: ["Second Child 1", "Second Child 2"])
+        let roots = [
+            TestFactory.makeTreeItem(name: "First Root", children: firstChildren),
+            TestFactory.makeTreeItem(name: "Second Root", children: secondChildren)
+        ]
+        let (sut, state) = makeSUT(rootItems: roots)
+
+        var mutableState = state
+        sut.handleArrow(direction: .right, state: &mutableState) // enter first root
+        sut.handleArrow(direction: .left, state: &mutableState) // focus parent column
+        sut.handleArrow(direction: .down, state: &mutableState) // move to second root
+
+        #expect(mutableState.isParentColumnActive)
+        #expect(mutableState.currentItems.map(\.displayName) == secondChildren.map(\.displayName))
+    }
+
+    @Test("Hidden root does not surface in parent column")
+    func hiddenRootDoesNotSurfaceInParentColumn() {
+        let children = TestFactory.makeTreeItems(names: ["Child 1", "Child 2"])
+        let roots = [TestFactory.makeTreeItem(name: "Root", children: children)]
+        let (sut, state) = makeSUT(rootItems: roots)
+
+        var mutableState = state
+        mutableState.startAtRootContentsIfNeeded()
+
+        #expect(mutableState.isCurrentColumnActive)
+        #expect(mutableState.parentLevelInfo == nil)
+
+        sut.handleArrow(direction: .left, state: &mutableState) // should not reveal root
+        #expect(mutableState.currentItems.map(\.displayName) == children.map(\.displayName))
     }
 
     @Test("Enter selects selectable folders")

@@ -9,6 +9,8 @@ final class TreeNavigationState<Item: TreeNodePickerItem> {
     private(set) var levels: [Level]
     private var emptyFolderMessage: String?
     private var emptyFolderIndicator: (level: Int, index: Int)?
+    private(set) var activeColumn: ActiveColumn = .current
+    private var hideRootLevel = false
     
     let prompt: String
     private let showPromptTextValue: Bool
@@ -24,6 +26,14 @@ final class TreeNavigationState<Item: TreeNodePickerItem> {
 
 // MARK: - Methods for Tree Navigation
 extension TreeNavigationState {
+    var isCurrentColumnActive: Bool {
+        return activeColumn == .current
+    }
+
+    var isParentColumnActive: Bool {
+        return activeColumn == .parent
+    }
+
     var currentItems: [Item] {
         return levels.last?.items ?? []
     }
@@ -33,9 +43,14 @@ extension TreeNavigationState {
             return nil
         }
 
-        let index = levels.count - 2
+        let candidateIndex = levels.count - 2
 
-        return (index, levels[index])
+        // When hiding the root, suppress showing/navigating the root level.
+        if hideRootLevel && candidateIndex == 0 {
+            return nil
+        }
+
+        return (candidateIndex, levels[candidateIndex])
     }
 
     var currentLevelInfo: (index: Int, level: Level) {
@@ -63,12 +78,67 @@ extension TreeNavigationState {
         guard !children.isEmpty else {
             emptyFolderIndicator = (level: 0, index: 0)
             emptyFolderMessage = "'\(root.displayName)' is empty"
-            levels = [.init(items: [], activeIndex: 0)]
+            levels = [rootLevel, .init(items: [], activeIndex: 0)]
             return
         }
 
-        levels = [.init(items: children, activeIndex: 0)]
+        levels = [rootLevel, .init(items: children, activeIndex: 0)]
+        hideRootLevel = true
+        activeColumn = .current
         clearEmptyFolderHint()
+    }
+
+    func focusParentColumnIfAvailable() {
+        guard parentLevelInfo != nil else {
+            return
+        }
+
+        activeColumn = .parent
+    }
+
+    func focusCurrentColumn() {
+        activeColumn = .current
+    }
+
+    func moveSelectionUp() {
+        moveSelection(by: -1)
+    }
+
+    func moveSelectionDown() {
+        moveSelection(by: 1)
+    }
+
+    func updateChildrenForActiveParent(at parentIndex: Int? = nil) {
+        let parentDetails: (index: Int, level: Level)?
+        if let parentIndex {
+            parentDetails = levels.indices.contains(parentIndex) ? (parentIndex, levels[parentIndex]) : nil
+        } else {
+            parentDetails = parentLevelInfo
+        }
+
+        guard let parentInfo = parentDetails else {
+            return
+        }
+
+        guard parentInfo.level.items.indices.contains(parentInfo.level.activeIndex) else {
+            resetCurrentLevel(to: [])
+            return
+        }
+
+        let selected = parentInfo.level.items[parentInfo.level.activeIndex]
+        let children = selected.loadChildren()
+
+        levels = Array(levels.prefix(parentInfo.index + 1))
+
+        guard !children.isEmpty else {
+            emptyFolderIndicator = (level: parentInfo.index, index: parentInfo.level.activeIndex)
+            emptyFolderMessage = "'\(selected.displayName)' is empty"
+            resetCurrentLevel(to: [])
+            return
+        }
+
+        clearEmptyFolderHint()
+        resetCurrentLevel(to: children)
     }
 
     func clampIndex() {
@@ -91,6 +161,7 @@ extension TreeNavigationState {
 
         levels.append(.init(items: children, activeIndex: 0))
         clearEmptyFolderHint()
+        activeColumn = .current
     }
 
     func ascendToParent() {
@@ -98,8 +169,19 @@ extension TreeNavigationState {
             return
         }
 
+        // If the only parent is the hidden root, do not ascend.
+        if hideRootLevel && levels.count == 2 {
+            return
+        }
+
         levels.removeLast()
         clearEmptyFolderHint()
+
+        if parentLevelInfo != nil {
+            activeColumn = .parent
+        } else {
+            activeColumn = .current
+        }
     }
 
     func breadcrumbPath() -> String {
@@ -150,8 +232,7 @@ extension TreeNavigationState: BaseSelectionState {
     }
 
     var bottomLineText: String {
-        // TODO: - need to update this to improve clarity
-        return "Arrows: Up/Down highlight, Right enters, Left goes up, Enter selects"
+        return "Arrows: Up/Down move, Right enters, Left switches/ascends, Enter selects"
     }
 
     var showPromptText: Bool {
@@ -210,16 +291,75 @@ private extension TreeNavigationState {
         }
 
         levels[levels.count - 1] = level
+
+        if isParentColumnActive, var parentInfo = parentLevelInfo {
+            if parentInfo.level.items.isEmpty {
+                parentInfo.level.activeIndex = 0
+            } else if parentInfo.level.activeIndex >= parentInfo.level.items.count {
+                parentInfo.level.activeIndex = parentInfo.level.items.count - 1
+            } else if parentInfo.level.activeIndex < 0 {
+                parentInfo.level.activeIndex = 0
+            }
+
+            levels[parentInfo.index] = parentInfo.level
+        }
     }
 
     func clearEmptyFolderHint() {
         emptyFolderIndicator = nil
         emptyFolderMessage = nil
     }
+
+    func moveSelection(by delta: Int) {
+        switch activeColumn {
+        case .current:
+            activeIndex += delta
+            clampCurrentLevel()
+        case .parent:
+            moveParentSelection(by: delta)
+        }
+    }
+
+    func moveParentSelection(by delta: Int) {
+        guard var parentInfo = parentLevelInfo else {
+            return
+        }
+
+        parentInfo.level.activeIndex += delta
+
+        if parentInfo.level.items.isEmpty {
+            parentInfo.level.activeIndex = 0
+        } else {
+            parentInfo.level.activeIndex = min(max(0, parentInfo.level.activeIndex), parentInfo.level.items.count - 1)
+        }
+
+        levels[parentInfo.index] = parentInfo.level
+        clearEmptyFolderHint()
+        updateChildrenForActiveParent(at: parentInfo.index)
+    }
+
+    func resetCurrentLevel(to items: [Item]) {
+        let newLevel = Level(items: items, activeIndex: 0)
+
+        if levels.isEmpty {
+            levels = [newLevel]
+        } else if levels.count == 1 {
+            levels[0] = newLevel
+        } else {
+            levels.append(newLevel)
+        }
+
+        clampCurrentLevel()
+    }
 }
 
 // MARK: - Dependencies
 extension TreeNavigationState {
+    enum ActiveColumn {
+        case current
+        case parent
+    }
+
     struct Level {
         var items: [Item]
         var activeIndex: Int
