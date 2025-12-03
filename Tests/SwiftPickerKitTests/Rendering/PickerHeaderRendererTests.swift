@@ -105,6 +105,25 @@ struct PickerHeaderRendererTests {
         }
         #expect(hasDivider == false)
     }
+
+    @Test("Hides selected item section when requested")
+    func hidesSelectedItemSectionWhenRequested() {
+        let screenWidth = 12
+        let (sut, pickerInput) = makeSUT()
+
+        let height = sut.renderHeader(
+            prompt: "Prompt",
+            topLineText: "Header",
+            selectedItem: "Choice",
+            selectedDetailLines: ["Detail"],
+            showSelectedItemText: false,
+            screenWidth: screenWidth
+        )
+
+        #expect(height == 5)
+        #expect(pickerInput.writtenText.contains { $0.contains("Selected:") } == false)
+        #expect(pickerInput.writtenText.contains { $0.contains("Detail") } == false)
+    }
 }
 
 

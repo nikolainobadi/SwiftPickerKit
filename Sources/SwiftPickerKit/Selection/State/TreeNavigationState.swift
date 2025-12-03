@@ -12,10 +12,12 @@ final class TreeNavigationState<Item: TreeNodePickerItem> {
     
     let prompt: String
     private let showPromptTextValue: Bool
+    private let showSelectedItemTextValue: Bool
 
-    init(rootItems: [Item], prompt: String, showPromptText: Bool = true) {
+    init(rootItems: [Item], prompt: String, showPromptText: Bool = true, showSelectedItemText: Bool = true) {
         self.prompt = prompt
         self.showPromptTextValue = showPromptText
+        self.showSelectedItemTextValue = showSelectedItemText
         self.levels = [.init(items: rootItems, activeIndex: 0)]
     }
 }
@@ -154,6 +156,10 @@ extension TreeNavigationState: BaseSelectionState {
 
     var showPromptText: Bool {
         showPromptTextValue
+    }
+
+    var showSelectedItemText: Bool {
+        showSelectedItemTextValue
     }
 
     var selectedDetailLines: [String] {

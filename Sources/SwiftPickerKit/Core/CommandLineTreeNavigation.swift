@@ -12,7 +12,8 @@ public protocol CommandLineTreeNavigation {
         rootItems: [Item],
         allowSelectingFolders: Bool,
         newScreen: Bool,
-        showPromptText: Bool
+        showPromptText: Bool,
+        showSelectedItemText: Bool
     ) -> Item?
 }
 
@@ -24,14 +25,16 @@ public extension CommandLineTreeNavigation {
         rootItems: [Item],
         allowSelectingFolders: Bool = true,
         newScreen: Bool = true,
-        showPromptText: Bool = true
+        showPromptText: Bool = true,
+        showSelectedItemText: Bool = true
     ) -> Item? {
         return treeNavigation(
             prompt: prompt,
             rootItems: rootItems,
             allowSelectingFolders: allowSelectingFolders,
             newScreen: newScreen,
-            showPromptText: showPromptText
+            showPromptText: showPromptText,
+            showSelectedItemText: showSelectedItemText
         )
     }
     
@@ -40,14 +43,16 @@ public extension CommandLineTreeNavigation {
         rootItems: [Item],
         allowSelectingFolders: Bool = true,
         newScreen: Bool = true,
-        showPromptText: Bool = true
+        showPromptText: Bool = true,
+        showSelectedItemText: Bool = true
     ) -> Item? {
         return treeNavigation(
             prompt: prompt,
             rootItems: rootItems,
             allowSelectingFolders: allowSelectingFolders,
             newScreen: newScreen,
-            showPromptText: showPromptText
+            showPromptText: showPromptText,
+            showSelectedItemText: showSelectedItemText
         )
     }
 
@@ -56,14 +61,16 @@ public extension CommandLineTreeNavigation {
         rootItems: [Item],
         allowSelectingFolders: Bool,
         newScreen: Bool,
-        showPromptText: Bool = true
+        showPromptText: Bool = true,
+        showSelectedItemText: Bool = true
     ) throws -> Item {
         guard let selection = treeNavigation(
             prompt: prompt,
             rootItems: rootItems,
             allowSelectingFolders: allowSelectingFolders,
             newScreen: newScreen,
-            showPromptText: showPromptText
+            showPromptText: showPromptText,
+            showSelectedItemText: showSelectedItemText
         ) else {
             throw SwiftPickerError.selectionCancelled
         }
@@ -75,14 +82,16 @@ public extension CommandLineTreeNavigation {
         rootItems: [Item],
         allowSelectingFolders: Bool = true,
         newScreen: Bool = true,
-        showPromptText: Bool = true
+        showPromptText: Bool = true,
+        showSelectedItemText: Bool = true
     ) throws -> Item {
         return try requiredTreeNavigation(
             prompt: prompt,
             rootItems: rootItems,
             allowSelectingFolders: allowSelectingFolders,
             newScreen: newScreen,
-            showPromptText: showPromptText
+            showPromptText: showPromptText,
+            showSelectedItemText: showSelectedItemText
         )
     }
 }
