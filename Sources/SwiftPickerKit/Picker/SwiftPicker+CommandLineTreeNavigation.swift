@@ -10,7 +10,6 @@ extension SwiftPicker: CommandLineTreeNavigation {
         prompt: String,
         rootItems: [Item],
         allowSelectingFolders: Bool,
-        startInsideFirstRoot: Bool,
         newScreen: Bool,
         showPromptText: Bool = true
     ) -> Item? {
@@ -25,9 +24,7 @@ extension SwiftPicker: CommandLineTreeNavigation {
         let behavior = TreeNavigationBehavior<Item>(allowSelectingFolders: allowSelectingFolders)
         let renderer = TreeNavigationRenderer<Item>()
 
-        if startInsideFirstRoot {
-            state.startAtRootContentsIfNeeded()
-        }
+        state.startAtRootContentsIfNeeded()
 
         let handler = SelectionHandler(
             state: state,

@@ -11,7 +11,6 @@ public protocol CommandLineTreeNavigation {
         prompt: String,
         rootItems: [Item],
         allowSelectingFolders: Bool,
-        startInsideFirstRoot: Bool,
         newScreen: Bool,
         showPromptText: Bool
     ) -> Item?
@@ -24,7 +23,6 @@ public extension CommandLineTreeNavigation {
         prompt: String,
         rootItems: [Item],
         allowSelectingFolders: Bool = true,
-        startInsideFirstRoot: Bool = false,
         newScreen: Bool = true,
         showPromptText: Bool = true
     ) -> Item? {
@@ -32,7 +30,6 @@ public extension CommandLineTreeNavigation {
             prompt: prompt,
             rootItems: rootItems,
             allowSelectingFolders: allowSelectingFolders,
-            startInsideFirstRoot: startInsideFirstRoot,
             newScreen: newScreen,
             showPromptText: showPromptText
         )
@@ -42,7 +39,6 @@ public extension CommandLineTreeNavigation {
         _ prompt: String,
         rootItems: [Item],
         allowSelectingFolders: Bool = true,
-        startInsideFirstRoot: Bool = false,
         newScreen: Bool = true,
         showPromptText: Bool = true
     ) -> Item? {
@@ -50,7 +46,6 @@ public extension CommandLineTreeNavigation {
             prompt: prompt,
             rootItems: rootItems,
             allowSelectingFolders: allowSelectingFolders,
-            startInsideFirstRoot: startInsideFirstRoot,
             newScreen: newScreen,
             showPromptText: showPromptText
         )
@@ -60,7 +55,6 @@ public extension CommandLineTreeNavigation {
         prompt: String,
         rootItems: [Item],
         allowSelectingFolders: Bool,
-        startInsideFirstRoot: Bool,
         newScreen: Bool,
         showPromptText: Bool = true
     ) throws -> Item {
@@ -68,7 +62,6 @@ public extension CommandLineTreeNavigation {
             prompt: prompt,
             rootItems: rootItems,
             allowSelectingFolders: allowSelectingFolders,
-            startInsideFirstRoot: startInsideFirstRoot,
             newScreen: newScreen,
             showPromptText: showPromptText
         ) else {
@@ -81,7 +74,6 @@ public extension CommandLineTreeNavigation {
         _ prompt: String,
         rootItems: [Item],
         allowSelectingFolders: Bool = true,
-        startInsideFirstRoot: Bool = false,
         newScreen: Bool = true,
         showPromptText: Bool = true
     ) throws -> Item {
@@ -89,7 +81,6 @@ public extension CommandLineTreeNavigation {
             prompt: prompt,
             rootItems: rootItems,
             allowSelectingFolders: allowSelectingFolders,
-            startInsideFirstRoot: startInsideFirstRoot,
             newScreen: newScreen,
             showPromptText: showPromptText
         )

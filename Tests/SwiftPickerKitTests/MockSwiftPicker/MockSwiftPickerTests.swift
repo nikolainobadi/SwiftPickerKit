@@ -367,7 +367,6 @@ extension MockSwiftPickerTests {
             prompt: prompts[0],
             rootItems: makeTreeNodes(["first"]),
             allowSelectingFolders: true,
-            startInsideFirstRoot: false,
             newScreen: false
         )
 
@@ -375,7 +374,6 @@ extension MockSwiftPickerTests {
             prompt: prompts[1],
             rootItems: makeTreeNodes(["second"]),
             allowSelectingFolders: true,
-            startInsideFirstRoot: false,
             newScreen: false
         )
 
@@ -392,7 +390,6 @@ extension MockSwiftPickerTests {
             prompt: "Pick folder",
             rootItems: nodes,
             allowSelectingFolders: true,
-            startInsideFirstRoot: false,
             newScreen: false
         )
 
@@ -408,7 +405,6 @@ extension MockSwiftPickerTests {
             prompt: "Pick folder",
             rootItems: makeTreeNodes(["only"]),
             allowSelectingFolders: true,
-            startInsideFirstRoot: false,
             newScreen: false
         )
 
@@ -425,7 +421,6 @@ extension MockSwiftPickerTests {
                 prompt: "Pick folder",
                 rootItems: makeTreeNodes(["only"]),
                 allowSelectingFolders: true,
-                startInsideFirstRoot: false,
                 newScreen: false
             )
         }
@@ -441,7 +436,6 @@ extension MockSwiftPickerTests {
             prompt: "Pick folder",
             rootItems: nodes,
             allowSelectingFolders: true,
-            startInsideFirstRoot: false,
             newScreen: false
         )
 

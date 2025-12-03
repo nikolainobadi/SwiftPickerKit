@@ -30,11 +30,10 @@ struct SwiftPickerCommandLineTreeNavigationTests {
             prompt: "Pick",
             rootItems: [root],
             allowSelectingFolders: true,
-            startInsideFirstRoot: false,
             newScreen: false
         )
 
-        #expect(result?.displayName == root.displayName)
+        #expect(result?.displayName == child.displayName)
     }
 
     @Test("Selects leaf when folders disallowed")
@@ -45,22 +44,20 @@ struct SwiftPickerCommandLineTreeNavigationTests {
         let selection: CommandLineTreeNavigation = sut
 
         pickerInput.pressKey = true
-        pickerInput.enqueueDirectionKey(.right)
         pickerInput.enqueueSpecialChar(.enter)
 
         let result = selection.treeNavigation(
             prompt: "Pick leaf",
             rootItems: [root],
             allowSelectingFolders: false,
-            startInsideFirstRoot: false,
             newScreen: false
         )
 
         #expect(result?.displayName == child.displayName)
     }
 
-    @Test("Starts inside first root when requested")
-    func startsInsideFirstRootWhenRequested() {
+    @Test("Always starts inside first root when available")
+    func alwaysStartsInsideFirstRootWhenAvailable() {
         let child = TestFactory.makeTreeItem(name: "Child")
         let root = TestFactory.makeTreeItem(name: "Root", children: [child])
         let (sut, pickerInput) = makeSUT()
@@ -73,7 +70,6 @@ struct SwiftPickerCommandLineTreeNavigationTests {
             prompt: "Pick",
             rootItems: [root],
             allowSelectingFolders: false,
-            startInsideFirstRoot: true,
             newScreen: false
         )
 
@@ -93,7 +89,6 @@ struct SwiftPickerCommandLineTreeNavigationTests {
             prompt: "Quit",
             rootItems: [root],
             allowSelectingFolders: true,
-            startInsideFirstRoot: false,
             newScreen: false
         )
 
@@ -114,7 +109,6 @@ struct SwiftPickerCommandLineTreeNavigationTests {
                 prompt: "Quit",
                 rootItems: [root],
                 allowSelectingFolders: true,
-                startInsideFirstRoot: false,
                 newScreen: false
             )
         }
