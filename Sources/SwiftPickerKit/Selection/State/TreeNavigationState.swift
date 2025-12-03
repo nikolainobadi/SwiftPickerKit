@@ -44,6 +44,29 @@ extension TreeNavigationState {
         return (index, levels[index])
     }
 
+    func startAtRootContentsIfNeeded() {
+        guard levels.count == 1, let rootLevel = levels.first, rootLevel.items.count == 1 else {
+            return
+        }
+
+        let root = rootLevel.items[0]
+        guard root.hasChildren else {
+            return
+        }
+
+        let children = root.loadChildren()
+
+        guard !children.isEmpty else {
+            emptyFolderIndicator = (level: 0, index: 0)
+            emptyFolderMessage = "'\(root.displayName)' is empty"
+            levels = [.init(items: [], activeIndex: 0)]
+            return
+        }
+
+        levels = [.init(items: children, activeIndex: 0)]
+        clearEmptyFolderHint()
+    }
+
     func clampIndex() {
         clampCurrentLevel()
     }
@@ -119,7 +142,7 @@ extension TreeNavigationState: BaseSelectionState {
     }
 
     var topLineText: String {
-        return "Tree Navigation"
+        return "SwiftPicker - Tree Navigation"
     }
 
     var bottomLineText: String {

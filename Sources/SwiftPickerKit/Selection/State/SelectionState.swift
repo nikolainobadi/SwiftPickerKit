@@ -26,7 +26,7 @@ final class SelectionState<Item: DisplayablePickerItem> {
 // MARK: - BaseSelectionState
 extension SelectionState: BaseSelectionState {
     var topLineText: String {
-        return "InteractivePicker (\(isSingleSelection ? "single" : "multi")-selection)"
+        return "SwiftPicker (\(isSingleSelection ? "single" : "multi")-selection)"
     }
 
     var bottomLineText: String {

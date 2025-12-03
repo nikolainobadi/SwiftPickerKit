@@ -23,9 +23,10 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         }
 
         let columnStartRow = row
-        let columnSpacing = max(2, screenWidth / 20)
-        let columnWidth = max(10, (screenWidth - columnSpacing) / 2)
-        let rightColumnStart = min(screenWidth - columnWidth, columnWidth + columnSpacing)
+        let hasParent = state.parentLevelInfo != nil
+        let columnSpacing = hasParent ? max(2, screenWidth / 20) : 0
+        let columnWidth = hasParent ? max(10, (screenWidth - columnSpacing) / 2) : max(10, screenWidth)
+        let rightColumnStart = hasParent ? min(screenWidth - columnWidth, columnWidth + columnSpacing) : 0
 
         if let parentInfo = state.parentLevelInfo {
             let parent = parentInfo.level
@@ -46,16 +47,6 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
                 emptyPlaceholder: "Root level",
                 input: input,
                 state: state
-            )
-        } else {
-            renderEmptyColumn(
-                title: "Parent",
-                message: "Root level",
-                startRow: columnStartRow,
-                startCol: 0,
-                columnWidth: columnWidth,
-                maxRowExclusive: maxRowExclusive,
-                input: input
             )
         }
 
@@ -82,16 +73,6 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
 // MARK: - Private Methods
 private extension TreeNavigationRenderer {
-    func renderEmptyColumn(title: String, message: String, startRow: Int, startCol: Int, columnWidth: Int, maxRowExclusive: Int, input: PickerInput) {
-        guard startRow < maxRowExclusive else { return }
-        renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, input: input)
-        let row = startRow + 1
-        guard row < maxRowExclusive else { return }
-        input.moveTo(row, startCol + 1)
-        let truncated = PickerTextFormatter.truncate(message, maxWidth: max(4, columnWidth - 2))
-        input.write(truncated.foreColor(240))
-    }
-
     func renderColumn(items: [Item], activeIndex: Int, startIndex: Int, endIndex: Int, title: String, isActiveColumn: Bool, levelIndex: Int, startRow: Int, startCol: Int, columnWidth: Int, maxRowExclusive: Int, emptyPlaceholder: String, input: PickerInput, state: State) {
         guard startRow < maxRowExclusive else { return }
         renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, input: input)

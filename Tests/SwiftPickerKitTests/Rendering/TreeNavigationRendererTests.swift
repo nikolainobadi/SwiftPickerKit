@@ -33,8 +33,8 @@ struct TreeNavigationRendererTests {
         #expect(hasBreadcrumb)
     }
 
-    @Test("Displays root level message when no parent exists")
-    func displaysRootLevelMessageWhenNoParentExists() {
+    @Test("Omits parent column at root level")
+    func omitsParentColumnAtRootLevel() {
         let items = [TestTreeNode(name: "Item")]
         let state = makeState(rootItems: items)
         let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
@@ -42,14 +42,17 @@ struct TreeNavigationRendererTests {
 
         sut.render(items: items, state: state, context: context, input: pickerInput, screenWidth: 80)
 
+        let hasParentHeader = pickerInput.writtenText.contains { $0.contains("PARENT") }
         let hasRootMessage = pickerInput.writtenText.contains { $0.contains("Root level") }
-        #expect(hasRootMessage)
+        #expect(hasParentHeader == false)
+        #expect(hasRootMessage == false)
     }
 
-    @Test("Renders parent and current column headers")
-    func rendersParentAndCurrentColumnHeaders() {
-        let items = [TestTreeNode(name: "Item")]
+    @Test("Renders parent and current column headers when a parent exists")
+    func rendersParentAndCurrentColumnHeadersWhenParentExists() {
+        let items = [TestTreeNode(name: "Root", hasChildren: true, children: [TestTreeNode(name: "Child")])]
         let state = makeState(rootItems: items)
+        state.descendIntoChildIfPossible()
         let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
         let (sut, pickerInput) = makeSUT()
 
@@ -148,10 +151,11 @@ struct TreeNavigationRendererTests {
         #expect(hasCustomIcon)
     }
 
-    @Test("Positions columns with appropriate spacing")
-    func positionsColumnsWithAppropriateSpacing() {
-        let items = [TestTreeNode(name: "Item")]
+    @Test("Positions columns with appropriate spacing when parent exists")
+    func positionsColumnsWithAppropriateSpacingWhenParentExists() {
+        let items = [TestTreeNode(name: "Root", hasChildren: true, children: [TestTreeNode(name: "Child")])]
         let state = makeState(rootItems: items)
+        state.descendIntoChildIfPossible()
         let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
         let (sut, pickerInput) = makeSUT()
 

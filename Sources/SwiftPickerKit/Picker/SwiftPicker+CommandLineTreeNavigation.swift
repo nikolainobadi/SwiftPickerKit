@@ -25,8 +25,7 @@ extension SwiftPicker: CommandLineTreeNavigation {
         let renderer = TreeNavigationRenderer<Item>()
 
         if startInsideFirstRoot {
-            state.activeIndex = 0
-            state.descendIntoChildIfPossible()
+            state.startAtRootContentsIfNeeded()
         }
 
         let handler = SelectionHandler(
