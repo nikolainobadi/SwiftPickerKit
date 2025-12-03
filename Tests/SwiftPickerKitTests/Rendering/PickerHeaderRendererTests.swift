@@ -99,7 +99,10 @@ struct PickerHeaderRendererTests {
 
         #expect(height == 3)
         #expect(pickerInput.writtenText.contains { $0.contains("Hidden prompt") } == false)
-        let hasDivider = pickerInput.writtenText.contains { $0.trimmingCharacters(in: .whitespacesAndNewlines).allSatisfy { $0 == "─" } }
+        let hasDivider = pickerInput.writtenText.contains {
+            let trimmed = $0.trimmingCharacters(in: .whitespacesAndNewlines)
+            return !trimmed.isEmpty && trimmed.allSatisfy { $0 == "─" }
+        }
         #expect(hasDivider == false)
     }
 }
