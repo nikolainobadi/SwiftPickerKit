@@ -19,7 +19,7 @@ struct TreeNavigationStateTests {
         #expect(sut.activeIndex == 0)
         #expect(sut.options.count == roots.count)
         #expect(sut.currentItems.map(\.displayName) == roots.map(\.displayName))
-        #expect(sut.topLineText == "Tree Navigation")
+        #expect(sut.topLineText == "SwiftPicker - Tree Navigation")
         #expect(sut.bottomLineText.contains("Arrows"))
         #expect(sut.selectedDetailLines.isEmpty)
     }
