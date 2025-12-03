@@ -6,7 +6,7 @@
 //
 
 extension SwiftPicker: CommandLineSelection {
-    public func singleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool = true) -> Item? {
+    public func singleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool) -> Item? {
         switch runSelection(prompt: prompt, items: items, layout: layout, isSingle: true, newScreen: newScreen, showSelectedItemText: showSelectedItemText) {
         case .finishSingle(let item):
             return item
@@ -15,7 +15,7 @@ extension SwiftPicker: CommandLineSelection {
         }
     }
 
-    public func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool = true) -> [Item] {
+    public func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool) -> [Item] {
         switch runSelection(prompt: prompt, items: items, layout: layout, isSingle: false, newScreen: newScreen, showSelectedItemText: showSelectedItemText) {
         case .finishMulti(let items):
             return items
@@ -25,28 +25,9 @@ extension SwiftPicker: CommandLineSelection {
     }
 }
 
-public extension SwiftPicker {
-    func singleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item]) -> Item? {
-        let selection = singleSelection(prompt: prompt, items: items, layout: .singleColumn, newScreen: true)
-        if let item = selection {
-            print("\nInteractivePicker SingleSelection result:\n  \("✔".green) \(item)\n")
-        }
-        return selection
-    }
 
-    func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item]) -> [Item] {
-        let selections = multiSelection(prompt: prompt, items: items, layout: .singleColumn, newScreen: true)
-        if !selections.isEmpty {
-            print("\nInteractivePicker MultiSelection results:\n")
-            selections.forEach { print(" \("✔".green) \($0)") }
-            print("")
-        }
-        return selections
-    }
-}
-
-
-internal extension SwiftPicker {
+// MARK: - Private Methods
+private extension SwiftPicker {
     @discardableResult
     func runSelection<Item: DisplayablePickerItem>(
         prompt: String,
