@@ -70,7 +70,8 @@ extension SwiftPickerDemo {
                 prompt: prompt,
                 items: items,
                 layout: layout,
-                newScreen: true
+                newScreen: true,
+                showSelectedItemText: true
             )
 
             print("\nYou selected: \(selection.displayName)")

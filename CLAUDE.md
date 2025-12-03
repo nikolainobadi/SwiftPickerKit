@@ -3,16 +3,16 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Required Guidelines (MUST READ)
-@~/.claude/guidelines/shared-formatting-claude.md
-@~/.claude/guidelines/ios_unit_testing_claude_instructions.md
+@~/.claude/guidelines/style/shared-formatting-claude.md
+@~/.claude/guidelines/testing/base_unit_testing_guidelines.md
 
 **CRITICAL: These are not optional suggestions - they are mandatory requirements.**
 
 ### When to Read Each Guideline
-- **shared-formatting.md** — MUST read BEFORE writing or editing ANY Swift code in this project
-- **iOS_Unit_Testing_Guide.md** — MUST read BEFORE writing, modifying, or reviewing ANY test code
+- **shared-formatting-claude.md** — MUST read BEFORE writing or editing ANY Swift code in this project
+- **base_unit_testing_guidelines.md** — MUST read BEFORE writing, modifying, or reviewing ANY test code
 
-**Compliance Rule:** If you are asked to write tests and have not yet read iOS_Unit_Testing_Guide.md in this conversation, you MUST read it first before writing a single test. Do not rely on general knowledge - read the actual guideline file.
+**Compliance Rule:** If you are asked to write tests and have not yet read base_unit_testing_guidelines.md in this conversation, you MUST read it first before writing a single test. Do not rely on general knowledge - read the actual guideline file.
 
 ## Project Overview
 SwiftPickerKit is a Swift Package Manager library for building interactive terminal-based pickers with support for single-selection, multi-selection, two-column layouts, and hierarchical tree navigation. The package targets macOS 12+ and depends on ANSITerminalModified for terminal control.
@@ -90,7 +90,7 @@ The `TreeNavigationBehavior` intercepts left/right arrows to descend/ascend the 
 5. Mirror the pattern in `SwiftPicker+TreeNavigation.swift` or the layout switch in `SwiftPicker.swift:197`
 
 ## Coding Conventions
-**MANDATORY: Follow all formatting rules in @shared-formatting.md when writing or editing Swift code.**
+**MANDATORY: Follow all formatting rules in @shared-formatting-claude.md when writing or editing Swift code.**
 
 Project-specific conventions:
 - Use Swift 5.9+ features, four-space indentation, no tabs
@@ -100,7 +100,7 @@ Project-specific conventions:
 - Author: always use **Nikolai Nobadi** in Swift file headers (never Claude or Claude Code)
 
 ## Testing
-**MANDATORY: Read @iOS_Unit_Testing_Guide.md BEFORE writing any tests. All patterns, conventions, and rules defined in that guide MUST be followed exactly.**
+**MANDATORY: Read @~/.claude/guidelines/testing/base_unit_testing_guidelines.md BEFORE writing any tests. All patterns, conventions, and rules defined in that guide MUST be followed exactly.**
 
 Quick reference (see guide for full details):
 - Swift Testing framework (`@Test func ...`)
@@ -127,7 +127,7 @@ Quick reference (see guide for full details):
 - Comprehensive examples in documentation
 
 ## Package Testing
-**See @iOS_Unit_Testing_Guide.md for comprehensive testing patterns - this is a summary only:**
+**See @~/.claude/guidelines/testing/base_unit_testing_guidelines.md for comprehensive testing patterns - this is a summary only:**
 
 - Behavior-driven unit tests (Swift Testing preferred)
 - Use `makeSUT` pattern for test organization

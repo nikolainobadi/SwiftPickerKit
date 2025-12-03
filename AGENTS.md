@@ -36,5 +36,9 @@ The picker relies on `ANSITerminal` escape sequences; always leave the screen cl
 - Use `waitUntil` for async/reactive testing
 
 ## Imports
-@~/.codex/guidelines/shared-formatting-codex.md
-@~/.codex/guidelines/ios_unit_testing_codex_instructions.md
+- Ask before reading `~/.codex/guidelines/shared/shared-formatting-codex.md` when working on Swift code.
+- Ask before reading `~/.codex/guidelines/ios_unit_testing_codex_instructions.md` when writing unit tests for this project.
+
+## Resource Requests
+- Ask before reading `~/.codex/guidelines/shared/shared-formatting-codex.md` when working on Swift code.
+- Ask before reading `~/.codex/guidelines/testing/base_unit_testing_guidelines.md` when discussing or editing tests.
