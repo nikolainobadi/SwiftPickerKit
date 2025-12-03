@@ -19,8 +19,11 @@ extension TreeNavigationBehavior: SelectionBehavior {
         case .down:
             state.moveSelectionDown()
         case .right:
-            state.focusCurrentColumn()
-            state.descendIntoChildIfPossible()
+            if state.isParentColumnActive {
+                state.focusCurrentColumn()
+            } else {
+                state.descendIntoChildIfPossible()
+            }
         case .left:
             if state.isCurrentColumnActive {
                 state.focusParentColumnIfAvailable()
