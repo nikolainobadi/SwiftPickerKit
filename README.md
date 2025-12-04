@@ -44,7 +44,7 @@ SwiftPickerKit is a Swift Package Manager library for building interactive termi
 
 ## Requirements
 
-- macOS 12.0+
+- macOS 13.0+
 - Swift 5.9+
 - Xcode 16.2+ (for development)
 
@@ -53,29 +53,18 @@ SwiftPickerKit is a Swift Package Manager library for building interactive termi
 ### Swift Package Manager
 
 Add the package to your `Package.swift`:
-
 ```swift
-dependencies: [
     .package(url: "https://github.com/nikolainobadi/SwiftPickerKit", from: "0.6.0")
-]
 ```
 
-Then include it in your target:
-
+Then include it in your target dependencies:
 ```swift
-.target(
-    name: "YourTarget",
-    dependencies: [
-        .product(name: "SwiftPickerKit", package: "SwiftPickerKit"),
-        ]
-),
-.testTarget(
-    name: "YourTestTarget",
-    dependencies: [
-        "YourTarget",
-        .product(name: "SwiftPickerTesting", package: "SwiftPickerKit")
-    ]
-),
+    .product(name: "SwiftPickerKit", package: "SwiftPickerKit")
+```
+
+Include this in your test target dependencies:
+```swift
+    .product(name: "SwiftPickerTesting", package: "SwiftPickerKit")
 ```
 
 ## Usage
@@ -277,7 +266,7 @@ import Testing
 import SwiftPickerTesting
 
 @Test func testSelection() {
-    var mock = MockSwiftPicker(
+    let mock = MockSwiftPicker(
         selectionResult: .init(
             defaultSingle: .index(0),
             singleType: .ordered([.index(0)])
@@ -293,13 +282,6 @@ import SwiftPickerTesting
 
     #expect(result == "Expected")
 }
-```
-
-Run tests with:
-
-```bash
-swift test
-swift test --enable-code-coverage  # with coverage
 ```
 
 ## Dependencies
