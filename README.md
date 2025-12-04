@@ -57,17 +57,17 @@ SwiftPickerKit is a Swift Package Manager library for building interactive termi
 
 Add the package to your `Package.swift`:
 ```swift
-    .package(url: "https://github.com/nikolainobadi/SwiftPickerKit", from: "0.7.0")
+.package(url: "https://github.com/nikolainobadi/SwiftPickerKit", from: "0.7.0")
 ```
 
 Then include it in your target dependencies:
 ```swift
-    .product(name: "SwiftPickerKit", package: "SwiftPickerKit")
+.product(name: "SwiftPickerKit", package: "SwiftPickerKit")
 ```
 
 Include this in your test target dependencies:
 ```swift
-    .product(name: "SwiftPickerTesting", package: "SwiftPickerKit")
+.product(name: "SwiftPickerTesting", package: "SwiftPickerKit")
 ```
 
 ## Demo
