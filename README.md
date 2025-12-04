@@ -1,7 +1,7 @@
 # SwiftPickerKit
 
 ![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)
-![macOS](https://img.shields.io/badge/macOS-12.0+-blueviolet.svg)
+![macOS](https://img.shields.io/badge/macOS-13.0+-blueviolet.svg)
 ![SPM](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)
 
@@ -23,8 +23,10 @@
 - [Architecture](#architecture)
 - [Testing](#testing)
 - [Dependencies](#dependencies)
-- [License](#license)
+- [Backstory](#backstory)
+- [Acknowledgements](#acknowledgements)
 - [Contributing](#contributing)
+- [License](#license)
 
 ## Overview
 
@@ -181,16 +183,18 @@ if let task = picker.singleSelection(
 import SwiftPickerKit
 
 let picker = SwiftPicker()
-let root = FileSystemNode(url: URL(fileURLWithPath: "/Users/you/Projects"))
+let rootNode = FileSystemNode(url: URL(fileURLWithPath: "/Users/you/Projects"))
+let root = TreeNavigationRoot(items: [rootNode])
 
 if let selected = picker.treeNavigation(
     prompt: "Browse files",
-    rootItems: [root],
+    root: root,
     newScreen: true
 ) {
     print("Selected: \(selected.url.path)")
 }
 
+// Conform to TreeNodePickerItem protocol for custom tree types
 // Mark any TreeNodePickerItem with isSelectable = false to prevent selection (e.g., folders).
 ```
 
@@ -219,13 +223,14 @@ Conform your types to `DisplayablePickerItem`:
 struct User: DisplayablePickerItem {
     let id: String
     let name: String
+    let email: String  // Custom property, not required by protocol
 
     var displayName: String { name }
 }
 
 let users = [
-    User(id: "1", name: "Alice"),
-    User(id: "2", name: "Bob")
+    User(id: "1", name: "Alice", email: "alice@example.com"),
+    User(id: "2", name: "Bob", email: "bob@example.com")
 ]
 
 let picker = SwiftPicker()
@@ -235,7 +240,42 @@ if let user = picker.singleSelection(
     layout: .singleColumn,
     newScreen: true
 ) {
-    print("Selected user ID: \(user.id)")
+    print("Selected user: \(user.name) (\(user.email))")
+}
+```
+
+For tree navigation, conform to `TreeNodePickerItem`:
+
+```swift
+struct Category: TreeNodePickerItem {
+    let name: String
+    let subcategories: [Category]
+    let canSelect: Bool
+
+    var displayName: String { name }
+    var hasChildren: Bool { !subcategories.isEmpty }
+    var isSelectable: Bool { canSelect }
+    var metadata: TreeNodeMetadata? { nil }
+
+    func loadChildren() -> [Category] {
+        return subcategories
+    }
+}
+
+let root = TreeNavigationRoot(items: [
+    Category(name: "Electronics", subcategories: [
+        Category(name: "Laptops", subcategories: [], canSelect: true),
+        Category(name: "Phones", subcategories: [], canSelect: true)
+    ], canSelect: false)
+])
+
+let picker = SwiftPicker()
+if let category = picker.treeNavigation(
+    prompt: "Select category",
+    root: root,
+    newScreen: true
+) {
+    print("Selected: \(category.name)")
 }
 ```
 
@@ -288,17 +328,25 @@ import SwiftPickerTesting
 
 - [ANSITerminalModified](https://github.com/nikolainobadi/ANSITerminalModified) (>= 0.6.0) — Terminal control and ANSI escape sequences
 
-## License
+## Backstory
+I think programming is one of the few fields where 'specialized laziness' is actually a superpower. While building custom command line tools may seem like a daunting task to some, I see it as a way to never have to waste time on the boring portions of my workflow ever again. But I'm an iOS developer. When I write code, I prefer to do it in Swift. Unfortunately, there aren't many Swift libraries for command line tools. And I feel like it's a catch-22 because nobody wants to write libraries for the command line using Swift because there aren't many libraries out there to help them, and there aren't many libraries out there because nobody wants to write them, and round and round we go.
 
-SwiftPickerKit is released under the MIT License. See [LICENSE](LICENSE) for details.
+`SwiftPickerKit` is simply my contribution to the (hopefully growing) ecosystem of Swift command line tools. It's easy to use, relatively lightweight, and best of all, it helps me write more command line tools to feed my 'specialized laziness'.
+
+## Acknowledgements
+
+This project was inspired by [How to Make an Interactive Picker for a Swift Command-Line Tool](https://www.polpiella.dev/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/) by Pol Piella Abadia. Special thanks for the great tutorial.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! If you'd like to add a new feature, improve an existing feature, or fix a bug:
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Run tests (`swift test`)
-4. Commit your changes (`git commit -m 'add amazing feature'`)
-5. Push to the branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
+2. Create your feature branch
+3. Submit a PR with a clear description
+
+Issues and suggestions are also welcome via [GitHub Issues](https://github.com/nikolainobadi/swiftpickerkit/issues/new)
+
+## License
+
+SwiftPickerKit is released under the MIT License. See [LICENSE](LICENSE) for details.
