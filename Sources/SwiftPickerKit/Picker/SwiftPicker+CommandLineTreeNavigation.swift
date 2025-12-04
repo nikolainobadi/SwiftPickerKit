@@ -8,8 +8,7 @@
 extension SwiftPicker: CommandLineTreeNavigation {
     public func treeNavigation<Item: TreeNodePickerItem>(
         prompt: String,
-        rootItems: [Item],
-        rootDisplayName: String?,
+        root: TreeNavigationRoot<Item>,
         newScreen: Bool,
         showPromptText: Bool = true,
         showSelectedItemText: Bool = true
@@ -22,16 +21,14 @@ extension SwiftPicker: CommandLineTreeNavigation {
         pickerInput.moveToHome()
 
         let state = TreeNavigationState(
-            rootItems: rootItems,
-            rootDisplayName: rootDisplayName,
+            rootItems: root.children,
+            rootDisplayName: root.displayName,
             prompt: prompt,
             showPromptText: showPromptText,
             showSelectedItemText: showSelectedItemText
         )
         let behavior = TreeNavigationBehavior<Item>()
         let renderer = TreeNavigationRenderer<Item>()
-
-        state.startAtRootContentsIfNeeded()
 
         let handler = SelectionHandler(
             state: state,
