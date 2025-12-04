@@ -72,7 +72,7 @@ Include this in your test target dependencies:
 
 ## Demo
 
-Want to see SwiftPickerKit in action before integrating it? Check out the interactive demo in [`SwiftPickerDemo/Sources/SwiftPickerDemo/`](SwiftPickerDemo/Sources/SwiftPickerDemo/).
+Want to see SwiftPickerKit in action before integrating it? Check out the [**SwiftPickerDemo**](SwiftPickerDemo/README.md) — a complete interactive demonstration of all features with detailed documentation and examples.
 
 Run the demo from the package root:
 ```bash
