@@ -7,12 +7,6 @@
 
 final class TreeNavigationBehavior<Item: TreeNodePickerItem> {
     typealias State = TreeNavigationState<Item>
-    
-    let allowSelectingFolders: Bool
-    
-    init(allowSelectingFolders: Bool) {
-        self.allowSelectingFolders = allowSelectingFolders
-    }
 }
 
 
@@ -21,15 +15,24 @@ extension TreeNavigationBehavior: SelectionBehavior {
     func handleArrow(direction: Direction, state: inout State) {
         switch direction {
         case .up:
-            state.activeIndex -= 1
-            state.clampIndex()
+            state.moveSelectionUp()
         case .down:
-            state.activeIndex += 1
-            state.clampIndex()
+            state.moveSelectionDown()
         case .right:
-            state.descendIntoChildIfPossible()
+            if state.isParentColumnActive {
+                guard !state.currentItems.isEmpty else {
+                    return
+                }
+                state.focusCurrentColumn()
+            } else {
+                state.descendIntoChildIfPossible()
+            }
         case .left:
-            state.ascendToParent()
+            if state.isCurrentColumnActive {
+                state.focusParentColumnIfAvailable()
+            } else {
+                state.ascendToParent()
+            }
         }
     }
 
@@ -45,17 +48,11 @@ extension TreeNavigationBehavior: SelectionBehavior {
             }
             
             let selected = state.currentItems[state.activeIndex]
-            if allowSelectingFolders {
-                // Return the selected folder OR file
-                return .finishSingle(selected)
-            } else {
-                // Only allow selecting leaves
-                if !selected.hasChildren {
-                    return .finishSingle(selected)
-                }
+            guard selected.isSelectable else {
+                return .continueLoop
             }
-            
-            return .continueLoop
+
+            return .finishSingle(selected)
         case .quit:
             return .finishSingle(nil)
         }

@@ -83,6 +83,47 @@ struct PickerHeaderRendererTests {
         #expect(pickerInput.writtenText.contains { $0.contains("pro…") })
         #expect(pickerInput.writtenText.contains { $0.contains("det…") })
     }
+
+    @Test("Hides prompt text when requested")
+    func hidesPromptTextWhenRequested() {
+        let screenWidth = 10
+        let (sut, pickerInput) = makeSUT()
+
+        let height = sut.renderHeader(
+            prompt: "Hidden prompt",
+            topLineText: "Header",
+            selectedItem: nil,
+            showPromptText: false,
+            screenWidth: screenWidth
+        )
+
+        #expect(height == 3)
+        #expect(pickerInput.writtenText.contains { $0.contains("Hidden prompt") } == false)
+        let hasDivider = pickerInput.writtenText.contains {
+            let trimmed = $0.trimmingCharacters(in: .whitespacesAndNewlines)
+            return !trimmed.isEmpty && trimmed.allSatisfy { $0 == "─" }
+        }
+        #expect(hasDivider == false)
+    }
+
+    @Test("Hides selected item section when requested")
+    func hidesSelectedItemSectionWhenRequested() {
+        let screenWidth = 12
+        let (sut, pickerInput) = makeSUT()
+
+        let height = sut.renderHeader(
+            prompt: "Prompt",
+            topLineText: "Header",
+            selectedItem: "Choice",
+            selectedDetailLines: ["Detail"],
+            showSelectedItemText: false,
+            screenWidth: screenWidth
+        )
+
+        #expect(height == 5)
+        #expect(pickerInput.writtenText.contains { $0.contains("Selected:") } == false)
+        #expect(pickerInput.writtenText.contains { $0.contains("Detail") } == false)
+    }
 }
 
 

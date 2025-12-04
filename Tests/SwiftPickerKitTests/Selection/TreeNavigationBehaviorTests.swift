@@ -16,7 +16,6 @@ struct TreeNavigationBehaviorTests {
 
         #expect(state.activeIndex == 0)
         #expect(state.options.count == roots.count)
-        #expect(sut.allowSelectingFolders)
 
         let result = sut.handleSpecialChar(char: .backspace, state: state)
         if case .continueLoop = result {} else {
@@ -61,23 +60,86 @@ struct TreeNavigationBehaviorTests {
         #expect(mutableState.activeIndex == 0)
     }
 
-    @Test("Ascends to parent on left arrow")
-    func ascendsToParentOnLeftArrow() {
+    @Test("Left arrow focuses parent column before ascending")
+    func leftArrowFocusesParentColumnBeforeAscending() {
         let children = TestFactory.makeTreeItems(names: ["Child"])
         let roots = [TestFactory.makeTreeItem(name: "Root", children: children)]
         let (sut, state) = makeSUT(rootItems: roots)
 
         var mutableState = state
         sut.handleArrow(direction: .right, state: &mutableState)
-        sut.handleArrow(direction: .left, state: &mutableState)
+        sut.handleArrow(direction: .left, state: &mutableState) // switch to parent column
+
+        #expect(mutableState.isParentColumnActive)
+        #expect(mutableState.currentItems.map(\.displayName) == children.map(\.displayName))
+
+        sut.handleArrow(direction: .left, state: &mutableState) // now ascend
 
         #expect(mutableState.currentItems.map(\.displayName) == roots.map(\.displayName))
     }
 
-    @Test("Enter selects folders when allowed")
-    func enterSelectsFoldersWhenAllowed() {
+    @Test("Parent navigation updates current column children")
+    func parentNavigationUpdatesCurrentColumnChildren() {
+        let firstChildren = TestFactory.makeTreeItems(names: ["First Child"])
+        let secondChildren = TestFactory.makeTreeItems(names: ["Second Child 1", "Second Child 2"])
+        let roots = [
+            TestFactory.makeTreeItem(name: "First Root", children: firstChildren),
+            TestFactory.makeTreeItem(name: "Second Root", children: secondChildren)
+        ]
+        let (sut, state) = makeSUT(rootItems: roots)
+
+        var mutableState = state
+        sut.handleArrow(direction: .right, state: &mutableState) // enter first root
+        sut.handleArrow(direction: .left, state: &mutableState) // focus parent column
+        sut.handleArrow(direction: .down, state: &mutableState) // move to second root
+
+        #expect(mutableState.isParentColumnActive)
+        #expect(mutableState.currentItems.map(\.displayName) == secondChildren.map(\.displayName))
+    }
+
+    @Test("Right arrow does nothing when current column is empty")
+    func rightArrowDoesNothingWhenCurrentColumnIsEmpty() {
+        let children = TestFactory.makeTreeItems(names: ["Child"])
+        let roots = [
+            TestFactory.makeTreeItem(name: "First Root", children: children),
+            TestFactory.makeTreeItem(name: "Second Root")
+        ]
+        let (sut, state) = makeSUT(rootItems: roots)
+
+        var mutableState = state
+        sut.handleArrow(direction: .right, state: &mutableState) // enter first root
+        sut.handleArrow(direction: .left, state: &mutableState) // focus parent column
+        sut.handleArrow(direction: .down, state: &mutableState) // move to second root (no children)
+
+        #expect(mutableState.isParentColumnActive)
+        #expect(mutableState.currentItems.isEmpty)
+
+        sut.handleArrow(direction: .right, state: &mutableState) // should be ignored
+
+        #expect(mutableState.isParentColumnActive)
+        #expect(mutableState.currentItems.isEmpty)
+    }
+
+    @Test("Hidden root does not surface in parent column")
+    func hiddenRootDoesNotSurfaceInParentColumn() {
+        let children = TestFactory.makeTreeItems(names: ["Child 1", "Child 2"])
+        let roots = [TestFactory.makeTreeItem(name: "Root", children: children)]
+        let (sut, state) = makeSUT(rootItems: roots)
+
+        var mutableState = state
+        mutableState.startAtRootContentsIfNeeded()
+
+        #expect(mutableState.isCurrentColumnActive)
+        #expect(mutableState.parentLevelInfo == nil)
+
+        sut.handleArrow(direction: .left, state: &mutableState) // should not reveal root
+        #expect(mutableState.currentItems.map(\.displayName) == children.map(\.displayName))
+    }
+
+    @Test("Enter selects selectable folders")
+    func enterSelectsSelectableFolders() {
         let roots = [TestFactory.makeTreeItem(name: "Root", children: TestFactory.makeTreeItems(names: ["Child"]))]
-        let (sut, state) = makeSUT(rootItems: roots, allowSelectingFolders: true)
+        let (sut, state) = makeSUT(rootItems: roots)
 
         let result = sut.handleSpecialChar(char: .enter, state: state)
 
@@ -85,26 +147,30 @@ struct TreeNavigationBehaviorTests {
         case .finishSingle(let item):
             #expect(item?.displayName == roots[0].displayName)
         default:
-            Issue.record("Expected finishSingle with folder when allowed")
+            Issue.record("Expected finishSingle with selectable folder")
         }
     }
 
-    @Test("Enter skips folders when not allowed")
-    func enterSkipsFoldersWhenNotAllowed() {
-        let roots = [TestFactory.makeTreeItem(name: "Root", children: TestFactory.makeTreeItems(names: ["Child"]))]
-        let (sut, state) = makeSUT(rootItems: roots, allowSelectingFolders: false)
+    @Test("Enter skips non-selectable folders")
+    func enterSkipsNonSelectableFolders() {
+        let roots = [TestFactory.makeTreeItem(
+            name: "Root",
+            children: TestFactory.makeTreeItems(names: ["Child"]),
+            isSelectable: false
+        )]
+        let (sut, state) = makeSUT(rootItems: roots)
 
         let result = sut.handleSpecialChar(char: .enter, state: state)
 
         if case .continueLoop = result {} else {
-            Issue.record("Expected continueLoop when selecting folder is disallowed")
+            Issue.record("Expected continueLoop when folder is not selectable")
         }
     }
 
-    @Test("Enter selects leaf when folders disallowed")
-    func enterSelectsLeafWhenFoldersDisallowed() {
+    @Test("Enter selects leaf nodes")
+    func enterSelectsLeafNodes() {
         let leaves = TestFactory.makeTreeItems(names: ["Leaf"])
-        let (sut, state) = makeSUT(rootItems: leaves, allowSelectingFolders: false)
+        let (sut, state) = makeSUT(rootItems: leaves)
 
         let result = sut.handleSpecialChar(char: .enter, state: state)
 
@@ -116,9 +182,21 @@ struct TreeNavigationBehaviorTests {
         }
     }
 
+    @Test("Enter skips non-selectable items")
+    func enterSkipsNonSelectableItems() {
+        let leaves = [TestFactory.makeTreeItem(name: "Leaf", isSelectable: false)]
+        let (sut, state) = makeSUT(rootItems: leaves)
+
+        let result = sut.handleSpecialChar(char: .enter, state: state)
+
+        if case .continueLoop = result {} else {
+            Issue.record("Expected continueLoop when item is not selectable")
+        }
+    }
+
     @Test("Enter continues when no items available")
     func enterContinuesWhenNoItemsAvailable() {
-        let (sut, state) = makeSUT(rootItems: [], allowSelectingFolders: true)
+        let (sut, state) = makeSUT(rootItems: [])
 
         let result = sut.handleSpecialChar(char: .enter, state: state)
 
@@ -145,9 +223,9 @@ struct TreeNavigationBehaviorTests {
 
 // MARK: - SUT
 private extension TreeNavigationBehaviorTests {
-    func makeSUT(rootItems: [TreeTestItem] = TestFactory.makeTreeItems(names: ["Root"]), allowSelectingFolders: Bool = true) -> (TreeNavigationBehavior<TreeTestItem>, TreeNavigationState<TreeTestItem>) {
+    func makeSUT(rootItems: [TreeTestItem] = TestFactory.makeTreeItems(names: ["Root"])) -> (TreeNavigationBehavior<TreeTestItem>, TreeNavigationState<TreeTestItem>) {
         let state = TreeNavigationState(rootItems: rootItems, prompt: "Prompt")
-        let sut = TreeNavigationBehavior<TreeTestItem>(allowSelectingFolders: allowSelectingFolders)
+        let sut = TreeNavigationBehavior<TreeTestItem>()
         return (sut, state)
     }
 }

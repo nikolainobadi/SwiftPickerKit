@@ -29,12 +29,13 @@ enum TestFactory {
         }
     }
 
-    static func makeTreeItem(name: String, children: [TreeTestItem] = [], hasChildren: Bool? = nil, metadata: TreeNodeMetadata? = nil) -> TreeTestItem {
+    static func makeTreeItem(name: String, children: [TreeTestItem] = [], hasChildren: Bool? = nil, metadata: TreeNodeMetadata? = nil, isSelectable: Bool = true) -> TreeTestItem {
         return .init(
             name: name,
             children: children,
             metadata: metadata,
-            hasChildrenValue: hasChildren ?? !children.isEmpty
+            hasChildrenValue: hasChildren ?? !children.isEmpty,
+            isSelectable: isSelectable
         )
     }
 

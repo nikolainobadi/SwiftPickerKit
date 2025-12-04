@@ -8,10 +8,10 @@
 extension SwiftPicker: CommandLineTreeNavigation {
     public func treeNavigation<Item: TreeNodePickerItem>(
         prompt: String,
-        rootItems: [Item],
-        allowSelectingFolders: Bool,
-        startInsideFirstRoot: Bool,
-        newScreen: Bool
+        root: TreeNavigationRoot<Item>,
+        newScreen: Bool,
+        showPromptText: Bool = true,
+        showSelectedItemText: Bool = true
     ) -> Item? {
         if newScreen {
             pickerInput.enterAlternativeScreen()
@@ -20,14 +20,15 @@ extension SwiftPicker: CommandLineTreeNavigation {
         pickerInput.clearScreen()
         pickerInput.moveToHome()
 
-        let state = TreeNavigationState(rootItems: rootItems, prompt: prompt)
-        let behavior = TreeNavigationBehavior<Item>(allowSelectingFolders: allowSelectingFolders)
+        let state = TreeNavigationState(
+            rootItems: root.children,
+            rootDisplayName: root.displayName,
+            prompt: prompt,
+            showPromptText: showPromptText,
+            showSelectedItemText: showSelectedItemText
+        )
+        let behavior = TreeNavigationBehavior<Item>()
         let renderer = TreeNavigationRenderer<Item>()
-
-        if startInsideFirstRoot {
-            state.activeIndex = 0
-            state.descendIntoChildIfPossible()
-        }
 
         let handler = SelectionHandler(
             state: state,

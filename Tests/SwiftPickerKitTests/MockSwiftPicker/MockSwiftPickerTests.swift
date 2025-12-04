@@ -365,17 +365,13 @@ extension MockSwiftPickerTests {
 
         _ = sut.treeNavigation(
             prompt: prompts[0],
-            rootItems: makeTreeNodes(["first"]),
-            allowSelectingFolders: true,
-            startInsideFirstRoot: false,
+            root: makeTreeRoot(["first"]),
             newScreen: false
         )
 
         _ = sut.treeNavigation(
             prompt: prompts[1],
-            rootItems: makeTreeNodes(["second"]),
-            allowSelectingFolders: true,
-            startInsideFirstRoot: false,
+            root: makeTreeRoot(["second"]),
             newScreen: false
         )
 
@@ -390,9 +386,7 @@ extension MockSwiftPickerTests {
 
         let result = sut.treeNavigation(
             prompt: "Pick folder",
-            rootItems: nodes,
-            allowSelectingFolders: true,
-            startInsideFirstRoot: false,
+            root: makeTreeRoot(nodes),
             newScreen: false
         )
 
@@ -406,9 +400,7 @@ extension MockSwiftPickerTests {
 
         let result = sut.treeNavigation(
             prompt: "Pick folder",
-            rootItems: makeTreeNodes(["only"]),
-            allowSelectingFolders: true,
-            startInsideFirstRoot: false,
+            root: makeTreeRoot(["only"]),
             newScreen: false
         )
 
@@ -423,9 +415,7 @@ extension MockSwiftPickerTests {
         #expect(throws: SwiftPickerError.self) {
             try sut.requiredTreeNavigation(
                 prompt: "Pick folder",
-                rootItems: makeTreeNodes(["only"]),
-                allowSelectingFolders: true,
-                startInsideFirstRoot: false,
+                root: makeTreeRoot(["only"]),
                 newScreen: false
             )
         }
@@ -439,9 +429,7 @@ extension MockSwiftPickerTests {
 
         let result = try sut.requiredTreeNavigation(
             prompt: "Pick folder",
-            rootItems: nodes,
-            allowSelectingFolders: true,
-            startInsideFirstRoot: false,
+            root: makeTreeRoot(nodes),
             newScreen: false
         )
 
@@ -512,6 +500,15 @@ private extension MockSwiftPickerTests {
     func makeTreeNodes(_ names: [String]) -> [MockTreeNode] {
         return names.map { MockTreeNode(name: $0) }
     }
+
+    func makeTreeRoot(_ names: [String]) -> TreeNavigationRoot<MockTreeNode> {
+        let nodes = makeTreeNodes(names)
+        return TreeNavigationRoot(displayName: "Root", children: nodes)
+    }
+
+    func makeTreeRoot(_ nodes: [MockTreeNode]) -> TreeNavigationRoot<MockTreeNode> {
+        return TreeNavigationRoot(displayName: "Root", children: nodes)
+    }
 }
 
 
@@ -519,6 +516,7 @@ private extension MockSwiftPickerTests {
 private struct MockTreeNode: TreeNodePickerItem, Equatable {
     let name: String
     var children: [MockTreeNode] = []
+    var isSelectable: Bool = true
 
     var displayName: String { name }
     var hasChildren: Bool { !children.isEmpty }

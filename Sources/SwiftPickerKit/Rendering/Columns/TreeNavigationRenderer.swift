@@ -23,9 +23,10 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         }
 
         let columnStartRow = row
-        let columnSpacing = max(2, screenWidth / 20)
-        let columnWidth = max(10, (screenWidth - columnSpacing) / 2)
-        let rightColumnStart = min(screenWidth - columnWidth, columnWidth + columnSpacing)
+        let hasParent = state.parentLevelInfo != nil
+        let columnSpacing = hasParent ? max(2, screenWidth / 20) : 0
+        let columnWidth = hasParent ? max(10, (screenWidth - columnSpacing) / 2) : max(10, screenWidth)
+        let rightColumnStart = hasParent ? min(screenWidth - columnWidth, columnWidth + columnSpacing) : 0
 
         if let parentInfo = state.parentLevelInfo {
             let parent = parentInfo.level
@@ -37,7 +38,9 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
                 startIndex: start,
                 endIndex: end,
                 title: "Parent",
-                isActiveColumn: false,
+                isActiveColumn: state.isParentColumnActive,
+                showLeadingArrow: state.isParentColumnActive && state.canNavigateLeft,
+                showTrailingArrow: state.isParentColumnActive && state.canNavigateRight,
                 levelIndex: parentInfo.index,
                 startRow: columnStartRow,
                 startCol: 0,
@@ -47,26 +50,19 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
                 input: input,
                 state: state
             )
-        } else {
-            renderEmptyColumn(
-                title: "Parent",
-                message: "Root level",
-                startRow: columnStartRow,
-                startCol: 0,
-                columnWidth: columnWidth,
-                maxRowExclusive: maxRowExclusive,
-                input: input
-            )
         }
 
         let currentInfo = state.currentLevelInfo
+        let currentTitle = state.isCurrentColumnActive ? "Current" : "Children"
         renderColumn(
             items: currentInfo.level.items,
             activeIndex: currentInfo.level.activeIndex,
             startIndex: context.startIndex,
             endIndex: context.endIndex,
-            title: "Current",
-            isActiveColumn: true,
+            title: currentTitle,
+            isActiveColumn: state.isCurrentColumnActive,
+            showLeadingArrow: state.isCurrentColumnActive && state.canNavigateLeft,
+            showTrailingArrow: state.isCurrentColumnActive && state.canNavigateRight,
             levelIndex: currentInfo.index,
             startRow: columnStartRow,
             startCol: rightColumnStart,
@@ -82,19 +78,9 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
 // MARK: - Private Methods
 private extension TreeNavigationRenderer {
-    func renderEmptyColumn(title: String, message: String, startRow: Int, startCol: Int, columnWidth: Int, maxRowExclusive: Int, input: PickerInput) {
+    func renderColumn(items: [Item], activeIndex: Int, startIndex: Int, endIndex: Int, title: String, isActiveColumn: Bool, showLeadingArrow: Bool, showTrailingArrow: Bool, levelIndex: Int, startRow: Int, startCol: Int, columnWidth: Int, maxRowExclusive: Int, emptyPlaceholder: String, input: PickerInput, state: State) {
         guard startRow < maxRowExclusive else { return }
-        renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, input: input)
-        let row = startRow + 1
-        guard row < maxRowExclusive else { return }
-        input.moveTo(row, startCol + 1)
-        let truncated = PickerTextFormatter.truncate(message, maxWidth: max(4, columnWidth - 2))
-        input.write(truncated.foreColor(240))
-    }
-
-    func renderColumn(items: [Item], activeIndex: Int, startIndex: Int, endIndex: Int, title: String, isActiveColumn: Bool, levelIndex: Int, startRow: Int, startCol: Int, columnWidth: Int, maxRowExclusive: Int, emptyPlaceholder: String, input: PickerInput, state: State) {
-        guard startRow < maxRowExclusive else { return }
-        renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, input: input)
+        renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, showLeadingArrow: showLeadingArrow, showTrailingArrow: showTrailingArrow, input: input)
 
         var row = startRow + 1
         let textWidth = max(4, columnWidth - 2)
@@ -144,9 +130,37 @@ private extension TreeNavigationRenderer {
         }
     }
 
-    func renderColumnHeader(title: String, startRow: Int, startCol: Int, columnWidth: Int, input: PickerInput) {
+    func renderColumnHeader(title: String, startRow: Int, startCol: Int, columnWidth: Int, showLeadingArrow: Bool, showTrailingArrow: Bool, input: PickerInput) {
         input.moveTo(startRow, startCol)
-        let header = PickerTextFormatter.truncate(title.uppercased(), maxWidth: max(4, columnWidth - 1))
-        input.write(header.foreColor(102))
+        let clearLine = String(repeating: " ", count: max(0, columnWidth))
+        input.write(clearLine)
+        input.moveTo(startRow, startCol)
+
+        let plainTitle = title.uppercased()
+        var plainParts: [String] = []
+        if showLeadingArrow {
+            plainParts.append("←")
+        }
+        plainParts.append(plainTitle)
+        if showTrailingArrow {
+            plainParts.append("→")
+        }
+
+        let spacedPlain = plainParts.joined(separator: " ")
+        let useSpaced = spacedPlain.count <= columnWidth
+
+        var coloredParts: [String] = []
+        if showLeadingArrow {
+            coloredParts.append("←".lightGreen)
+        }
+        coloredParts.append(plainTitle.foreColor(102))
+        if showTrailingArrow {
+            coloredParts.append("→".lightGreen)
+        }
+        let spacedColored = coloredParts.joined(separator: " ")
+        let compactColored = coloredParts.joined()
+        let headerText = useSpaced ? spacedColored : compactColored
+
+        input.write(headerText)
     }
 }

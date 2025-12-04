@@ -199,17 +199,18 @@ let layout: PickerLayout<TestItem> = .twoColumnDynamic(detailForItem: detailForI
 
 ```swift
 let picker = SwiftPicker()
-let root = FileSystemNode(url: URL(fileURLWithPath: "/Users/you"))
+let rootNode = FileSystemNode(url: URL(fileURLWithPath: "/Users/you"))
+let root = TreeNavigationRoot(items: [rootNode])
 
 if let selection = picker.treeNavigation(
     prompt: "Browse folders",
-    rootItems: [root],
-    allowSelectingFolders: true,
-    startInsideFirstRoot: true,
+    root: root,
     newScreen: true
 ) {
     print("Selected: \(selection.url.path)")
 }
+
+// Set isSelectable = false on any TreeNodePickerItem to make it navigable-only.
 ```
 
 ## Project Structure
@@ -217,11 +218,31 @@ if let selection = picker.treeNavigation(
 ```
 SwiftPickerDemo/
 ├── Package.swift
+├── README.md
 └── Sources/
     └── SwiftPickerDemo/
-        ├── SwiftPickerDemo.swift  # Main CLI app with ArgumentParser
+        ├── SwiftPickerDemo.swift   # Main entry point + shared helpers
+        ├── SingleSelection.swift   # Single-selection subcommand
+        ├── MultiSelection.swift    # Multi-selection subcommand
+        ├── DynamicDetail.swift     # Dynamic detail subcommand
+        ├── Choose.swift            # Interactive chooser subcommand
+        ├── Browse.swift            # Filesystem browser subcommand
         └── TestItem.swift          # Sample data for demos
 ```
+
+### File Organization
+
+The demo is organized with each subcommand in its own file for clarity:
+
+- **SwiftPickerDemo.swift** — Main `@main` struct, command configuration, and shared helper methods (prompts, demo runners)
+- **SingleSelection.swift** — Implements the `single` subcommand for testing single-selection pickers
+- **MultiSelection.swift** — Implements the `multi` subcommand for testing multi-selection pickers
+- **DynamicDetail.swift** — Implements the `dynamic` subcommand for testing dynamic two-column layouts
+- **Choose.swift** — Implements the `choose` subcommand, an interactive menu to explore all modes
+- **Browse.swift** — Implements the `browse` subcommand for filesystem tree navigation
+- **TestItem.swift** — Sample data models conforming to `DisplayablePickerItem`
+
+This modular structure makes it easy to understand each subcommand's implementation independently while sharing common functionality through the `SwiftPickerDemo` extension methods.
 
 ## Dependencies
 

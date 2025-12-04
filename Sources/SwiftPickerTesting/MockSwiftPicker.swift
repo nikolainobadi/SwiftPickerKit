@@ -90,18 +90,18 @@ extension MockSwiftPicker: CommandLineSelection {
 extension MockSwiftPicker: CommandLineTreeNavigation {
     public func treeNavigation<Item: TreeNodePickerItem>(
         prompt: String,
-        rootItems: [Item],
-        allowSelectingFolders: Bool,
-        startInsideFirstRoot: Bool,
-        newScreen: Bool
+        root: TreeNavigationRoot<Item>,
+        newScreen: Bool,
+        showPromptText: Bool = true,
+        showSelectedItemText: Bool = true
     ) -> Item? {
         capturedTreeNavigationPrompts.append(prompt)
         let response = treeNavigationResult.nextOutcome(for: prompt)
 
-        guard let index = response.selectedRootIndex, rootItems.indices.contains(index) else {
+        guard let index = response.selectedRootIndex, root.children.indices.contains(index) else {
             return nil
         }
 
-        return rootItems[index]
+        return root.children[index]
     }
 }

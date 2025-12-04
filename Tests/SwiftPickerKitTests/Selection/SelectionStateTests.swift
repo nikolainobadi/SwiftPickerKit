@@ -27,14 +27,14 @@ struct SelectionStateTests {
     func showsSingleSelectionModeInHeader() {
         let (sut, _) = makeSUT(isSingleSelection: true)
 
-        #expect(sut.topLineText == "InteractivePicker (single-selection)")
+        #expect(sut.topLineText == "SwiftPicker (single-selection)")
     }
 
     @Test("Shows multi selection mode in header")
     func showsMultiSelectionModeInHeader() {
         let (sut, _) = makeSUT(isSingleSelection: false)
 
-        #expect(sut.topLineText == "InteractivePicker (multi-selection)")
+        #expect(sut.topLineText == "SwiftPicker (multi-selection)")
     }
 
     @Test("Guides single selection completion")

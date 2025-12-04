@@ -33,8 +33,8 @@ struct TreeNavigationRendererTests {
         #expect(hasBreadcrumb)
     }
 
-    @Test("Displays root level message when no parent exists")
-    func displaysRootLevelMessageWhenNoParentExists() {
+    @Test("Omits parent column at root level")
+    func omitsParentColumnAtRootLevel() {
         let items = [TestTreeNode(name: "Item")]
         let state = makeState(rootItems: items)
         let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
@@ -42,14 +42,17 @@ struct TreeNavigationRendererTests {
 
         sut.render(items: items, state: state, context: context, input: pickerInput, screenWidth: 80)
 
+        let hasParentHeader = pickerInput.writtenText.contains { $0.contains("PARENT") }
         let hasRootMessage = pickerInput.writtenText.contains { $0.contains("Root level") }
-        #expect(hasRootMessage)
+        #expect(hasParentHeader == false)
+        #expect(hasRootMessage == false)
     }
 
-    @Test("Renders parent and current column headers")
-    func rendersParentAndCurrentColumnHeaders() {
-        let items = [TestTreeNode(name: "Item")]
+    @Test("Renders parent and current column headers when a parent exists")
+    func rendersParentAndCurrentColumnHeadersWhenParentExists() {
+        let items = [TestTreeNode(name: "Root", hasChildren: true, children: [TestTreeNode(name: "Child")])]
         let state = makeState(rootItems: items)
+        state.descendIntoChildIfPossible()
         let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
         let (sut, pickerInput) = makeSUT()
 
@@ -148,10 +151,11 @@ struct TreeNavigationRendererTests {
         #expect(hasCustomIcon)
     }
 
-    @Test("Positions columns with appropriate spacing")
-    func positionsColumnsWithAppropriateSpacing() {
-        let items = [TestTreeNode(name: "Item")]
+    @Test("Positions columns with appropriate spacing when parent exists")
+    func positionsColumnsWithAppropriateSpacingWhenParentExists() {
+        let items = [TestTreeNode(name: "Root", hasChildren: true, children: [TestTreeNode(name: "Child")])]
         let state = makeState(rootItems: items)
+        state.descendIntoChildIfPossible()
         let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
         let (sut, pickerInput) = makeSUT()
 
@@ -181,6 +185,65 @@ struct TreeNavigationRendererTests {
         let hasChildName = pickerInput.writtenText.contains { $0.contains(childName) }
         #expect(hasParentName && hasChildName)
     }
+
+    @Test("Shows arrows on parent header when parent column is active")
+    func showsArrowsOnParentHeaderWhenParentColumnIsActive() {
+        let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: [
+            TestTreeNode(name: "Child")
+        ])
+        let items = [rootItem]
+        let state = makeState(rootItems: items)
+        state.descendIntoChildIfPossible()
+        state.focusParentColumnIfAvailable()
+
+        let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
+        let (sut, pickerInput) = makeSUT()
+
+        sut.render(items: items, state: state, context: context, input: pickerInput, screenWidth: 80)
+
+        let hasParentTitle = pickerInput.writtenText.contains { $0.contains("PARENT") }
+        let hasLeftArrow = pickerInput.writtenText.contains { $0.contains("←") }
+        let hasRightArrow = pickerInput.writtenText.contains { $0.contains("→") }
+        #expect(hasParentTitle && hasLeftArrow && hasRightArrow)
+    }
+
+    @Test("Shows arrows on current header when current column is active and can navigate")
+    func showsArrowsOnCurrentHeaderWhenCurrentColumnIsActiveAndCanNavigate() {
+        let child = TestTreeNode(name: "Child", hasChildren: true, children: [TestTreeNode(name: "Grandchild")])
+        let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: [child])
+        let items = [rootItem]
+        let state = makeState(rootItems: items)
+        state.descendIntoChildIfPossible()
+
+        let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
+        let (sut, pickerInput) = makeSUT()
+
+        sut.render(items: items, state: state, context: context, input: pickerInput, screenWidth: 80)
+
+        let hasCurrentTitle = pickerInput.writtenText.contains { $0.contains("CURRENT") }
+        let hasLeadingArrow = pickerInput.writtenText.contains { $0.contains("←") }
+        let hasTrailingArrow = pickerInput.writtenText.contains { $0.contains("→") }
+        #expect(hasCurrentTitle && hasLeadingArrow && hasTrailingArrow)
+    }
+
+    @Test("Shows children title when parent column is active")
+    func showsChildrenTitleWhenParentColumnIsActive() {
+        let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: [
+            TestTreeNode(name: "Child")
+        ])
+        let items = [rootItem]
+        let state = makeState(rootItems: items)
+        state.descendIntoChildIfPossible()
+        state.focusParentColumnIfAvailable()
+
+        let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
+        let (sut, pickerInput) = makeSUT()
+
+        sut.render(items: items, state: state, context: context, input: pickerInput, screenWidth: 80)
+
+        let hasChildrenTitle = pickerInput.writtenText.contains { $0.contains("CHILDREN") }
+        #expect(hasChildrenTitle)
+    }
 }
 
 
@@ -208,12 +271,14 @@ private struct TestTreeNode: TreeNodePickerItem {
     let hasChildren: Bool
     let children: [TestTreeNode]
     let metadata: TreeNodeMetadata?
+    let isSelectable: Bool
 
-    init(name: String, hasChildren: Bool = false, children: [TestTreeNode] = [], metadata: TreeNodeMetadata? = nil) {
+    init(name: String, hasChildren: Bool = false, children: [TestTreeNode] = [], metadata: TreeNodeMetadata? = nil, isSelectable: Bool = true) {
         self.name = name
         self.hasChildren = hasChildren
         self.children = children
         self.metadata = metadata
+        self.isSelectable = isSelectable
     }
 
     var displayName: String { name }

@@ -16,64 +16,54 @@ struct SwiftPickerCommandLineTreeNavigationTests {
         #expect(pickerInput.moveToCalls.isEmpty)
     }
 
-    @Test("Selects folder when allowed")
-    func selectsFolderWhenAllowed() {
+    @Test("Selects selectable folder")
+    func selectsSelectableFolder() {
         let child = TestFactory.makeTreeItem(name: "Child")
         let root = TestFactory.makeTreeItem(name: "Root", children: [child])
         let (sut, pickerInput) = makeSUT()
-        let selection: CommandLineTreeNavigation = sut
 
         pickerInput.pressKey = true
         pickerInput.enqueueSpecialChar(.enter)
 
-        let result = selection.treeNavigation(
+        let result = sut.treeNavigation(
             prompt: "Pick",
-            rootItems: [root],
-            allowSelectingFolders: true,
-            startInsideFirstRoot: false,
-            newScreen: false
-        )
-
-        #expect(result?.displayName == root.displayName)
-    }
-
-    @Test("Selects leaf when folders disallowed")
-    func selectsLeafWhenFoldersDisallowed() {
-        let child = TestFactory.makeTreeItem(name: "Child")
-        let root = TestFactory.makeTreeItem(name: "Root", children: [child])
-        let (sut, pickerInput) = makeSUT()
-        let selection: CommandLineTreeNavigation = sut
-
-        pickerInput.pressKey = true
-        pickerInput.enqueueDirectionKey(.right)
-        pickerInput.enqueueSpecialChar(.enter)
-
-        let result = selection.treeNavigation(
-            prompt: "Pick leaf",
-            rootItems: [root],
-            allowSelectingFolders: false,
-            startInsideFirstRoot: false,
+            root: makeRoot(from: root),
             newScreen: false
         )
 
         #expect(result?.displayName == child.displayName)
     }
 
-    @Test("Starts inside first root when requested")
-    func startsInsideFirstRootWhenRequested() {
+    @Test("Selects leaf nodes")
+    func selectsLeafNodes() {
         let child = TestFactory.makeTreeItem(name: "Child")
         let root = TestFactory.makeTreeItem(name: "Root", children: [child])
         let (sut, pickerInput) = makeSUT()
-        let selection: CommandLineTreeNavigation = sut
 
         pickerInput.pressKey = true
         pickerInput.enqueueSpecialChar(.enter)
 
-        let result = selection.treeNavigation(
+        let result = sut.treeNavigation(
+            prompt: "Pick leaf",
+            root: makeRoot(from: root),
+            newScreen: false
+        )
+
+        #expect(result?.displayName == child.displayName)
+    }
+
+    @Test("Always starts inside first root when available")
+    func alwaysStartsInsideFirstRootWhenAvailable() {
+        let child = TestFactory.makeTreeItem(name: "Child")
+        let root = TestFactory.makeTreeItem(name: "Root", children: [child])
+        let (sut, pickerInput) = makeSUT()
+
+        pickerInput.pressKey = true
+        pickerInput.enqueueSpecialChar(.enter)
+
+        let result = sut.treeNavigation(
             prompt: "Pick",
-            rootItems: [root],
-            allowSelectingFolders: false,
-            startInsideFirstRoot: true,
+            root: makeRoot(from: root),
             newScreen: false
         )
 
@@ -84,16 +74,13 @@ struct SwiftPickerCommandLineTreeNavigationTests {
     func returnsNilWhenUserQuitsNavigation() {
         let root = TestFactory.makeTreeItem(name: "Root")
         let (sut, pickerInput) = makeSUT()
-        let selection: CommandLineTreeNavigation = sut
 
         pickerInput.pressKey = true
         pickerInput.enqueueSpecialChar(.quit)
 
-        let result = selection.treeNavigation(
+        let result = sut.treeNavigation(
             prompt: "Quit",
-            rootItems: [root],
-            allowSelectingFolders: true,
-            startInsideFirstRoot: false,
+            root: makeRoot(from: root),
             newScreen: false
         )
 
@@ -104,17 +91,14 @@ struct SwiftPickerCommandLineTreeNavigationTests {
     func throwsWhenRequiredNavigationIsCancelled() {
         let root = TestFactory.makeTreeItem(name: "Root")
         let (sut, pickerInput) = makeSUT()
-        let selection: CommandLineTreeNavigation = sut
 
         pickerInput.pressKey = true
         pickerInput.enqueueSpecialChar(.quit)
 
         #expect(throws: SwiftPickerError.self) {
-            _ = try selection.requiredTreeNavigation(
+            _ = try sut.requiredTreeNavigation(
                 prompt: "Quit",
-                rootItems: [root],
-                allowSelectingFolders: true,
-                startInsideFirstRoot: false,
+                root: makeRoot(from: root),
                 newScreen: false
             )
         }
@@ -124,7 +108,14 @@ struct SwiftPickerCommandLineTreeNavigationTests {
 
 // MARK: - SUT
 private extension SwiftPickerCommandLineTreeNavigationTests {
-    func makeSUT() -> (SwiftPicker, MockPickerInput) {
+    func makeRoot(from item: TreeTestItem) -> TreeNavigationRoot<TreeTestItem> {
+        if !item.children.isEmpty {
+            return TreeNavigationRoot(displayName: item.displayName, children: item.children)
+        }
+        return TreeNavigationRoot(displayName: item.displayName, children: [item])
+    }
+
+    func makeSUT() -> (any CommandLineTreeNavigation, MockPickerInput) {
         let pickerInput = MockPickerInput()
         let textInput = MockTextInput()
         let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput)

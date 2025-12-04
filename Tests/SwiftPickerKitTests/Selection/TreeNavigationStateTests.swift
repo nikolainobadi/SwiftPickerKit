@@ -19,7 +19,7 @@ struct TreeNavigationStateTests {
         #expect(sut.activeIndex == 0)
         #expect(sut.options.count == roots.count)
         #expect(sut.currentItems.map(\.displayName) == roots.map(\.displayName))
-        #expect(sut.topLineText == "Tree Navigation")
+        #expect(sut.topLineText == "SwiftPicker - Tree Navigation")
         #expect(sut.bottomLineText.contains("Arrows"))
         #expect(sut.selectedDetailLines.isEmpty)
     }
@@ -115,6 +115,16 @@ struct TreeNavigationStateTests {
         #expect(details.contains(metadata.subtitle?.foreColor(240) ?? ""))
         #expect(details.contains("Line 1".foreColor(244)))
         #expect(details.contains("Line 2".foreColor(244)))
+    }
+
+    @Test("Prevents navigating left when using a named root wrapper")
+    func preventsNavigatingLeftWhenUsingNamedRootWrapper() {
+        let children = TestFactory.makeTreeItems(names: ["Child 1", "Child 2"])
+        let sut = TreeNavigationState(rootItems: children, rootDisplayName: "Root", prompt: "Prompt")
+
+        #expect(sut.canNavigateLeft == false)
+        sut.focusParentColumnIfAvailable()
+        #expect(sut.isParentColumnActive == false)
     }
 }
 
