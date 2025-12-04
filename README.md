@@ -11,6 +11,7 @@
 - [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [Demo](#demo)
 - [Usage](#usage)
   - [Basic Single Selection](#basic-single-selection)
   - [Multi-Selection](#multi-selection)
@@ -67,6 +68,53 @@ Then include it in your target dependencies:
 Include this in your test target dependencies:
 ```swift
     .product(name: "SwiftPickerTesting", package: "SwiftPickerKit")
+```
+
+## Demo
+
+Want to see SwiftPickerKit in action before integrating it? Check out the interactive demo in [`SwiftPickerDemo/Sources/SwiftPickerDemo/`](SwiftPickerDemo/Sources/SwiftPickerDemo/).
+
+Run the demo from the package root:
+```bash
+cd SwiftPickerDemo
+swift run SwiftPickerDemo <subcommand>
+```
+
+### Available Subcommands
+
+- **`single`** — Single-selection picker
+  - `-r, --required` — Require a selection (throws if none made)
+  - `-s, --small` — Use a smaller non-scrolling list
+  - `-d, --detail` — Show static detail column
+
+- **`multi`** — Multi-selection picker
+  - `-s, --small` — Use a smaller non-scrolling list
+  - `-d, --detail` — Show static detail column
+
+- **`dynamic`** — Dynamic two-column detail picker
+  - `-s, --small` — Use a smaller list
+  - `-m, --multi` — Use multi-selection mode
+
+- **`choose`** — Interactive menu to test all layouts and modes using SwiftPicker itself
+
+- **`browse`** — Filesystem browser with tree navigation
+  - `-p, --path <path>` — Starting path (defaults to home directory)
+  - `-H, --show-hidden` — Show hidden files and folders
+
+### Quick Start
+
+Try the interactive chooser to explore all features:
+```bash
+cd SwiftPickerDemo
+swift run SwiftPickerDemo choose
+```
+
+Or test a specific feature:
+```bash
+swift run SwiftPickerDemo single -d      # Single selection with detail column
+swift run SwiftPickerDemo multi -s       # Multi selection with small list
+swift run SwiftPickerDemo dynamic -m     # Dynamic detail with multi-select
+swift run SwiftPickerDemo browse -p ~/Documents  # Browse filesystem starting at Documents
 ```
 
 ## Usage
