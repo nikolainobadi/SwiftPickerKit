@@ -9,6 +9,20 @@ import ArgumentParser
 import SwiftPickerKit
 
 extension SwiftPickerDemo {
+    /// Interactive menu to choose which demo to run using SwiftPicker itself.
+    ///
+    /// This is a meta-demo: it uses SwiftPickerKit to let you choose which SwiftPickerKit
+    /// feature to test. It's the easiest way to explore all available modes and layouts
+    /// without having to remember command-line flags.
+    ///
+    /// This pattern (using a picker to navigate your CLI's features) is great for:
+    /// - Complex CLI tools with many options
+    /// - Interactive setup wizards
+    /// - Configuration management tools
+    /// - Any scenario where users might not remember all available commands
+    ///
+    /// Usage:
+    ///     swift run SwiftPickerDemo choose
     struct Choose: ParsableCommand {
         static let configuration = CommandConfiguration(
             commandName: "choose",
@@ -18,12 +32,15 @@ extension SwiftPickerDemo {
         func run() throws {
             let picker: any CommandLinePicker = SwiftPicker()
 
+            // Define a simple struct conforming to DisplayablePickerItem
+            // This demonstrates the minimum required to make any type work with SwiftPicker
             struct Mode: DisplayablePickerItem {
                 let name: String
                 let description: String
                 var displayName: String { name }
             }
 
+            // All available demo combinations
             let modes: [Mode] = [
                 .init(
                     name: "Single Column (Single Selection)",
@@ -56,6 +73,7 @@ extension SwiftPickerDemo {
             This menu exercises all layouts and both selection modes.
             """
 
+            // Use SwiftPicker to let the user choose which demo to run
             guard let selection = picker.singleSelection(
                 prompt: prompt,
                 items: modes,
@@ -66,6 +84,7 @@ extension SwiftPickerDemo {
                 return
             }
 
+            // Route to the appropriate demo based on selection
             switch selection.name {
             case "Single Column (Single Selection)":
                 try SwiftPickerDemo.runSingleDemo(
