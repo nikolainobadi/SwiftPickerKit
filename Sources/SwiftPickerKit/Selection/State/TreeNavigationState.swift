@@ -5,115 +5,12 @@
 //  Created by Nikolai Nobadi on 11/17/25.
 //
 
-/// State implementation for hierarchical tree navigation with breadcrumb path tracking.
+/// State for hierarchical tree navigation with breadcrumb tracking and a two-column view.
 ///
-/// `TreeNavigationState` is the most complex state in SwiftPickerKit, managing navigation
-/// through hierarchical data structures like file systems, nested menus, or organizational trees.
-///
-/// ## Core Concepts
-///
-/// ### Level Stack
-///
-/// Navigation is modeled as a **stack of levels**, where each level represents one depth
-/// in the tree hierarchy:
-///
-/// ```swift
-/// levels = [
-///     Level(items: [root], activeIndex: 0),              // Level 0: Root
-///     Level(items: [documents, downloads], activeIndex: 0), // Level 1: Root's children
-///     Level(items: [file1, file2], activeIndex: 0)      // Level 2: Documents' children
-/// ]
-/// ```
-///
-/// As you navigate right (descend), new levels are appended. As you navigate left (ascend),
-/// levels are removed.
-///
-/// ### Two-Column Display with Active Column
-///
-/// Unlike simple pickers, tree navigation shows **two columns simultaneously**:
-/// - **Parent column (left)** — Items from parent level, showing context
-/// - **Current column (right)** — Items from current level, the active browsing area
-///
-/// The `activeColumn` property tracks which column has focus:
-/// - `.current` — Right column focused (default), arrow keys navigate current level
-/// - `.parent` — Left column focused, arrow keys navigate parent level
-///
-/// Pressing **left arrow** switches focus to parent column. Pressing **right arrow** from
-/// parent column refocuses current column.
-///
-/// ### Auto-Descend and Root Hiding
-///
-/// When the root level contains a single item with children, the state automatically
-/// descends into that item and hides the root level. This prevents showing a redundant
-/// single-item level. The `hideRootLevel` flag tracks this optimization.
-///
-/// ### Empty Folder Handling
-///
-/// When navigating into an item with no children, the state:
-/// 1. Shows an empty list for the current level
-/// 2. Displays an orange warning message: "'FolderName' is empty"
-/// 3. Stores an `emptyFolderIndicator` to mark the parent item as empty
-///
-/// This provides clear feedback when folders/nodes have no content.
-///
-/// ### Breadcrumb Path
-///
-/// The `breadcrumbPath()` method generates a navigation string like:
-/// ```
-/// Users ▸ Documents ▸ Projects ▸ SwiftPickerKit
-/// ```
-///
-/// This shows the full path from root to current selection, rendered in the header.
-///
-/// ## Navigation Constraints
-///
-/// - **Left navigation blocked** when at root or when using named root wrapper
-/// - **Right navigation blocked** when selected item has no children
-/// - **Parent column focus blocked** when no parent level exists
-///
-/// ## Example Usage
-///
-/// ```swift
-/// let rootNode = FileSystemNode(url: URL(fileURLWithPath: "/Users/you"))
-/// let state = TreeNavigationState(
-///     rootItems: [rootNode],
-///     rootDisplayName: "Home",
-///     prompt: "Browse files"
-/// )
-///
-/// // Auto-descend into root if it's the only item
-/// state.startAtRootContentsIfNeeded()
-///
-/// // Navigate down in current column
-/// state.moveSelectionDown()
-///
-/// // Descend into selected folder
-/// state.descendIntoChildIfPossible()
-///
-/// // Switch focus to parent column
-/// state.focusParentColumnIfAvailable()
-///
-/// // Ascend back up
-/// state.ascendToParent()
-///
-/// // Get breadcrumb path
-/// let path = state.breadcrumbPath()  // "Home ▸ Documents ▸ Projects"
-/// ```
-///
-/// ## State Complexity
-///
-/// This is the most complex state because it manages:
-/// - Multi-level navigation stack
-/// - Two-column focus switching
-/// - Dynamic child loading with `loadChildren()`
-/// - Empty folder indicators and messages
-/// - Breadcrumb path generation
-/// - Index clamping across multiple levels
-/// - Root level hiding logic
-/// - Named root wrapper support
-///
-/// Used by `TreeNavigationBehavior` for left/right arrow handling and by
-/// `TwoColumnTreeRenderer` for two-column visual display.
+/// Manages a stack of levels (current and parent columns), index clamping, empty-folder
+/// indicators/messages, breadcrumb construction (including optional named roots), and
+/// optional auto-descend when the root has a single child. Used by
+/// `TreeNavigationBehavior` for navigation and `TwoColumnTreeRenderer` for display.
 final class TreeNavigationState<Item: TreeNodePickerItem> {
     /// Stack of navigation levels, from root to current depth.
     /// Each level contains items at that depth and the active index within those items.
@@ -257,15 +154,8 @@ extension TreeNavigationState {
 
     /// Auto-descends into root item if it's the only item with children.
     ///
-    /// This optimization prevents showing a redundant single-item root level.
-    /// If the root contains one item with children, this method:
-    /// 1. Loads the item's children
-    /// 2. Adds them as a new level
-    /// 3. Sets `hideRootLevel = true` to hide the root from navigation
-    ///
-    /// **Example:** When browsing "/Users/you/Projects" with a single root node,
-    /// this auto-descends to show the root's contents directly instead of showing
-    /// a single-item list first.
+    /// Hides the redundant single-item root level and starts at its children. Breadcrumbs
+    /// still include the root's display name when present.
     ///
     /// ## Empty Root Handling
     ///
@@ -346,10 +236,11 @@ extension TreeNavigationState {
     /// 3. Truncates level stack to parent level
     /// 4. Adds new child level or sets empty folder indicator
     ///
-    /// ## Empty Folder Handling
+    /// ## Empty/Invalid Handling
     ///
-    /// If parent's active item has no children, sets empty folder indicator and message,
-    /// then resets current level to empty array.
+    /// If the parent's active index is invalid, or if the active item has no children, the
+    /// current level is reset to an empty array (with indicator/message only when children
+    /// are missing).
     ///
     /// - Parameter parentIndex: Optional explicit parent level index (defaults to current parent)
     func updateChildrenForActiveParent(at parentIndex: Int? = nil) {
@@ -733,21 +624,6 @@ private extension TreeNavigationState {
 // MARK: - Dependencies
 extension TreeNavigationState {
     /// Tracks which column currently has focus in the two-column tree display.
-    ///
-    /// ## Column Layout
-    ///
-    /// Tree navigation shows two columns simultaneously:
-    /// - **Parent column (left)** — Items from the parent level for context
-    /// - **Current column (right)** — Items from the current level for browsing
-    ///
-    /// ## Focus Switching
-    ///
-    /// - `.current` — Right column has focus (default state)
-    /// - `.parent` — Left column has focus (switched via left arrow)
-    ///
-    /// Arrow keys (up/down) navigate whichever column has focus. Right arrow
-    /// switches focus from parent to current. Left arrow switches from current
-    /// to parent or ascends if already on parent.
     enum ActiveColumn {
         /// Current (right) column has focus - arrow keys navigate current level
         case current
@@ -757,23 +633,6 @@ extension TreeNavigationState {
     }
 
     /// Represents one level in the tree navigation hierarchy.
-    ///
-    /// Each level contains:
-    /// - **items** — The items at this depth in the tree
-    /// - **activeIndex** — Which item is currently selected/focused at this level
-    ///
-    /// ## Level Stack
-    ///
-    /// The state maintains a stack of levels:
-    /// ```swift
-    /// levels = [
-    ///     Level(items: [root], activeIndex: 0),           // Level 0: Root
-    ///     Level(items: [docs, downloads], activeIndex: 0), // Level 1: Root's children
-    ///     Level(items: [file1, file2], activeIndex: 1)   // Level 2: Docs' children
-    /// ]
-    /// ```
-    ///
-    /// Descending (right arrow) appends new levels. Ascending (left arrow) removes levels.
     struct Level {
         /// Items at this level in the tree hierarchy
         var items: [Item]

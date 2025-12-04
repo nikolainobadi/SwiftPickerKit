@@ -7,45 +7,9 @@
 
 /// State protocol in the State-Behavior-Renderer pattern.
 ///
-/// `BaseSelectionState` defines the contract for picker state implementations. State objects
-/// hold all data needed to render the picker and make behavior decisions:
-/// - Which items to display
-/// - Which item is currently active (cursor position)
-/// - Which items are selected (for multi-selection)
-/// - UI text (prompt, instructions, titles)
-///
-/// ## State Responsibility
-///
-/// State is purely **data** — it doesn't handle input or draw to the terminal. It simply
-/// provides the information that Behavior reads/modifies and Renderer displays.
-///
-/// ## Implementations
-///
-/// Different picker modes have different state implementations:
-/// - `SingleSelectionState` — Tracks active index for single-column list
-/// - `MultiSelectionState` — Tracks multiple selections with checkmarks
-/// - `TwoColumnDynamicDetailState` — Tracks active index + detail content per item
-/// - `TreeNavigationState` — Tracks current tree level, breadcrumb path, navigation stack
-///
-/// ## Example
-///
-/// ```swift
-/// struct SingleSelectionState<Item: DisplayablePickerItem>: BaseSelectionState {
-///     var activeIndex: Int
-///     let options: [Option<Item>]
-///     let prompt: String
-///     let topLineText: String
-///     let bottomLineText: String
-///
-///     init(items: [Item], prompt: String) {
-///         self.activeIndex = 0
-///         self.options = items.map { Option(item: $0, isSelected: false) }
-///         self.prompt = prompt
-///         self.topLineText = "SwiftPicker"
-///         self.bottomLineText = "↑↓: Navigate | Enter: Select | q: Cancel"
-///     }
-/// }
-/// ```
+/// Defines the data contract pickers expose to behaviors and renderers: active index,
+/// option list (with selection), and header/footer text. Implementations are data-only;
+/// input handling and rendering live elsewhere.
 protocol BaseSelectionState<Item> {
     associatedtype Item: DisplayablePickerItem
 
@@ -113,24 +77,8 @@ extension BaseSelectionState {
     func toggleSelection(at index: Int) { }
 }
 
-/// Extended state protocol for pickers with complex focus tracking.
-///
-/// Some picker modes (like tree navigation) need to track which item is "focused"
-/// separately from which items are visible in the list. This protocol provides
-/// that distinction.
-///
-/// ## When to Use
-///
-/// Use this when:
-/// - The visible list differs from the full item set (e.g., tree navigation shows current level)
-/// - You need to display focused item details in the header that aren't in the visible list
-/// - The `activeIndex` refers to visible items, but you need the actual focused item
-///
-/// ## Example
-///
-/// Tree navigation shows the current directory's children, but the focused item
-/// might be a parent directory shown in the breadcrumb. `FocusAwareSelectionState`
-/// lets the header renderer access that parent item for display.
+/// Extended state protocol for pickers where the focused item may differ from visible items.
+/// Useful for tree navigation, where header details come from a parent while the list shows children.
 protocol FocusAwareSelectionState<Item>: BaseSelectionState {
     /// The item currently focused, which may not be in the visible list.
     ///
