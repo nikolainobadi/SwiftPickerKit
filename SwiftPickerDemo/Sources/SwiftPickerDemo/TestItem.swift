@@ -21,8 +21,9 @@ struct TestItem {
     }
 }
 
-extension TestItem {
 
+// MARK: - Helpers
+extension TestItem {
     static let smallList: [TestItem] = [
         .init(name: "Swift", description: "Modern, safe programming language", emoji: "🔶"),
         .init(name: "Python", description: "Easy to learn, versatile language", emoji: "🐍"),
@@ -69,6 +70,8 @@ extension TestItem {
     ]
 }
 
+
+// MARK: - DynamicList
 extension TestItem {
     static let dynamicList: [TestItem] = [
         .init(
@@ -137,6 +140,8 @@ extension TestItem {
     ]
 }
 
+
+// MARK: - DisplayablePickerItem
 extension TestItem: DisplayablePickerItem {
     var displayName: String {
         "\(emoji) \(name)"
