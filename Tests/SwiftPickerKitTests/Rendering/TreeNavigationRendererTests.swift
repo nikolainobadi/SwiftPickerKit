@@ -225,6 +225,25 @@ struct TreeNavigationRendererTests {
         let hasTrailingArrow = pickerInput.writtenText.contains { $0.contains("→") }
         #expect(hasCurrentTitle && hasLeadingArrow && hasTrailingArrow)
     }
+
+    @Test("Shows children title when parent column is active")
+    func showsChildrenTitleWhenParentColumnIsActive() {
+        let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: [
+            TestTreeNode(name: "Child")
+        ])
+        let items = [rootItem]
+        let state = makeState(rootItems: items)
+        state.descendIntoChildIfPossible()
+        state.focusParentColumnIfAvailable()
+
+        let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
+        let (sut, pickerInput) = makeSUT()
+
+        sut.render(items: items, state: state, context: context, input: pickerInput, screenWidth: 80)
+
+        let hasChildrenTitle = pickerInput.writtenText.contains { $0.contains("CHILDREN") }
+        #expect(hasChildrenTitle)
+    }
 }
 
 

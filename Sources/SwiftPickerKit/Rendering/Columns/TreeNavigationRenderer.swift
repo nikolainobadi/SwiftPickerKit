@@ -53,12 +53,13 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         }
 
         let currentInfo = state.currentLevelInfo
+        let currentTitle = state.isCurrentColumnActive ? "Current" : "Children"
         renderColumn(
             items: currentInfo.level.items,
             activeIndex: currentInfo.level.activeIndex,
             startIndex: context.startIndex,
             endIndex: context.endIndex,
-            title: "Current",
+            title: currentTitle,
             isActiveColumn: state.isCurrentColumnActive,
             showLeadingArrow: state.isCurrentColumnActive && state.canNavigateLeft,
             showTrailingArrow: state.isCurrentColumnActive && state.canNavigateRight,
