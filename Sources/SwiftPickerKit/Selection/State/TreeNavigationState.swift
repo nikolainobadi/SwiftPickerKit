@@ -42,6 +42,35 @@ extension TreeNavigationState {
         return activeColumn == .parent
     }
 
+    var canNavigateLeft: Bool {
+        if hideRootLevel && levels.count == 2 {
+            return false
+        }
+
+        guard let parent = parentLevelInfo else {
+            return false
+        }
+
+        // When using a named root wrapper, treat the root level as the upper bound.
+        if rootDisplayName != nil, parent.index == 0, levels.count <= 2 {
+            return false
+        }
+
+        return true
+    }
+
+    var canNavigateRight: Bool {
+        if isParentColumnActive {
+            return !currentItems.isEmpty
+        }
+
+        guard let selected = currentSelectedItem else {
+            return false
+        }
+
+        return selected.hasChildren
+    }
+
     var currentItems: [Item] {
         return levels.last?.items ?? []
     }
@@ -183,6 +212,11 @@ extension TreeNavigationState {
 
         // If the only parent is the hidden root, do not ascend.
         if hideRootLevel && levels.count == 2 {
+            return
+        }
+
+        // When using a named root wrapper, do not ascend past the root contents.
+        if rootDisplayName != nil && levels.count == 2 {
             return
         }
 

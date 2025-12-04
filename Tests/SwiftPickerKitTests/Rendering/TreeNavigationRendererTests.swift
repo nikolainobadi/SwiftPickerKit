@@ -185,6 +185,44 @@ struct TreeNavigationRendererTests {
         let hasChildName = pickerInput.writtenText.contains { $0.contains(childName) }
         #expect(hasParentName && hasChildName)
     }
+
+    @Test("Shows arrows on parent header when parent column is active")
+    func showsArrowsOnParentHeaderWhenParentColumnIsActive() {
+        let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: [
+            TestTreeNode(name: "Child")
+        ])
+        let items = [rootItem]
+        let state = makeState(rootItems: items)
+        state.descendIntoChildIfPossible()
+        state.focusParentColumnIfAvailable()
+
+        let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
+        let (sut, pickerInput) = makeSUT()
+
+        sut.render(items: items, state: state, context: context, input: pickerInput, screenWidth: 80)
+
+        let hasLeftArrow = pickerInput.writtenText.contains { $0.contains("← PARENT") || $0.contains("←PARENT") }
+        let hasRightArrow = pickerInput.writtenText.contains { $0.contains("PARENT →") || $0.contains("PARENT→") }
+        #expect(hasLeftArrow && hasRightArrow)
+    }
+
+    @Test("Shows arrows on current header when current column is active and can navigate")
+    func showsArrowsOnCurrentHeaderWhenCurrentColumnIsActiveAndCanNavigate() {
+        let child = TestTreeNode(name: "Child", hasChildren: true, children: [TestTreeNode(name: "Grandchild")])
+        let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: [child])
+        let items = [rootItem]
+        let state = makeState(rootItems: items)
+        state.descendIntoChildIfPossible()
+
+        let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
+        let (sut, pickerInput) = makeSUT()
+
+        sut.render(items: items, state: state, context: context, input: pickerInput, screenWidth: 80)
+
+        let hasLeadingArrow = pickerInput.writtenText.contains { $0.contains("← CURRENT") || $0.contains("←CURRENT") }
+        let hasTrailingArrow = pickerInput.writtenText.contains { $0.contains("CURRENT →") || $0.contains("CURRENT→") }
+        #expect(hasLeadingArrow && hasTrailingArrow)
+    }
 }
 
 

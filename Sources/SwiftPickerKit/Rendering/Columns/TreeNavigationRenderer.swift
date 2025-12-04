@@ -39,6 +39,8 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
                 endIndex: end,
                 title: "Parent",
                 isActiveColumn: state.isParentColumnActive,
+                showLeadingArrow: state.isParentColumnActive && state.canNavigateLeft,
+                showTrailingArrow: state.isParentColumnActive && state.canNavigateRight,
                 levelIndex: parentInfo.index,
                 startRow: columnStartRow,
                 startCol: 0,
@@ -58,6 +60,8 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
             endIndex: context.endIndex,
             title: "Current",
             isActiveColumn: state.isCurrentColumnActive,
+            showLeadingArrow: state.isCurrentColumnActive && state.canNavigateLeft,
+            showTrailingArrow: state.isCurrentColumnActive && state.canNavigateRight,
             levelIndex: currentInfo.index,
             startRow: columnStartRow,
             startCol: rightColumnStart,
@@ -73,9 +77,9 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
 // MARK: - Private Methods
 private extension TreeNavigationRenderer {
-    func renderColumn(items: [Item], activeIndex: Int, startIndex: Int, endIndex: Int, title: String, isActiveColumn: Bool, levelIndex: Int, startRow: Int, startCol: Int, columnWidth: Int, maxRowExclusive: Int, emptyPlaceholder: String, input: PickerInput, state: State) {
+    func renderColumn(items: [Item], activeIndex: Int, startIndex: Int, endIndex: Int, title: String, isActiveColumn: Bool, showLeadingArrow: Bool, showTrailingArrow: Bool, levelIndex: Int, startRow: Int, startCol: Int, columnWidth: Int, maxRowExclusive: Int, emptyPlaceholder: String, input: PickerInput, state: State) {
         guard startRow < maxRowExclusive else { return }
-        renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, input: input)
+        renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, showLeadingArrow: showLeadingArrow, showTrailingArrow: showTrailingArrow, input: input)
 
         var row = startRow + 1
         let textWidth = max(4, columnWidth - 2)
@@ -125,9 +129,26 @@ private extension TreeNavigationRenderer {
         }
     }
 
-    func renderColumnHeader(title: String, startRow: Int, startCol: Int, columnWidth: Int, input: PickerInput) {
+    func renderColumnHeader(title: String, startRow: Int, startCol: Int, columnWidth: Int, showLeadingArrow: Bool, showTrailingArrow: Bool, input: PickerInput) {
         input.moveTo(startRow, startCol)
-        let header = PickerTextFormatter.truncate(title.uppercased(), maxWidth: max(4, columnWidth - 1))
-        input.write(header.foreColor(102))
+        let clearLine = String(repeating: " ", count: max(0, columnWidth))
+        input.write(clearLine)
+        input.moveTo(startRow, startCol)
+
+        var components: [String] = []
+        if showLeadingArrow {
+            components.append("←".lightGreen)
+        }
+        components.append(title.uppercased().foreColor(102))
+        if showTrailingArrow {
+            components.append("→".lightGreen)
+        }
+
+        let spaced = components.joined(separator: " ")
+        let compact = components.joined()
+        let headerText = spaced.count <= columnWidth ? spaced : compact
+
+        let header = PickerTextFormatter.truncate(headerText, maxWidth: max(4, columnWidth))
+        input.write(header)
     }
 }
