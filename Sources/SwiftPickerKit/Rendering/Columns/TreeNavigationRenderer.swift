@@ -135,20 +135,31 @@ private extension TreeNavigationRenderer {
         input.write(clearLine)
         input.moveTo(startRow, startCol)
 
-        var components: [String] = []
+        let plainTitle = title.uppercased()
+        var plainParts: [String] = []
         if showLeadingArrow {
-            components.append("←".lightGreen)
+            plainParts.append("←")
         }
-        components.append(title.uppercased().foreColor(102))
+        plainParts.append(plainTitle)
         if showTrailingArrow {
-            components.append("→".lightGreen)
+            plainParts.append("→")
         }
 
-        let spaced = components.joined(separator: " ")
-        let compact = components.joined()
-        let headerText = spaced.count <= columnWidth ? spaced : compact
+        let spacedPlain = plainParts.joined(separator: " ")
+        let useSpaced = spacedPlain.count <= columnWidth
 
-        let header = PickerTextFormatter.truncate(headerText, maxWidth: max(4, columnWidth))
-        input.write(header)
+        var coloredParts: [String] = []
+        if showLeadingArrow {
+            coloredParts.append("←".lightGreen)
+        }
+        coloredParts.append(plainTitle.foreColor(102))
+        if showTrailingArrow {
+            coloredParts.append("→".lightGreen)
+        }
+        let spacedColored = coloredParts.joined(separator: " ")
+        let compactColored = coloredParts.joined()
+        let headerText = useSpaced ? spacedColored : compactColored
+
+        input.write(headerText)
     }
 }

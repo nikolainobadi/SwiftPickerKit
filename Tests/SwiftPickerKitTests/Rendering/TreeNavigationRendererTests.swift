@@ -201,9 +201,10 @@ struct TreeNavigationRendererTests {
 
         sut.render(items: items, state: state, context: context, input: pickerInput, screenWidth: 80)
 
-        let hasLeftArrow = pickerInput.writtenText.contains { $0.contains("← PARENT") || $0.contains("←PARENT") }
-        let hasRightArrow = pickerInput.writtenText.contains { $0.contains("PARENT →") || $0.contains("PARENT→") }
-        #expect(hasLeftArrow && hasRightArrow)
+        let hasParentTitle = pickerInput.writtenText.contains { $0.contains("PARENT") }
+        let hasLeftArrow = pickerInput.writtenText.contains { $0.contains("←") }
+        let hasRightArrow = pickerInput.writtenText.contains { $0.contains("→") }
+        #expect(hasParentTitle && hasLeftArrow && hasRightArrow)
     }
 
     @Test("Shows arrows on current header when current column is active and can navigate")
@@ -219,9 +220,10 @@ struct TreeNavigationRendererTests {
 
         sut.render(items: items, state: state, context: context, input: pickerInput, screenWidth: 80)
 
-        let hasLeadingArrow = pickerInput.writtenText.contains { $0.contains("← CURRENT") || $0.contains("←CURRENT") }
-        let hasTrailingArrow = pickerInput.writtenText.contains { $0.contains("CURRENT →") || $0.contains("CURRENT→") }
-        #expect(hasLeadingArrow && hasTrailingArrow)
+        let hasCurrentTitle = pickerInput.writtenText.contains { $0.contains("CURRENT") }
+        let hasLeadingArrow = pickerInput.writtenText.contains { $0.contains("←") }
+        let hasTrailingArrow = pickerInput.writtenText.contains { $0.contains("→") }
+        #expect(hasCurrentTitle && hasLeadingArrow && hasTrailingArrow)
     }
 }
 

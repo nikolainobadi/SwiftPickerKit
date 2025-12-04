@@ -116,6 +116,16 @@ struct TreeNavigationStateTests {
         #expect(details.contains("Line 1".foreColor(244)))
         #expect(details.contains("Line 2".foreColor(244)))
     }
+
+    @Test("Prevents navigating left when using a named root wrapper")
+    func preventsNavigatingLeftWhenUsingNamedRootWrapper() {
+        let children = TestFactory.makeTreeItems(names: ["Child 1", "Child 2"])
+        let sut = TreeNavigationState(rootItems: children, rootDisplayName: "Root", prompt: "Prompt")
+
+        #expect(sut.canNavigateLeft == false)
+        sut.focusParentColumnIfAvailable()
+        #expect(sut.isParentColumnActive == false)
+    }
 }
 
 
