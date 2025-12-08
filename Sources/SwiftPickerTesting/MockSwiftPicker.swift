@@ -98,10 +98,21 @@ extension MockSwiftPicker: CommandLineTreeNavigation {
         capturedTreeNavigationPrompts.append(prompt)
         let response = treeNavigationResult.nextOutcome(for: prompt)
 
-        guard let index = response.selectedRootIndex, root.children.indices.contains(index) else {
+        guard let rootIndex = response.selectedRootIndex, root.children.indices.contains(rootIndex) else {
             return nil
         }
 
-        return root.children[index]
+        let rootSelection = root.children[rootIndex]
+
+        guard let childIndex = response.selectedChildIndex else {
+            return rootSelection
+        }
+
+        let children = rootSelection.loadChildren()
+        guard children.indices.contains(childIndex) else {
+            return nil
+        }
+
+        return children[childIndex]
     }
 }
