@@ -30,15 +30,21 @@ public enum MockTreeSelectionType {
 // MARK: - Outcome
 public struct MockTreeSelectionOutcome: Equatable {
     public var selectedRootIndex: Int?
+    public var selectedChildIndex: Int?
 
-    public init(selectedRootIndex: Int?) {
+    public init(selectedRootIndex: Int?, selectedChildIndex: Int? = nil) {
         self.selectedRootIndex = selectedRootIndex
+        self.selectedChildIndex = selectedChildIndex
     }
 
-    public static let none: MockTreeSelectionOutcome = .init(selectedRootIndex: nil)
+    public static let none: MockTreeSelectionOutcome = .init(selectedRootIndex: nil, selectedChildIndex: nil)
 
     public static func index(_ index: Int) -> MockTreeSelectionOutcome {
         return .init(selectedRootIndex: index)
+    }
+
+    public static func child(parentIndex: Int, childIndex: Int) -> MockTreeSelectionOutcome {
+        return .init(selectedRootIndex: parentIndex, selectedChildIndex: childIndex)
     }
 }
 

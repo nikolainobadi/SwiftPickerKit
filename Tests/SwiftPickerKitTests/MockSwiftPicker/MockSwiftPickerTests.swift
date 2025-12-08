@@ -435,6 +435,40 @@ extension MockSwiftPickerTests {
 
         #expect(result == nodes[1])
     }
+
+    @Test("Returns child item using configured parent and child indexes")
+    func returnsChildItemUsingConfiguredParentAndChildIndexes() {
+        let children = makeTreeNodes(["child 1", "child 2"])
+        let parent = MockTreeNode(name: "Parent", children: children)
+        let root = makeTreeRoot([parent])
+        let treeNavigationResult = makeTreeNavigationResult(type: .ordered([.child(parentIndex: 0, childIndex: 1)]))
+        let sut = makeSUT(treeNavigationResult: treeNavigationResult)
+
+        let result = sut.treeNavigation(
+            prompt: "Pick file",
+            root: root,
+            newScreen: false
+        )
+
+        #expect(result == children[1])
+    }
+
+    @Test("Returns nil when child index is out of bounds")
+    func returnsNilWhenChildIndexIsOutOfBounds() {
+        let children = makeTreeNodes(["child"])
+        let parent = MockTreeNode(name: "Parent", children: children)
+        let root = makeTreeRoot([parent])
+        let treeNavigationResult = makeTreeNavigationResult(type: .ordered([.child(parentIndex: 0, childIndex: 5)]))
+        let sut = makeSUT(treeNavigationResult: treeNavigationResult)
+
+        let result = sut.treeNavigation(
+            prompt: "Pick file",
+            root: root,
+            newScreen: false
+        )
+
+        #expect(result == nil)
+    }
 }
 
 
