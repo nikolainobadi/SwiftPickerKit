@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2025-12-08
+
+### Added
+- Child selection support in `MockSwiftPicker` for testing tree navigation with nested items
+- `selectedChildIndex` parameter to `MockTreeSelectionOutcome` for granular test control
+- New `.child(parentIndex:childIndex:)` factory method for configuring nested tree selections in tests
+
 ## [0.7.0] - 2025-12-04
 
 ### Added
