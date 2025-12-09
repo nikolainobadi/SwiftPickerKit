@@ -11,6 +11,11 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         let footerStartRow = totalRows - footerRenderer.height()
         let arrowRow = headerHeight - 1
 
+        let breadcrumbRows = state.breadcrumbPath().isEmpty ? 0 : 1
+        let spacerRow = 1
+        let columnHeaderRows = 1
+        let actualVisibleRows = context.visibleRowCount - breadcrumbRows - spacerRow - columnHeaderRows
+
         let hasParent = state.parentLevelInfo != nil
         let columnSpacing = hasParent ? max(2, screenWidth / 20) : 0
         let columnWidth = hasParent ? max(10, (screenWidth - columnSpacing) / 2) : max(10, screenWidth)
@@ -18,7 +23,7 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
         if let parentInfo = state.parentLevelInfo {
             let parent = parentInfo.level
-            let engine = ScrollEngine(totalItems: parent.items.count, visibleRows: context.visibleRowCount)
+            let engine = ScrollEngine(totalItems: parent.items.count, visibleRows: actualVisibleRows)
             let (start, end) = engine.bounds(activeIndex: parent.activeIndex)
 
             if engine.showScrollUp(start: start) {
@@ -33,7 +38,7 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         }
 
         let currentInfo = state.currentLevelInfo
-        let currentEngine = ScrollEngine(totalItems: currentInfo.level.items.count, visibleRows: context.visibleRowCount)
+        let currentEngine = ScrollEngine(totalItems: currentInfo.level.items.count, visibleRows: actualVisibleRows)
         let (currentStart, currentEnd) = currentEngine.bounds(activeIndex: currentInfo.level.activeIndex)
 
         if currentEngine.showScrollUp(start: currentStart) {
@@ -64,6 +69,9 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         }
 
         let columnStartRow = row
+        let rowsConsumedByBreadcrumb = row - context.listStartRow
+        let columnHeaderRows = 1
+        let actualVisibleRows = context.visibleRowCount - rowsConsumedByBreadcrumb - columnHeaderRows
         let hasParent = state.parentLevelInfo != nil
         let columnSpacing = hasParent ? max(2, screenWidth / 20) : 0
         let columnWidth = hasParent ? max(10, (screenWidth - columnSpacing) / 2) : max(10, screenWidth)
@@ -71,7 +79,7 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
         if let parentInfo = state.parentLevelInfo {
             let parent = parentInfo.level
-            let engine = ScrollEngine(totalItems: parent.items.count, visibleRows: context.visibleRowCount)
+            let engine = ScrollEngine(totalItems: parent.items.count, visibleRows: actualVisibleRows)
             let (start, end) = engine.bounds(activeIndex: parent.activeIndex)
             renderColumn(
                 items: parent.items,
@@ -95,7 +103,7 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
         let currentInfo = state.currentLevelInfo
         let currentTitle = state.isCurrentColumnActive ? "Current" : "Children"
-        let currentEngine = ScrollEngine(totalItems: currentInfo.level.items.count, visibleRows: context.visibleRowCount)
+        let currentEngine = ScrollEngine(totalItems: currentInfo.level.items.count, visibleRows: actualVisibleRows)
         let (currentStart, currentEnd) = currentEngine.bounds(activeIndex: currentInfo.level.activeIndex)
         renderColumn(
             items: currentInfo.level.items,
