@@ -263,6 +263,28 @@ struct TreeNavigationRendererTests {
         #expect(downArrowAtLeftColumn)
     }
 
+    @Test("Shows scroll up indicators for parent column when parent items exceed visible rows and scrolled")
+    func showsScrollUpIndicatorsForParentColumnWhenParentItemsExceedVisibleRowsAndScrolled() {
+        let manyItems = (0..<20).map { TestTreeNode(name: "Item\($0)", hasChildren: true, children: [TestTreeNode(name: "Child\($0)")]) }
+        let state = makeState(rootItems: manyItems)
+        state.descendIntoChildIfPossible()
+        state.focusParentColumnIfAvailable()
+
+        for _ in 0..<10 {
+            state.moveSelectionDown()
+        }
+
+        let context = makeContext(startIndex: 5, endIndex: 10, visibleRowCount: 5)
+        let (sut, pickerInput) = makeSUT(screenSize: (20, 80))
+
+        sut.renderScrollIndicators(showUp: true, showDown: false, state: state, context: context, input: pickerInput, screenWidth: 80, headerHeight: 10, totalRows: 20)
+
+        let hasUpArrow = pickerInput.writtenText.contains { $0.contains("↑") }
+        let upArrowAtLeftColumn = pickerInput.moveToCalls.contains { $0.col == 0 }
+        #expect(hasUpArrow)
+        #expect(upArrowAtLeftColumn)
+    }
+
     @Test("Shows scroll indicators for current column when current items exceed visible rows")
     func showsScrollIndicatorsForCurrentColumnWhenCurrentItemsExceedVisibleRows() {
         let manyChildren = (0..<20).map { TestTreeNode(name: "Child\($0)") }
@@ -279,6 +301,28 @@ struct TreeNavigationRendererTests {
         let downArrowAtRightColumn = pickerInput.moveToCalls.contains { $0.col > 10 }
         #expect(hasDownArrow)
         #expect(downArrowAtRightColumn)
+    }
+
+    @Test("Shows scroll up indicators for current column when current items exceed visible rows and scrolled")
+    func showsScrollUpIndicatorsForCurrentColumnWhenCurrentItemsExceedVisibleRowsAndScrolled() {
+        let manyChildren = (0..<20).map { TestTreeNode(name: "Child\($0)") }
+        let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: manyChildren)
+        let state = makeState(rootItems: [rootItem])
+        state.descendIntoChildIfPossible()
+
+        for _ in 0..<10 {
+            state.moveSelectionDown()
+        }
+
+        let context = makeContext(startIndex: 5, endIndex: 10, visibleRowCount: 5)
+        let (sut, pickerInput) = makeSUT(screenSize: (20, 80))
+
+        sut.renderScrollIndicators(showUp: true, showDown: false, state: state, context: context, input: pickerInput, screenWidth: 80, headerHeight: 10, totalRows: 20)
+
+        let hasUpArrow = pickerInput.writtenText.contains { $0.contains("↑") }
+        let upArrowAtRightColumn = pickerInput.moveToCalls.contains { $0.col > 10 }
+        #expect(hasUpArrow)
+        #expect(upArrowAtRightColumn)
     }
 
     @Test("Shows scroll indicators for both columns when both exceed visible rows")
