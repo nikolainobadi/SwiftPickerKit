@@ -102,9 +102,6 @@ final class SelectionHandler<
     /// Renders the footer section (instruction text)
     private let footerRenderer: PickerFooterRenderer
 
-    /// Renders scroll indicators (up/down arrows) when content overflows
-    private let scrollRenderer: ScrollRenderer
-
     /// Content renderer (pluggable: single-column, two-column, tree, etc.)
     private let contentRenderer: Renderer
 
@@ -130,7 +127,6 @@ final class SelectionHandler<
 
         self.headerRenderer = .init(pickerInput: pickerInput)
         self.footerRenderer = .init(pickerInput: pickerInput)
-        self.scrollRenderer = .init(pickerInput: pickerInput)
         self.contentRenderer = renderer
     }
 }
@@ -350,12 +346,6 @@ private extension SelectionHandler {
             screenWidth: cols
         )
 
-        // Render up arrow if content is scrolled
-        if showUp {
-            let arrowRow = headerH - 1
-            scrollRenderer.renderUpArrow(at: arrowRow)
-        }
-
         // Render main content (delegated to pluggable ContentRenderer)
         let context = ScrollRenderContext(
             startIndex: start,
@@ -375,11 +365,18 @@ private extension SelectionHandler {
         // Render footer (instruction text)
         footerRenderer.renderFooter(instructionText: state.bottomLineText)
 
-        // Render down arrow if more content below
-        if showDown {
-            let footerStartRow = rows - footerH
-            scrollRenderer.renderDownArrow(at: footerStartRow)
-        }
+        // Delegate scroll indicator rendering to content renderer
+        // (allows column-based renderers to customize positioning)
+        contentRenderer.renderScrollIndicators(
+            showUp: showUp,
+            showDown: showDown,
+            state: state,
+            context: context,
+            input: pickerInput,
+            screenWidth: cols,
+            headerHeight: headerH,
+            totalRows: rows
+        )
     }
 }
 
@@ -442,6 +439,44 @@ protocol ContentRenderer {
     ///   - input: Terminal I/O interface for drawing
     ///   - screenWidth: Terminal width in columns
     func render(items: [Item], state: State, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int)
+
+    /// Renders scroll indicators (up/down arrows) when content overflows.
+    ///
+    /// Override this method to customize scroll indicator positioning for specialized layouts
+    /// (e.g., column-based navigation). The default implementation renders standard arrows
+    /// at the top and bottom of the content area.
+    ///
+    /// - Parameters:
+    ///   - showUp: Whether to show the up scroll indicator
+    ///   - showDown: Whether to show the down scroll indicator
+    ///   - state: Current picker state
+    ///   - context: Scroll context specifying visible bounds
+    ///   - input: Terminal I/O interface for drawing
+    ///   - screenWidth: Terminal width in columns
+    ///   - headerHeight: Height of the header section in rows
+    ///   - totalRows: Total terminal height in rows
+    func renderScrollIndicators(showUp: Bool, showDown: Bool, state: State, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int, headerHeight: Int, totalRows: Int)
+}
+
+extension ContentRenderer {
+    /// Default scroll indicator rendering for standard single-column layouts.
+    ///
+    /// Renders up arrow just above the content area and down arrow just below it.
+    /// Column-based renderers can override this to position arrows per column.
+    func renderScrollIndicators(showUp: Bool, showDown: Bool, state: State, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int, headerHeight: Int, totalRows: Int) {
+        let scrollRenderer = ScrollRenderer(pickerInput: input)
+        let footerRenderer = PickerFooterRenderer(pickerInput: input)
+
+        if showUp {
+            let arrowRow = headerHeight - 1
+            scrollRenderer.renderUpArrow(at: arrowRow)
+        }
+
+        if showDown {
+            let footerStartRow = totalRows - footerRenderer.height()
+            scrollRenderer.renderDownArrow(at: footerStartRow)
+        }
+    }
 }
 
 /// Protocol for input handlers in the State-Behavior-Renderer pattern.

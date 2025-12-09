@@ -6,6 +6,47 @@
 //
 
 struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
+    func renderScrollIndicators(showUp: Bool, showDown: Bool, state: TreeNavigationState<Item>, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int, headerHeight: Int, totalRows: Int) {
+        let footerRenderer = PickerFooterRenderer(pickerInput: input)
+        let footerStartRow = totalRows - footerRenderer.height()
+        let arrowRow = headerHeight - 1
+
+        let hasParent = state.parentLevelInfo != nil
+        let columnSpacing = hasParent ? max(2, screenWidth / 20) : 0
+        let columnWidth = hasParent ? max(10, (screenWidth - columnSpacing) / 2) : max(10, screenWidth)
+        let rightColumnStart = hasParent ? min(screenWidth - columnWidth, columnWidth + columnSpacing) : 0
+
+        if let parentInfo = state.parentLevelInfo {
+            let parent = parentInfo.level
+            let engine = ScrollEngine(totalItems: parent.items.count, visibleRows: context.visibleRowCount)
+            let (start, end) = engine.bounds(activeIndex: parent.activeIndex)
+
+            if engine.showScrollUp(start: start) {
+                input.moveTo(arrowRow, 0)
+                input.write("↑".lightGreen)
+            }
+
+            if engine.showScrollDown(end: end) {
+                input.moveTo(footerStartRow, 0)
+                input.write("↓".lightGreen)
+            }
+        }
+
+        let currentInfo = state.currentLevelInfo
+        let currentEngine = ScrollEngine(totalItems: currentInfo.level.items.count, visibleRows: context.visibleRowCount)
+        let (currentStart, currentEnd) = currentEngine.bounds(activeIndex: currentInfo.level.activeIndex)
+
+        if currentEngine.showScrollUp(start: currentStart) {
+            input.moveTo(arrowRow, rightColumnStart)
+            input.write("↑".lightGreen)
+        }
+
+        if currentEngine.showScrollDown(end: currentEnd) {
+            input.moveTo(footerStartRow, rightColumnStart)
+            input.write("↓".lightGreen)
+        }
+    }
+
     func render(items: [Item], state: TreeNavigationState<Item>, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int) {
         var row = context.listStartRow
         let maxRowExclusive = context.listStartRow + context.visibleRowCount
