@@ -80,8 +80,28 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
 // MARK: - Private Methods
 private extension TreeNavigationRenderer {
-    func renderColumn(items: [Item], activeIndex: Int, startIndex: Int, endIndex: Int, title: String, isActiveColumn: Bool, showLeadingArrow: Bool, showTrailingArrow: Bool, levelIndex: Int, startRow: Int, startCol: Int, columnWidth: Int, maxRowExclusive: Int, emptyPlaceholder: String, input: PickerInput, state: State) {
-        guard startRow < maxRowExclusive else { return }
+    func renderColumn(
+        items: [Item],
+        activeIndex: Int,
+        startIndex: Int,
+        endIndex: Int,
+        title: String,
+        isActiveColumn: Bool,
+        showLeadingArrow: Bool,
+        showTrailingArrow: Bool,
+        levelIndex: Int,
+        startRow: Int,
+        startCol: Int,
+        columnWidth: Int,
+        maxRowExclusive: Int,
+        emptyPlaceholder: String,
+        input: PickerInput,
+        state: State
+    ) {
+        guard startRow < maxRowExclusive else {
+            return
+        }
+        
         renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, showLeadingArrow: showLeadingArrow, showTrailingArrow: showTrailingArrow, input: input)
 
         var row = startRow + 1
@@ -100,7 +120,9 @@ private extension TreeNavigationRenderer {
         let availableRange = startIndex..<min(endIndex, items.count)
 
         for index in availableRange {
-            if row >= maxRowExclusive { break }
+            if row >= maxRowExclusive {
+                break
+            }
 
             let item = items[index]
             input.moveTo(row, insetCol)
