@@ -115,7 +115,7 @@ extension ScrollEngine {
     /// - Parameter start: The start index of the visible range
     /// - Returns: `true` if items exist above the visible range
     func showScrollUp(start: Int) -> Bool {
-        start > 0
+        return start > 0
     }
 
     /// Determines whether to show the down arrow scroll indicator.
@@ -125,6 +125,6 @@ extension ScrollEngine {
     /// - Parameter end: The end index (exclusive) of the visible range
     /// - Returns: `true` if items exist below the visible range
     func showScrollDown(end: Int) -> Bool {
-        end < totalItems
+        return end < totalItems
     }
 }

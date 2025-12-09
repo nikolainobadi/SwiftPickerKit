@@ -6,6 +6,52 @@
 //
 
 struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
+    func renderScrollIndicators(showUp: Bool, showDown: Bool, state: TreeNavigationState<Item>, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int, headerHeight: Int, totalRows: Int) {
+        let footerRenderer = PickerFooterRenderer(pickerInput: input)
+        let footerStartRow = totalRows - footerRenderer.height()
+        let arrowRow = headerHeight - 1
+
+        let breadcrumbRows = state.breadcrumbPath().isEmpty ? 0 : 1
+        let spacerRow = 1
+        let columnHeaderRows = 1
+        let actualVisibleRows = context.visibleRowCount - breadcrumbRows - spacerRow - columnHeaderRows
+
+        let hasParent = state.parentLevelInfo != nil
+        let columnSpacing = hasParent ? max(2, screenWidth / 20) : 0
+        let columnWidth = hasParent ? max(10, (screenWidth - columnSpacing) / 2) : max(10, screenWidth)
+        let rightColumnStart = hasParent ? min(screenWidth - columnWidth, columnWidth + columnSpacing) : 0
+
+        if let parentInfo = state.parentLevelInfo {
+            let parent = parentInfo.level
+            let engine = ScrollEngine(totalItems: parent.items.count, visibleRows: actualVisibleRows)
+            let (start, end) = engine.bounds(activeIndex: parent.activeIndex)
+
+            if engine.showScrollUp(start: start) {
+                input.moveTo(arrowRow, 0)
+                input.write("↑".lightGreen)
+            }
+
+            if engine.showScrollDown(end: end) {
+                input.moveTo(footerStartRow, 0)
+                input.write("↓".lightGreen)
+            }
+        }
+
+        let currentInfo = state.currentLevelInfo
+        let currentEngine = ScrollEngine(totalItems: currentInfo.level.items.count, visibleRows: actualVisibleRows)
+        let (currentStart, currentEnd) = currentEngine.bounds(activeIndex: currentInfo.level.activeIndex)
+
+        if currentEngine.showScrollUp(start: currentStart) {
+            input.moveTo(arrowRow, rightColumnStart)
+            input.write("↑".lightGreen)
+        }
+
+        if currentEngine.showScrollDown(end: currentEnd) {
+            input.moveTo(footerStartRow, rightColumnStart)
+            input.write("↓".lightGreen)
+        }
+    }
+
     func render(items: [Item], state: TreeNavigationState<Item>, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int) {
         var row = context.listStartRow
         let maxRowExclusive = context.listStartRow + context.visibleRowCount
@@ -23,6 +69,9 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         }
 
         let columnStartRow = row
+        let rowsConsumedByBreadcrumb = row - context.listStartRow
+        let columnHeaderRows = 1
+        let actualVisibleRows = context.visibleRowCount - rowsConsumedByBreadcrumb - columnHeaderRows
         let hasParent = state.parentLevelInfo != nil
         let columnSpacing = hasParent ? max(2, screenWidth / 20) : 0
         let columnWidth = hasParent ? max(10, (screenWidth - columnSpacing) / 2) : max(10, screenWidth)
@@ -30,7 +79,7 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
         if let parentInfo = state.parentLevelInfo {
             let parent = parentInfo.level
-            let engine = ScrollEngine(totalItems: parent.items.count, visibleRows: context.visibleRowCount)
+            let engine = ScrollEngine(totalItems: parent.items.count, visibleRows: actualVisibleRows)
             let (start, end) = engine.bounds(activeIndex: parent.activeIndex)
             renderColumn(
                 items: parent.items,
@@ -54,11 +103,13 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
         let currentInfo = state.currentLevelInfo
         let currentTitle = state.isCurrentColumnActive ? "Current" : "Children"
+        let currentEngine = ScrollEngine(totalItems: currentInfo.level.items.count, visibleRows: actualVisibleRows)
+        let (currentStart, currentEnd) = currentEngine.bounds(activeIndex: currentInfo.level.activeIndex)
         renderColumn(
             items: currentInfo.level.items,
             activeIndex: currentInfo.level.activeIndex,
-            startIndex: context.startIndex,
-            endIndex: context.endIndex,
+            startIndex: currentStart,
+            endIndex: currentEnd,
             title: currentTitle,
             isActiveColumn: state.isCurrentColumnActive,
             showLeadingArrow: state.isCurrentColumnActive && state.canNavigateLeft,
@@ -78,8 +129,28 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
 // MARK: - Private Methods
 private extension TreeNavigationRenderer {
-    func renderColumn(items: [Item], activeIndex: Int, startIndex: Int, endIndex: Int, title: String, isActiveColumn: Bool, showLeadingArrow: Bool, showTrailingArrow: Bool, levelIndex: Int, startRow: Int, startCol: Int, columnWidth: Int, maxRowExclusive: Int, emptyPlaceholder: String, input: PickerInput, state: State) {
-        guard startRow < maxRowExclusive else { return }
+    func renderColumn(
+        items: [Item],
+        activeIndex: Int,
+        startIndex: Int,
+        endIndex: Int,
+        title: String,
+        isActiveColumn: Bool,
+        showLeadingArrow: Bool,
+        showTrailingArrow: Bool,
+        levelIndex: Int,
+        startRow: Int,
+        startCol: Int,
+        columnWidth: Int,
+        maxRowExclusive: Int,
+        emptyPlaceholder: String,
+        input: PickerInput,
+        state: State
+    ) {
+        guard startRow < maxRowExclusive else {
+            return
+        }
+        
         renderColumnHeader(title: title, startRow: startRow, startCol: startCol, columnWidth: columnWidth, showLeadingArrow: showLeadingArrow, showTrailingArrow: showTrailingArrow, input: input)
 
         var row = startRow + 1
@@ -98,7 +169,9 @@ private extension TreeNavigationRenderer {
         let availableRange = startIndex..<min(endIndex, items.count)
 
         for index in availableRange {
-            if row >= maxRowExclusive { break }
+            if row >= maxRowExclusive {
+                break
+            }
 
             let item = items[index]
             input.moveTo(row, insetCol)
