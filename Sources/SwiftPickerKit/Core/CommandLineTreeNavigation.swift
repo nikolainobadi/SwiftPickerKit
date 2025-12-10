@@ -52,82 +52,29 @@ public protocol CommandLineTreeNavigation {
     ///   - showPromptText: If `true`, displays the prompt text (can be disabled for cleaner UI)
     ///   - showSelectedItemText: If `true`, shows selected item text in the header
     /// - Returns: The selected item, or `nil` if the user cancelled
-    func treeNavigation<Item: TreeNodePickerItem>(
-        prompt: String,
-        root: TreeNavigationRoot<Item>,
-        newScreen: Bool,
-        showPromptText: Bool,
-        showSelectedItemText: Bool
-    ) -> Item?
+    func treeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool, showPromptText: Bool, showSelectedItemText: Bool) -> Item?
 }
 
 
 // MARK: - CommandLineTreeNavigation Convenience
 public extension CommandLineTreeNavigation {
-    func treeNavigation<Item: TreeNodePickerItem>(
-        prompt: String,
-        root: TreeNavigationRoot<Item>,
-        newScreen: Bool = true,
-        showPromptText: Bool = true,
-        showSelectedItemText: Bool = true
-    ) -> Item? {
-        return treeNavigation(
-            prompt: prompt,
-            root: root,
-            newScreen: newScreen,
-            showPromptText: showPromptText,
-            showSelectedItemText: showSelectedItemText
-        )
+    func treeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool = true, showPromptText: Bool = true, showSelectedItemText: Bool = true) -> Item? {
+        return treeNavigation(prompt: prompt, root: root, newScreen: newScreen, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
     }
     
-    func treeNavigation<Item: TreeNodePickerItem>(
-        _ prompt: String,
-        root: TreeNavigationRoot<Item>,
-        newScreen: Bool = true,
-        showPromptText: Bool = true,
-        showSelectedItemText: Bool = true
-    ) -> Item? {
-        return treeNavigation(
-            prompt: prompt,
-            root: root,
-            newScreen: newScreen,
-            showPromptText: showPromptText,
-            showSelectedItemText: showSelectedItemText
-        )
+    func treeNavigation<Item: TreeNodePickerItem>(_ prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool = true, showPromptText: Bool = true, showSelectedItemText: Bool = true) -> Item? {
+        return treeNavigation(prompt: prompt, root: root, newScreen: newScreen, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
     }
 
-    func requiredTreeNavigation<Item: TreeNodePickerItem>(
-        prompt: String,
-        root: TreeNavigationRoot<Item>,
-        newScreen: Bool,
-        showPromptText: Bool = true,
-        showSelectedItemText: Bool = true
-    ) throws -> Item {
-        guard let selection = treeNavigation(
-            prompt: prompt,
-            root: root,
-            newScreen: newScreen,
-            showPromptText: showPromptText,
-            showSelectedItemText: showSelectedItemText
-        ) else {
+    func requiredTreeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool, showPromptText: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
+        guard let selection = treeNavigation(prompt: prompt, root: root, newScreen: newScreen, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText) else {
             throw SwiftPickerError.selectionCancelled
         }
+        
         return selection
     }
 
-    func requiredTreeNavigation<Item: TreeNodePickerItem>(
-        _ prompt: String,
-        root: TreeNavigationRoot<Item>,
-        newScreen: Bool = true,
-        showPromptText: Bool = true,
-        showSelectedItemText: Bool = true
-    ) throws -> Item {
-        return try requiredTreeNavigation(
-            prompt: prompt,
-            root: root,
-            newScreen: newScreen,
-            showPromptText: showPromptText,
-            showSelectedItemText: showSelectedItemText
-        )
+    func requiredTreeNavigation<Item: TreeNodePickerItem>(_ prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool = true, showPromptText: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
+        return try requiredTreeNavigation(prompt: prompt, root: root, newScreen: newScreen, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
     }
 }
