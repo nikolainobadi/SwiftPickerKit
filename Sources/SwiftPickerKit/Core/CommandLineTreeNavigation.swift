@@ -5,6 +5,8 @@
 //  Created by Nikolai Nobadi on 11/18/25.
 //
 
+import Foundation
+
 /// Public interface for hierarchical tree navigation pickers.
 ///
 /// Tree navigation is designed for browsing hierarchical data structures like file systems,
@@ -53,6 +55,8 @@ public protocol CommandLineTreeNavigation {
     ///   - showSelectedItemText: If `true`, shows selected item text in the header
     /// - Returns: The selected item, or `nil` if the user cancelled
     func treeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool, showPromptText: Bool, showSelectedItemText: Bool) -> Item?
+    
+    func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool, showSelectedItemText: Bool) -> FileSystemNode?
 }
 
 
@@ -76,5 +80,12 @@ public extension CommandLineTreeNavigation {
 
     func requiredTreeNavigation<Item: TreeNodePickerItem>(_ prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool = true, showPromptText: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
         return try requiredTreeNavigation(prompt: prompt, root: root, newScreen: newScreen, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
+    }
+    
+    func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool = true, showSelectedItemText: Bool = true) -> FileSystemNode? {
+        let rootNode = FileSystemNode(url: startURL)
+        let root = TreeNavigationRoot(displayName: startURL.lastPathComponent, children: rootNode.loadChildren())
+        
+        return treeNavigation(prompt, root: root, newScreen: true, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
     }
 }
