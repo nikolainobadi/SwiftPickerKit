@@ -56,7 +56,7 @@ public protocol CommandLineTreeNavigation {
     /// - Returns: The selected item, or `nil` if the user cancelled
     func treeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool, showPromptText: Bool, showSelectedItemText: Bool) -> Item?
     
-    func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool, showSelectedItemText: Bool) -> FileSystemNode?
+    func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool, showSelectedItemText: Bool, selectionType: FileSystemNode.SelectionType) -> FileSystemNode?
 }
 
 
@@ -82,9 +82,11 @@ public extension CommandLineTreeNavigation {
         return try requiredTreeNavigation(prompt: prompt, root: root, newScreen: newScreen, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
     }
     
-    func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool = true, showSelectedItemText: Bool = true) -> FileSystemNode? {
+    func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool = true, showSelectedItemText: Bool = true, selectionType: FileSystemNode.SelectionType = .filesAndFolders) -> FileSystemNode? {
         let rootNode = FileSystemNode(url: startURL)
         let root = TreeNavigationRoot(displayName: startURL.lastPathComponent, children: rootNode.loadChildren())
+        
+        FileSystemNode.selectionType = selectionType
         
         return treeNavigation(prompt, root: root, newScreen: true, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
     }
