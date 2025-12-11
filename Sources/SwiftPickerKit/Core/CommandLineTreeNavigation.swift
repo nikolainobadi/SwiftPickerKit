@@ -50,11 +50,10 @@ public protocol CommandLineTreeNavigation {
     /// - Parameters:
     ///   - prompt: Text displayed at the top of the picker
     ///   - root: The root container wrapping initial tree items
-    ///   - newScreen: If `true`, uses alternate screen buffer (recommended for clean UX)
     ///   - showPromptText: If `true`, displays the prompt text (can be disabled for cleaner UI)
     ///   - showSelectedItemText: If `true`, shows selected item text in the header
     /// - Returns: The selected item, or `nil` if the user cancelled
-    func treeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool, showPromptText: Bool, showSelectedItemText: Bool) -> Item?
+    func treeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>,showPromptText: Bool, showSelectedItemText: Bool) -> Item?
     
     func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool, showSelectedItemText: Bool, selectionType: FileSystemNode.SelectionType) -> FileSystemNode?
 }
@@ -62,24 +61,12 @@ public protocol CommandLineTreeNavigation {
 
 // MARK: - CommandLineTreeNavigation Convenience
 public extension CommandLineTreeNavigation {
-    func treeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool = true, showPromptText: Bool = true, showSelectedItemText: Bool = true) -> Item? {
-        return treeNavigation(prompt: prompt, root: root, newScreen: newScreen, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
-    }
-    
-    func treeNavigation<Item: TreeNodePickerItem>(_ prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool = true, showPromptText: Bool = true, showSelectedItemText: Bool = true) -> Item? {
-        return treeNavigation(prompt: prompt, root: root, newScreen: newScreen, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
-    }
-
-    func requiredTreeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool, showPromptText: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
-        guard let selection = treeNavigation(prompt: prompt, root: root, newScreen: newScreen, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText) else {
+    func requiredTreeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, showPromptText: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
+        guard let selection = treeNavigation(prompt: prompt, root: root, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText) else {
             throw SwiftPickerError.selectionCancelled
         }
         
         return selection
-    }
-
-    func requiredTreeNavigation<Item: TreeNodePickerItem>(_ prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool = true, showPromptText: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
-        return try requiredTreeNavigation(prompt: prompt, root: root, newScreen: newScreen, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
     }
     
     func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool = true, showSelectedItemText: Bool = true, selectionType: FileSystemNode.SelectionType = .filesAndFolders) -> FileSystemNode? {
@@ -88,6 +75,6 @@ public extension CommandLineTreeNavigation {
         
         FileSystemNode.selectionType = selectionType
         
-        return treeNavigation(prompt, root: root, newScreen: true, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
+        return treeNavigation(prompt: prompt, root: root, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
     }
 }

@@ -88,7 +88,7 @@ extension MockSwiftPicker: CommandLineSelection {
 
 // MARK: - CommandLineTreeNavigation
 extension MockSwiftPicker: CommandLineTreeNavigation {
-    public func treeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, newScreen: Bool, showPromptText: Bool, showSelectedItemText: Bool) -> Item? {
+    public func treeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, showPromptText: Bool, showSelectedItemText: Bool) -> Item? {
         capturedTreeNavigationPrompts.append(prompt)
         let response = treeNavigationResult.nextOutcome(for: prompt)
 

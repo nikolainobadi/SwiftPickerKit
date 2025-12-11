@@ -9,13 +9,10 @@ extension SwiftPicker: CommandLineTreeNavigation {
     public func treeNavigation<Item: TreeNodePickerItem>(
         prompt: String,
         root: TreeNavigationRoot<Item>,
-        newScreen: Bool,
         showPromptText: Bool = true,
         showSelectedItemText: Bool = true
     ) -> Item? {
-        if newScreen {
-            pickerInput.enterAlternativeScreen()
-        }
+        pickerInput.enterAlternativeScreen()
         pickerInput.cursorOff()
         pickerInput.clearScreen()
         pickerInput.moveToHome()
