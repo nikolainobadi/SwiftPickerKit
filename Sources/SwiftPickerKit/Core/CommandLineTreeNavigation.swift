@@ -5,6 +5,8 @@
 //  Created by Nikolai Nobadi on 11/18/25.
 //
 
+import Foundation
+
 /// Public interface for hierarchical tree navigation pickers.
 ///
 /// Tree navigation is designed for browsing hierarchical data structures like file systems,
@@ -48,86 +50,58 @@ public protocol CommandLineTreeNavigation {
     /// - Parameters:
     ///   - prompt: Text displayed at the top of the picker
     ///   - root: The root container wrapping initial tree items
-    ///   - newScreen: If `true`, uses alternate screen buffer (recommended for clean UX)
     ///   - showPromptText: If `true`, displays the prompt text (can be disabled for cleaner UI)
     ///   - showSelectedItemText: If `true`, shows selected item text in the header
     /// - Returns: The selected item, or `nil` if the user cancelled
-    func treeNavigation<Item: TreeNodePickerItem>(
-        prompt: String,
-        root: TreeNavigationRoot<Item>,
-        newScreen: Bool,
-        showPromptText: Bool,
-        showSelectedItemText: Bool
-    ) -> Item?
+    func treeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>,showPromptText: Bool, showSelectedItemText: Bool) -> Item?
+    
+    /// Presents a directory browser rooted at `startURL`.
+    ///
+    /// - Parameters:
+    ///   - prompt: Text displayed at the top of the picker
+    ///   - startURL: Directory to use as the initial navigation root
+    ///   - showPromptText: If `true`, displays the prompt text
+    ///   - showSelectedItemText: If `true`, shows selected item text in the header
+    ///   - selectionType: Controls whether files, folders, or both can be selected
+    /// - Returns: The selected file system node, or `nil` if the user cancelled
+    func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool, showSelectedItemText: Bool, selectionType: FileSystemNode.SelectionType) -> FileSystemNode?
 }
 
 
 // MARK: - CommandLineTreeNavigation Convenience
 public extension CommandLineTreeNavigation {
-    func treeNavigation<Item: TreeNodePickerItem>(
-        prompt: String,
-        root: TreeNavigationRoot<Item>,
-        newScreen: Bool = true,
-        showPromptText: Bool = true,
-        showSelectedItemText: Bool = true
-    ) -> Item? {
-        return treeNavigation(
-            prompt: prompt,
-            root: root,
-            newScreen: newScreen,
-            showPromptText: showPromptText,
-            showSelectedItemText: showSelectedItemText
-        )
-    }
-    
-    func treeNavigation<Item: TreeNodePickerItem>(
-        _ prompt: String,
-        root: TreeNavigationRoot<Item>,
-        newScreen: Bool = true,
-        showPromptText: Bool = true,
-        showSelectedItemText: Bool = true
-    ) -> Item? {
-        return treeNavigation(
-            prompt: prompt,
-            root: root,
-            newScreen: newScreen,
-            showPromptText: showPromptText,
-            showSelectedItemText: showSelectedItemText
-        )
-    }
-
-    func requiredTreeNavigation<Item: TreeNodePickerItem>(
-        prompt: String,
-        root: TreeNavigationRoot<Item>,
-        newScreen: Bool,
-        showPromptText: Bool = true,
-        showSelectedItemText: Bool = true
-    ) throws -> Item {
-        guard let selection = treeNavigation(
-            prompt: prompt,
-            root: root,
-            newScreen: newScreen,
-            showPromptText: showPromptText,
-            showSelectedItemText: showSelectedItemText
-        ) else {
+    /// Displays a tree navigation picker and throws if the user cancels.
+    ///
+    /// - Parameters:
+    ///   - prompt: Text displayed at the top of the picker
+    ///   - root: The root container wrapping initial tree items
+    ///   - showPromptText: If `true`, displays the prompt text
+    ///   - showSelectedItemText: If `true`, shows selected item text in the header
+    /// - Throws: `SwiftPickerError.selectionCancelled` when the user exits without a selection
+    /// - Returns: The selected item
+    func requiredTreeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, showPromptText: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
+        guard let selection = treeNavigation(prompt: prompt, root: root, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText) else {
             throw SwiftPickerError.selectionCancelled
         }
+        
         return selection
     }
-
-    func requiredTreeNavigation<Item: TreeNodePickerItem>(
-        _ prompt: String,
-        root: TreeNavigationRoot<Item>,
-        newScreen: Bool = true,
-        showPromptText: Bool = true,
-        showSelectedItemText: Bool = true
-    ) throws -> Item {
-        return try requiredTreeNavigation(
-            prompt: prompt,
-            root: root,
-            newScreen: newScreen,
-            showPromptText: showPromptText,
-            showSelectedItemText: showSelectedItemText
-        )
+    
+    /// Browses the file system starting at `startURL`, applying optional UI toggles and selection filtering.
+    ///
+    /// - Parameters:
+    ///   - prompt: Text displayed at the top of the picker
+    ///   - startURL: Directory to use as the initial navigation root
+    ///   - showPromptText: If `true`, displays the prompt text
+    ///   - showSelectedItemText: If `true`, shows selected item text in the header
+    ///   - selectionType: Controls whether files, folders, or both can be selected
+    /// - Returns: The selected file system node, or `nil` if the user cancelled
+    func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool = true, showSelectedItemText: Bool = true, selectionType: FileSystemNode.SelectionType = .filesAndFolders) -> FileSystemNode? {
+        let rootNode = FileSystemNode(url: startURL)
+        let root = TreeNavigationRoot(displayName: startURL.lastPathComponent, children: rootNode.loadChildren())
+        
+        FileSystemNode.selectionType = selectionType
+        
+        return treeNavigation(prompt: prompt, root: root, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
     }
 }

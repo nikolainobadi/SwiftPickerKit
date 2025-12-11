@@ -28,7 +28,8 @@ struct SwiftPickerCommandLineTreeNavigationTests {
         let result = sut.treeNavigation(
             prompt: "Pick",
             root: makeRoot(from: root),
-            newScreen: false
+            showPromptText: true,
+            showSelectedItemText: true
         )
 
         #expect(result?.displayName == child.displayName)
@@ -46,7 +47,8 @@ struct SwiftPickerCommandLineTreeNavigationTests {
         let result = sut.treeNavigation(
             prompt: "Pick leaf",
             root: makeRoot(from: root),
-            newScreen: false
+            showPromptText: true,
+            showSelectedItemText: true
         )
 
         #expect(result?.displayName == child.displayName)
@@ -64,7 +66,8 @@ struct SwiftPickerCommandLineTreeNavigationTests {
         let result = sut.treeNavigation(
             prompt: "Pick",
             root: makeRoot(from: root),
-            newScreen: false
+            showPromptText: true,
+            showSelectedItemText: true
         )
 
         #expect(result?.displayName == child.displayName)
@@ -81,7 +84,8 @@ struct SwiftPickerCommandLineTreeNavigationTests {
         let result = sut.treeNavigation(
             prompt: "Quit",
             root: makeRoot(from: root),
-            newScreen: false
+            showPromptText: true,
+            showSelectedItemText: true
         )
 
         #expect(result == nil)
@@ -99,7 +103,8 @@ struct SwiftPickerCommandLineTreeNavigationTests {
             _ = try sut.requiredTreeNavigation(
                 prompt: "Quit",
                 root: makeRoot(from: root),
-                newScreen: false
+                showPromptText: true,
+                showSelectedItemText: true
             )
         }
     }
@@ -119,6 +124,7 @@ private extension SwiftPickerCommandLineTreeNavigationTests {
         let pickerInput = MockPickerInput()
         let textInput = MockTextInput()
         let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput)
+        
         return (sut, pickerInput)
     }
 }

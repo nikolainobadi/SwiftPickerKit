@@ -9,7 +9,7 @@ import SwiftPickerKit
 
 /// Lightweight mock that mirrors the `CommandLineInput` surface so clients can unit test
 /// flows that expect a picker-like dependency without touching STDIN.
-public final class MockSwiftPicker {
+open class MockSwiftPicker {
     private var inputResult: MockInputResult
     private var permissionResult: MockPermissionResult
     private var selectionResult: MockSelectionResult
@@ -88,13 +88,7 @@ extension MockSwiftPicker: CommandLineSelection {
 
 // MARK: - CommandLineTreeNavigation
 extension MockSwiftPicker: CommandLineTreeNavigation {
-    public func treeNavigation<Item: TreeNodePickerItem>(
-        prompt: String,
-        root: TreeNavigationRoot<Item>,
-        newScreen: Bool,
-        showPromptText: Bool = true,
-        showSelectedItemText: Bool = true
-    ) -> Item? {
+    public func treeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, showPromptText: Bool, showSelectedItemText: Bool) -> Item? {
         capturedTreeNavigationPrompts.append(prompt)
         let response = treeNavigationResult.nextOutcome(for: prompt)
 

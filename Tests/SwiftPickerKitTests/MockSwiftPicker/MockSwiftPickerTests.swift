@@ -366,13 +366,15 @@ extension MockSwiftPickerTests {
         _ = sut.treeNavigation(
             prompt: prompts[0],
             root: makeTreeRoot(["first"]),
-            newScreen: false
+            showPromptText: true,
+            showSelectedItemText: true
         )
 
         _ = sut.treeNavigation(
             prompt: prompts[1],
             root: makeTreeRoot(["second"]),
-            newScreen: false
+            showPromptText: true,
+            showSelectedItemText: true
         )
 
         #expect(sut.capturedTreeNavigationPrompts == prompts)
@@ -387,7 +389,8 @@ extension MockSwiftPickerTests {
         let result = sut.treeNavigation(
             prompt: "Pick folder",
             root: makeTreeRoot(nodes),
-            newScreen: false
+            showPromptText: true,
+            showSelectedItemText: true
         )
 
         #expect(result == nodes[1])
@@ -401,7 +404,8 @@ extension MockSwiftPickerTests {
         let result = sut.treeNavigation(
             prompt: "Pick folder",
             root: makeTreeRoot(["only"]),
-            newScreen: false
+            showPromptText: true,
+            showSelectedItemText: true
         )
 
         #expect(result == nil)
@@ -416,7 +420,8 @@ extension MockSwiftPickerTests {
             try sut.requiredTreeNavigation(
                 prompt: "Pick folder",
                 root: makeTreeRoot(["only"]),
-                newScreen: false
+                showPromptText: true,
+                showSelectedItemText: true
             )
         }
     }
@@ -430,7 +435,8 @@ extension MockSwiftPickerTests {
         let result = try sut.requiredTreeNavigation(
             prompt: "Pick folder",
             root: makeTreeRoot(nodes),
-            newScreen: false
+            showPromptText: true,
+            showSelectedItemText: true
         )
 
         #expect(result == nodes[1])
@@ -447,7 +453,8 @@ extension MockSwiftPickerTests {
         let result = sut.treeNavigation(
             prompt: "Pick file",
             root: root,
-            newScreen: false
+            showPromptText: true,
+            showSelectedItemText: true
         )
 
         #expect(result == children[1])
@@ -464,7 +471,8 @@ extension MockSwiftPickerTests {
         let result = sut.treeNavigation(
             prompt: "Pick file",
             root: root,
-            newScreen: false
+            showPromptText: true,
+            showSelectedItemText: true
         )
 
         #expect(result == nil)
@@ -494,7 +502,7 @@ private extension MockSwiftPickerTests {
         selectionResult: MockSelectionResult,
         treeNavigationResult: MockTreeNavigationResult
     ) -> MockSwiftPicker {
-        return MockSwiftPicker(
+        return .init(
             inputResult: inputResult,
             permissionResult: permissionResult,
             selectionResult: selectionResult,
@@ -503,11 +511,11 @@ private extension MockSwiftPickerTests {
     }
 
     func makeInputResult(defaultValue: String = "", type: MockInputType = .ordered([])) -> MockInputResult {
-        return MockInputResult(defaultValue: defaultValue, type: type)
+        return .init(defaultValue: defaultValue, type: type)
     }
 
     func makePermissionResult(defaultValue: Bool = false, type: MockPermissionType = .ordered([])) -> MockPermissionResult {
-        return MockPermissionResult(defaultValue: defaultValue, type: type)
+        return .init(defaultValue: defaultValue, type: type)
     }
 
     func makeSelectionResult(
@@ -516,7 +524,7 @@ private extension MockSwiftPickerTests {
         singleType: MockSingleSelectionType = .ordered([]),
         multiType: MockMultiSelectionType = .ordered([])
     ) -> MockSelectionResult {
-        return MockSelectionResult(
+        return .init(
             defaultSingle: defaultSingle,
             defaultMulti: defaultMulti,
             singleType: singleType,
@@ -524,24 +532,21 @@ private extension MockSwiftPickerTests {
         )
     }
 
-    func makeTreeNavigationResult(
-        defaultOutcome: MockTreeSelectionOutcome = .none,
-        type: MockTreeSelectionType = .ordered([])
-    ) -> MockTreeNavigationResult {
-        return MockTreeNavigationResult(defaultOutcome: defaultOutcome, type: type)
+    func makeTreeNavigationResult(defaultOutcome: MockTreeSelectionOutcome = .none, type: MockTreeSelectionType = .ordered([])) -> MockTreeNavigationResult {
+        return .init(defaultOutcome: defaultOutcome, type: type)
     }
 
     func makeTreeNodes(_ names: [String]) -> [MockTreeNode] {
-        return names.map { MockTreeNode(name: $0) }
+        return names.map { .init(name: $0) }
     }
 
     func makeTreeRoot(_ names: [String]) -> TreeNavigationRoot<MockTreeNode> {
         let nodes = makeTreeNodes(names)
-        return TreeNavigationRoot(displayName: "Root", children: nodes)
+        return .init(displayName: "Root", children: nodes)
     }
 
     func makeTreeRoot(_ nodes: [MockTreeNode]) -> TreeNavigationRoot<MockTreeNode> {
-        return TreeNavigationRoot(displayName: "Root", children: nodes)
+        return .init(displayName: "Root", children: nodes)
     }
 }
 

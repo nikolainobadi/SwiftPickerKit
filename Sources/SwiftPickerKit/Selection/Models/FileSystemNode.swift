@@ -24,7 +24,14 @@ public struct FileSystemNode: TreeNodePickerItem {
     }
     
     public var isSelectable: Bool {
-        true
+        switch FileSystemNode.selectionType {
+        case .onlyFiles:
+            return !isDirectory
+        case .onlyFolders:
+            return isDirectory
+        case .filesAndFolders:
+            return true
+        }
     }
     
     public init(url: URL) {
@@ -60,9 +67,10 @@ public extension FileSystemNode {
         let fm = FileManager.default
 
         let contents = (try? fm.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)) ?? []
-
         let filtered = contents.filter { url in
-            if FileSystemNode.showHiddenFiles { return true }
+            if FileSystemNode.showHiddenFiles {
+                return true
+            }
 
             // Ignore hidden files (dot-prefix)
             return !url.lastPathComponent.hasPrefix(".")
@@ -74,7 +82,16 @@ public extension FileSystemNode {
 }
 
 
+// MARK: - Dependencies
+public extension FileSystemNode {
+    enum SelectionType {
+        case onlyFiles, onlyFolders, filesAndFolders
+    }
+}
+
+
 // MARK: - Extension Dependencies
 public extension FileSystemNode {
     static var showHiddenFiles = false
+    static var selectionType: SelectionType = .filesAndFolders
 }
