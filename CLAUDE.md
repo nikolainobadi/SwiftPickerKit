@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Compliance Rule:** If you are asked to write tests and have not yet read base_unit_testing_guidelines.md in this conversation, you MUST read it first before writing a single test. Do not rely on general knowledge - read the actual guideline file.
 
 ## Project Overview
-SwiftPickerKit is a Swift Package Manager library for building interactive terminal-based pickers with support for single-selection, multi-selection, two-column layouts, and hierarchical tree navigation. The package targets macOS 12+ and depends on ANSITerminalModified for terminal control.
+SwiftPickerKit is a Swift Package Manager library for building interactive terminal-based pickers with support for single-selection, multi-selection, two-column layouts, hierarchical tree navigation, and file system browsing. The package targets macOS 12+ and depends on ANSITerminalModified for terminal control.
 
 ## Build & Test Commands
 - `swift build` — compile the package and resolve dependencies
@@ -75,6 +75,12 @@ protocol TreeNodePickerItem: DisplayablePickerItem {
 ```
 The `TreeNavigationBehavior` intercepts left/right arrows to descend/ascend the tree. `FileSystemNode` is a concrete implementation for filesystem browsing.
 
+#### Directory Browsing
+The `browseDirectories` API provides a convenience wrapper around tree navigation specifically for file system browsing:
+- Uses `FileSystemNode.SelectionType` to control whether files, folders, or both can be selected
+- Automatically creates a `TreeNavigationRoot` from a starting URL
+- Selection types: `.filesOnly`, `.foldersOnly`, `.filesAndFolders` (default)
+
 ### Rendering Flow
 1. `SelectionHandler.renderFrame()` calculates screen dimensions and scroll bounds
 2. `PickerHeaderRenderer` renders prompt, top-line text, and selected item detail (if any)
@@ -106,6 +112,7 @@ Quick reference (see guide for full details):
 - Swift Testing framework (`@Test func ...`)
 - Tests mirror production structure (e.g., `Tests/SwiftPickerKitTests/Selection/`)
 - Use `SwiftPickerTesting.MockSwiftPicker` for testing without terminal I/O
+  - `MockSwiftPicker` is `open` and can be subclassed for custom test doubles
 - Follow behavior-driven test naming from the guide
 - Use `makeSUT` pattern (memory leak tracking NOT required for this project)
 - Target coverage on selection flows and renderer trimming
