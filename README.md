@@ -19,6 +19,7 @@
   - [Two-Column Layout with Static Detail](#two-column-layout-with-static-detail)
   - [Two-Column Layout with Dynamic Detail](#two-column-layout-with-dynamic-detail)
   - [Tree Navigation](#tree-navigation)
+  - [Directory Browsing](#directory-browsing)
   - [Text Input & Permissions](#text-input--permissions)
   - [Custom Types](#custom-types)
 - [Architecture](#architecture)
@@ -38,6 +39,7 @@ SwiftPickerKit is a Swift Package Manager library for building interactive termi
 - **Single & Multi-Selection** — Choose one or multiple items from lists with visual markers
 - **Two-Column Layouts** — Display items with static or dynamic detail panels
 - **Tree Navigation** — Browse hierarchical structures with breadcrumb paths and parent/child columns
+- **Directory Browsing** — Navigate the file system with configurable file/folder selection filtering
 - **Text Input & Permissions** — Prompt users for text input or yes/no confirmations
 - **Customizable Layouts** — Configure single-column, static two-column, or dynamic two-column rendering
 - **Scroll Support** — Automatic scrolling with visual indicators for large lists
@@ -57,7 +59,7 @@ SwiftPickerKit is a Swift Package Manager library for building interactive termi
 
 Add the package to your `Package.swift`:
 ```swift
-.package(url: "https://github.com/nikolainobadi/SwiftPickerKit", from: "0.8.0")
+.package(url: "https://github.com/nikolainobadi/SwiftPickerKit", from: "0.9.0")
 ```
 
 Then include it in your target dependencies:
@@ -130,8 +132,7 @@ let items = ["Option 1", "Option 2", "Option 3"]
 if let selected = picker.singleSelection(
     prompt: "Choose an option",
     items: items,
-    layout: .singleColumn,
-    newScreen: true
+    layout: .singleColumn
 ) {
     print("Selected: \(selected)")
 }
@@ -146,8 +147,7 @@ let items = ["Feature A", "Feature B", "Feature C"]
 let selected = picker.multiSelection(
     prompt: "Select features",
     items: items,
-    layout: .singleColumn,
-    newScreen: true
+    layout: .singleColumn
 )
 
 print("Selected \(selected.count) items")
@@ -166,7 +166,6 @@ picker.singleSelection(
     prompt: "Choose an option",
     items: items,
     layout: .singleColumn,
-    newScreen: true,
     showSelectedItemText: true
 )
 
@@ -175,7 +174,6 @@ picker.singleSelection(
     prompt: "Choose an option",
     items: items,
     layout: .singleColumn,
-    newScreen: true,
     showSelectedItemText: false
 )
 ```
@@ -192,8 +190,7 @@ let detailText = "Choose your favorite color.\nThis text remains static."
 if let color = picker.singleSelection(
     prompt: "Pick a color",
     items: items,
-    layout: .twoColumnStatic(detailText: detailText),
-    newScreen: true
+    layout: .twoColumnStatic(detailText: detailText)
 ) {
     print("You chose: \(color)")
 }
@@ -218,8 +215,7 @@ let tasks = [
 if let task = picker.singleSelection(
     prompt: "Select a task",
     items: tasks,
-    layout: .twoColumnDynamic { $0.description },
-    newScreen: true
+    layout: .twoColumnDynamic { $0.description }
 ) {
     print("Task: \(task.name)")
 }
@@ -236,14 +232,51 @@ let root = TreeNavigationRoot(items: [rootNode])
 
 if let selected = picker.treeNavigation(
     prompt: "Browse files",
-    root: root,
-    newScreen: true
+    root: root
 ) {
     print("Selected: \(selected.url.path)")
 }
 
 // Conform to TreeNodePickerItem protocol for custom tree types
 // Mark any TreeNodePickerItem with isSelectable = false to prevent selection (e.g., folders).
+```
+
+### Directory Browsing
+
+Browse the file system with built-in support for file and folder selection filtering:
+
+```swift
+import SwiftPickerKit
+import Foundation
+
+let picker = SwiftPicker()
+let startPath = FileManager.default.homeDirectoryForCurrentUser
+
+// Browse and select any file or folder (default behavior)
+if let selected = picker.browseDirectories(
+    prompt: "Select a file or folder",
+    startURL: startPath
+) {
+    print("Selected: \(selected.url.path)")
+}
+
+// Only allow file selection
+if let file = picker.browseDirectories(
+    prompt: "Select a file",
+    startURL: startPath,
+    selectionType: .filesOnly
+) {
+    print("Selected file: \(file.url.path)")
+}
+
+// Only allow folder selection
+if let folder = picker.browseDirectories(
+    prompt: "Select a folder",
+    startURL: startPath,
+    selectionType: .foldersOnly
+) {
+    print("Selected folder: \(folder.url.path)")
+}
 ```
 
 ### Text Input & Permissions
@@ -285,8 +318,7 @@ let picker = SwiftPicker()
 if let user = picker.singleSelection(
     prompt: "Select user",
     items: users,
-    layout: .singleColumn,
-    newScreen: true
+    layout: .singleColumn
 ) {
     print("Selected user: \(user.name) (\(user.email))")
 }
@@ -320,8 +352,7 @@ let root = TreeNavigationRoot(items: [
 let picker = SwiftPicker()
 if let category = picker.treeNavigation(
     prompt: "Select category",
-    root: root,
-    newScreen: true
+    root: root
 ) {
     print("Selected: \(category.name)")
 }
@@ -364,8 +395,7 @@ import SwiftPickerTesting
     let result = mock.singleSelection(
         prompt: "Test",
         items: ["Expected", "Other"],
-        layout: .singleColumn,
-        newScreen: false
+        layout: .singleColumn
     )
 
     #expect(result == "Expected")

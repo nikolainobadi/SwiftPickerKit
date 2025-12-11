@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2025-12-11
+
+### Added
+- Directory browsing API (`browseDirectories`) with configurable file/folder selection via `FileSystemNode.SelectionType`
+- Inline documentation for core tree navigation types and protocols
+
+### Changed
+- Removed `newScreen` parameter from `treeNavigation` methods (alternate screen buffer now always used)
+- `MockSwiftPicker` is now `open` instead of `final` to allow subclassing in testing scenarios
+
 ## [0.8.1] - 2025-12-09
 
 ### Added
