@@ -1,143 +1,60 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code when working in this repository. See README.md for the public API and usage examples — don't duplicate it here.
 
-## Required Guidelines (MUST READ)
-@~/.claude/guidelines/style/shared-formatting-claude.md
-@~/.claude/guidelines/testing/base_unit_testing_guidelines.md
+## Overview
+Swift Package Manager library for interactive terminal pickers: single/multi selection, two-column layouts, tree navigation, and file system browsing. macOS 13+, swift-tools 5.9, depends on ANSITerminalModified.
 
-**CRITICAL: These are not optional suggestions - they are mandatory requirements.**
+Two products: `SwiftPickerKit` (the library) and `SwiftPickerTesting` (mocks for consumers).
 
-### When to Read Each Guideline
-- **shared-formatting-claude.md** — MUST read BEFORE writing or editing ANY Swift code in this project
-- **base_unit_testing_guidelines.md** — MUST read BEFORE writing, modifying, or reviewing ANY test code
-
-**Compliance Rule:** If you are asked to write tests and have not yet read base_unit_testing_guidelines.md in this conversation, you MUST read it first before writing a single test. Do not rely on general knowledge - read the actual guideline file.
-
-## Project Overview
-SwiftPickerKit is a Swift Package Manager library for building interactive terminal-based pickers with support for single-selection, multi-selection, two-column layouts, hierarchical tree navigation, and file system browsing. The package targets macOS 12+ and depends on ANSITerminalModified for terminal control.
-
-## Build & Test Commands
-- `swift build` — compile the package and resolve dependencies
-- `swift test` — run Swift Testing suite in Tests/SwiftPickerKitTests
-- `swift test --enable-code-coverage` — generate coverage reports
-- `cd SwiftPickerDemo && swift run SwiftPickerDemo [subcommand]` — run interactive demo
-  - Subcommands: `single`, `multi`, `dynamic`, `choose`, `browse`
-  - Use `--help` on any subcommand for flags (e.g., `-s` for small list, `-d` for detail column)
+## Build & Test
+- `swift build` — compile and resolve dependencies
+- `swift test` — run the Swift Testing suite in `Tests/SwiftPickerKitTests`
+- `swift test --enable-code-coverage` — coverage report
+- `cd SwiftPickerDemo && swift run SwiftPickerDemo <subcommand>` — interactive demo
+  - Subcommands: `single`, `multi`, `dynamic`, `choose`, `browse` (use `--help` for flags)
 
 ## Architecture
 
-### Core Design Pattern
-SwiftPickerKit uses a **State-Behavior-Renderer** architecture where each picker mode combines three components:
+Each picker mode is assembled from three pieces, wired together by `SelectionHandler` (`Selection/Engine/`), which owns the render loop, scrolling, signal handling, and input capture:
 
-1. **State** (`BaseSelectionState` protocol) — tracks current selection, active index, options, and UI text
-2. **Behavior** (`SelectionBehavior` protocol) — handles arrow keys and special characters (enter/space/quit/backspace)
-3. **Renderer** (`ContentRenderer` protocol) — draws the visible content to the terminal
+1. **State** — conforms to `BaseSelectionState` (`Selection/State/`); tracks options, active index, selection, UI text
+2. **Behavior** — conforms to `SelectionBehavior` (`Selection/Behavior/`); handles arrow keys and enter/space/quit/backspace
+3. **Renderer** — conforms to `ContentRenderer` (`Rendering/Columns/`); draws the visible content
 
-The `SelectionHandler` orchestrates these three components in a render loop, managing signal handling, scrolling, header/footer rendering, and user input capture.
+`ContentRenderer` and `SelectionBehavior` are both declared in `SelectionHandler.swift`.
 
-### Module Organization
-- **Core/** — `SwiftPicker` entry point, protocols (`DisplayablePickerItem`, `TextInput`, `PickerInput`), error types, signal handling
-- **Picker/** — public API extensions on `SwiftPicker` for each picker mode (single/multi/tree/text/permission)
-- **Selection/** — internal state/behavior/renderer implementations organized by mode:
-  - **Behavior/** — `*Behavior` classes implementing `SelectionBehavior`
-  - **State/** — `*State` classes conforming to `BaseSelectionState`
-  - **Renderer/** — `*Renderer` classes conforming to `ContentRenderer`
-  - **Models/** — `PickerLayout`, `TreeNode`, `FileSystemNode`, `TreeNodePickerItem`
-  - **Engine/** — `SelectionHandler` (the input loop coordinator)
-- **Rendering/** — shared rendering utilities (header, footer, scroll arrows, text formatting, padding, dividers)
-- **Input/** — default implementations (`DefaultPickerInput`, `DefaultTextInput`) wrapping ANSITerminal
+### Directory map
+- `Core/` — public protocols (`CommandLineInput`, `CommandLinePermission`, `CommandLineSelection`, `CommandLineTreeNavigation`, and the `CommandLinePicker` typealias combining them), `DisplayablePickerItem`, `SwiftPickerError`, `SignalHandler`
+- `Picker/` — the `SwiftPicker` struct plus one `SwiftPicker+CommandLine*.swift` extension per protocol. `TextInput` and `PickerInput` are declared in `SwiftPicker.swift`
+- `Input/` — `DefaultTextInput`, `DefaultPickerInput` (the ANSITerminal wrappers)
+- `Selection/` — `State/`, `Behavior/`, `Engine/`, and `Models/` (`PickerLayout`, `TreeNode`, `TreeNodePickerItem`, `FileSystemNode`, `TreeNavigationRoot`)
+- `Rendering/` — `Columns/` (the content renderers), `HeaderFooter/`, `Scroll/`, `Common/`
 
-### Key Abstractions
+### Key types
+- `DisplayablePickerItem` — everything shown in a picker conforms to it (`displayName`, `description`)
+- `PickerLayout<Item>` — chooses the renderer: `.singleColumn`, `.twoColumnStatic(detailText:)`, `.twoColumnDynamic(detailForItem:)`
+- `TreeNodePickerItem` — adds `hasChildren` / `fetchChildren()`; `TreeNavigationBehavior` maps left/right arrows to ascend/descend. `FileSystemNode` is the filesystem implementation, and `browseDirectories` wraps it with a `SelectionType` of `.filesOnly` / `.foldersOnly` / `.filesAndFolders`
 
-#### DisplayablePickerItem
-All items shown in pickers must conform to this protocol:
-```swift
-protocol DisplayablePickerItem {
-    var displayName: String { get }
-    var description: String { get }
-}
-```
+### Adding a picker mode
+Add a State, a Behavior, and a Renderer in the directories above, then construct a `SelectionHandler(state:pickerInput:behavior:renderer:)` from a public extension in `Picker/`. Follow `SwiftPicker+CommandLineSelection.swift` for the wiring.
 
-#### PickerLayout
-Public API uses `PickerLayout<Item>` enum to select rendering mode:
-- `.singleColumn` — basic vertical list
-- `.twoColumnStatic(detailText: String)` — left column items, fixed right detail panel
-- `.twoColumnDynamic(detailForItem: (Item) -> String)` — left column items, right detail updates per selection
+## Terminal
+- All terminal I/O goes through `PickerInput`; only `Input/DefaultPickerInput` talks to ANSITerminal for I/O. Renderers may import ANSITerminal for text styling only
+- Always `exitAlternativeScreen()` and `enableNormalInput()` on every exit path, including throws
+- `SignalHandler` traps SIGINT/SIGTERM to restore terminal state on Ctrl+C
+- Avoid blocking calls that stall cursor handling or arrow key reads
 
-#### Tree Navigation
-For hierarchical browsing, items conform to `TreeNodePickerItem`:
-```swift
-protocol TreeNodePickerItem: DisplayablePickerItem {
-    var hasChildren: Bool { get }
-    func fetchChildren() -> [Self]
-}
-```
-The `TreeNavigationBehavior` intercepts left/right arrows to descend/ascend the tree. `FileSystemNode` is a concrete implementation for filesystem browsing.
-
-#### Directory Browsing
-The `browseDirectories` API provides a convenience wrapper around tree navigation specifically for file system browsing:
-- Uses `FileSystemNode.SelectionType` to control whether files, folders, or both can be selected
-- Automatically creates a `TreeNavigationRoot` from a starting URL
-- Selection types: `.filesOnly`, `.foldersOnly`, `.filesAndFolders` (default)
-
-### Rendering Flow
-1. `SelectionHandler.renderFrame()` calculates screen dimensions and scroll bounds
-2. `PickerHeaderRenderer` renders prompt, top-line text, and selected item detail (if any)
-3. `ContentRenderer` (e.g., `SingleColumnRenderer`, `TwoColumnDynamicDetailRenderer`) draws visible items
-4. `PickerFooterRenderer` renders instruction text at the bottom
-5. `ScrollRenderer` adds up/down arrows when content exceeds visible area
-
-### Adding New Picker Modes
-1. Define a new `*State` conforming to `BaseSelectionState` (e.g., in Selection/State/)
-2. Implement a `*Behavior` conforming to `SelectionBehavior` (e.g., in Selection/Behavior/)
-3. Implement a `*Renderer` conforming to `ContentRenderer` (e.g., in Selection/Renderer/)
-4. Add a public API extension in Picker/ that creates a `SelectionHandler` with your three components
-5. Mirror the pattern in `SwiftPicker+TreeNavigation.swift` or the layout switch in `SwiftPicker.swift:197`
-
-## Coding Conventions
-**MANDATORY: Follow all formatting rules in @shared-formatting-claude.md when writing or editing Swift code.**
-
-Project-specific conventions:
-- Use Swift 5.9+ features, four-space indentation, no tabs
-- Organize files with `// MARK:` sections (see SwiftPicker.swift or SelectionHandler.swift)
-- Type names are nouns (`SelectionState`, `PickerLayout`), protocols end in `Input`/`Renderer`, behaviors suffix with `Behavior`
-- Mirror filenames to types: `TwoColumnDynamicDetailState.swift` contains `TwoColumnDynamicDetailState`
-- Author: always use **Nikolai Nobadi** in Swift file headers (never Claude or Claude Code)
+## Conventions
+- Four-space indentation, no tabs; `// MARK:` sections (see `SelectionHandler.swift`)
+- Filenames mirror their type: `TwoColumnDynamicDetailState.swift` holds `TwoColumnDynamicDetailState`
+- Naming: types are nouns, protocols end in `Input`/`Renderer`, behaviors end in `Behavior`
+- File headers always use **Nikolai Nobadi** as author — never Claude
+- Commits: short imperative, ~70 chars ("enable tree navigation"). Only commit `Package.resolved` when the dependency graph changes
+- Semantic versioning; public API changes need doc comments and a CHANGELOG entry
 
 ## Testing
-**MANDATORY: Read @~/.claude/guidelines/testing/base_unit_testing_guidelines.md BEFORE writing any tests. All patterns, conventions, and rules defined in that guide MUST be followed exactly.**
-
-Quick reference (see guide for full details):
-- Swift Testing framework (`@Test func ...`)
-- Tests mirror production structure (e.g., `Tests/SwiftPickerKitTests/Selection/`)
-- Use `SwiftPickerTesting.MockSwiftPicker` for testing without terminal I/O
-  - `MockSwiftPicker` is `open` and can be subclassed for custom test doubles
-- Follow behavior-driven test naming from the guide
-- Use `makeSUT` pattern (memory leak tracking NOT required for this project)
-- Target coverage on selection flows and renderer trimming
-
-## Terminal & ANSITerminal
-- All terminal I/O goes through `PickerInput` protocol (implemented by `DefaultPickerInput`)
-- Always call `pickerInput.exitAlternativeScreen()` and `enableNormalInput()` after picker exits
-- `SignalHandler` traps SIGINT/SIGTERM to clean up terminal state on Ctrl+C
-- Avoid blocking calls that prevent cursor handling or arrow key reads
-
-## Git & Commits
-- Short imperative messages (~70 chars): "enable tree navigation", "refactor dynamic detail"
-- Squash fixup commits before review
-- Only commit `Package.resolved` when dependency graph changes
-
-## Public API Expectations
-- Clear, well-documented public interfaces
-- Semantic versioning for breaking changes
-- Comprehensive examples in documentation
-
-## Package Testing
-**See @~/.claude/guidelines/testing/base_unit_testing_guidelines.md for comprehensive testing patterns - this is a summary only:**
-
-- Behavior-driven unit tests (Swift Testing preferred)
-- Use `makeSUT` pattern for test organization
-- Memory leak tracking NOT required for this project
-- Type-safe assertions (`#expect`, `#require`)
-- Use `waitUntil` for async/reactive testing
+- Swift Testing (`@Test func ...`), tests mirror production structure under `Tests/SwiftPickerKitTests/`
+- Use the `makeSUT` pattern; memory leak tracking is NOT required in this project
+- `SwiftPickerTesting.MockSwiftPicker` is `open` — subclass it to test consumers without terminal I/O
+- Behavior-driven test names; prioritize coverage on selection flows and renderer trimming
