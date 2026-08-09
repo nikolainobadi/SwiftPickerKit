@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Adopted the Swift 6 language mode (`swift-tools-version: 6.2`). **Requires Xcode 26 or later to build.**
+- Annotated the process-global signal handler state and `FileSystemNode.showHiddenFiles` / `selectionType` as `nonisolated(unsafe)`; call sites are unchanged
+
+### Added
+- `Sendable` conformance on `MockSingleSelectionOutcome`, `MockMultiSelectionOutcome`, and `MockTreeSelectionOutcome`
+
 ## [0.9.0] - 2025-12-11
 
 ### Added

@@ -3,7 +3,7 @@
 Guidance for Claude Code when working in this repository. See README.md for the public API and usage examples — don't duplicate it here.
 
 ## Overview
-Swift Package Manager library for interactive terminal pickers: single/multi selection, two-column layouts, tree navigation, and file system browsing. macOS 13+, swift-tools 5.9, depends on ANSITerminalModified.
+Swift Package Manager library for interactive terminal pickers: single/multi selection, two-column layouts, tree navigation, and file system browsing. macOS 13+, swift-tools 6.2 (Swift 6 language mode), depends on ANSITerminalModified.
 
 Two products: `SwiftPickerKit` (the library) and `SwiftPickerTesting` (mocks for consumers).
 
@@ -34,7 +34,7 @@ Each picker mode is assembled from three pieces, wired together by `SelectionHan
 ### Key types
 - `DisplayablePickerItem` — everything shown in a picker conforms to it (`displayName`, `description`)
 - `PickerLayout<Item>` — chooses the renderer: `.singleColumn`, `.twoColumnStatic(detailText:)`, `.twoColumnDynamic(detailForItem:)`
-- `TreeNodePickerItem` — adds `hasChildren` / `fetchChildren()`; `TreeNavigationBehavior` maps left/right arrows to ascend/descend. `FileSystemNode` is the filesystem implementation, and `browseDirectories` wraps it with a `SelectionType` of `.filesOnly` / `.foldersOnly` / `.filesAndFolders`
+- `TreeNodePickerItem` — adds `hasChildren` / `fetchChildren()`; `TreeNavigationBehavior` maps left/right arrows to ascend/descend. `FileSystemNode` is the filesystem implementation, and `browseDirectories` wraps it with a `SelectionType` of `.onlyFiles` / `.onlyFolders` / `.filesAndFolders`
 
 ### Adding a picker mode
 Add a State, a Behavior, and a Renderer in the directories above, then construct a `SelectionHandler(state:pickerInput:behavior:renderer:)` from a public extension in `Picker/`. Follow `SwiftPicker+CommandLineSelection.swift` for the wiring.

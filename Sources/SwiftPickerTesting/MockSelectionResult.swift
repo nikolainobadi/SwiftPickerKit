@@ -39,7 +39,7 @@ public enum MockMultiSelectionType {
 
 
 // MARK: - Responses
-public struct MockSingleSelectionOutcome: Equatable {
+public struct MockSingleSelectionOutcome: Equatable, Sendable {
     public var selectedIndex: Int?
 
     public init(selectedIndex: Int?) {
@@ -53,7 +53,7 @@ public struct MockSingleSelectionOutcome: Equatable {
     }
 }
 
-public struct MockMultiSelectionOutcome: Equatable {
+public struct MockMultiSelectionOutcome: Equatable, Sendable {
     public var selectedIndices: [Int]
 
     public init(selectedIndices: [Int]) {

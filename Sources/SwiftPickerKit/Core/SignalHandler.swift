@@ -42,7 +42,10 @@ import Foundation
 /// cannot capture Swift context. Only one signal handler can be active at a time across the
 /// entire process.
 enum SignalHandler {
-    private static var isHandlerSet = false
+    /// Marked `nonisolated(unsafe)` because it guards process-global C signal handler
+    /// registration, which has no actor to belong to. Access is confined to picker
+    /// setup/teardown on a single thread.
+    nonisolated(unsafe) private static var isHandlerSet = false
 
     /// Registers signal handlers for SIGINT (Control+C) and SIGTERM.
     ///
@@ -79,8 +82,9 @@ enum SignalHandler {
 /// Global cleanup handler storage.
 ///
 /// Required because C signal handlers (`signal()`) cannot capture Swift closures or context.
-/// This must be at file scope to be accessible from the C signal handler function.
-private var globalCleanupHandler: (() -> Void)?
+/// This must be at file scope to be accessible from the C signal handler function, which
+/// is why it is `nonisolated(unsafe)` — a C function pointer cannot carry actor isolation.
+nonisolated(unsafe) private var globalCleanupHandler: (() -> Void)?
 
 /// C signal handler function for SIGINT and SIGTERM.
 ///
