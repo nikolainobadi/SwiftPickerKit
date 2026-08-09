@@ -1,0 +1,5 @@
+{
+  "enabledPlugins": {
+    "SwiftPickerKit@nelix-swift-tools": true
+  }
+}

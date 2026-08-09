@@ -92,6 +92,11 @@ public extension FileSystemNode {
 
 // MARK: - Extension Dependencies
 public extension FileSystemNode {
-    static var showHiddenFiles = false
-    static var selectionType: SelectionType = .filesAndFolders
+    /// Process-wide browsing configuration.
+    ///
+    /// Marked `nonisolated(unsafe)` to keep the existing call sites unchanged under the
+    /// Swift 6 language mode. These are expected to be set once before browsing begins,
+    /// not mutated concurrently.
+    nonisolated(unsafe) static var showHiddenFiles = false
+    nonisolated(unsafe) static var selectionType: SelectionType = .filesAndFolders
 }

@@ -28,7 +28,7 @@ public enum MockTreeSelectionType {
 
 
 // MARK: - Outcome
-public struct MockTreeSelectionOutcome: Equatable {
+public struct MockTreeSelectionOutcome: Equatable, Sendable {
     public var selectedRootIndex: Int?
     public var selectedChildIndex: Int?
 
