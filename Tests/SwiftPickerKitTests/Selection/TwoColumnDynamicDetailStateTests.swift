@@ -9,8 +9,8 @@ import Testing
 @testable import SwiftPickerKit
 
 struct TwoColumnDynamicDetailStateTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let prompt = "Prompt"
         let (sut, leftState, options, detailCalls) = makeSUT(prompt: prompt)
 
@@ -23,8 +23,8 @@ struct TwoColumnDynamicDetailStateTests {
         #expect(detailCalls().isEmpty)
     }
 
-    @Test("Shares active index with left column")
-    func sharesActiveIndexWithLeftColumn() {
+    @Test
+    func `Shares active index with left column`() {
         let (sut, leftState, _, _) = makeSUT()
 
         sut.activeIndex = 1
@@ -32,16 +32,16 @@ struct TwoColumnDynamicDetailStateTests {
         #expect(leftState.activeIndex == 1)
     }
 
-    @Test("Reads active index from left column")
-    func readsActiveIndexFromLeftColumn() {
+    @Test
+    func `Reads active index from left column`() {
         let (sut, leftState, _, _) = makeSUT()
         leftState.activeIndex = 1
 
         #expect(sut.activeIndex == 1)
     }
 
-    @Test("Forwards selection toggles to left column")
-    func forwardsSelectionTogglesToLeftColumn() {
+    @Test
+    func `Forwards selection toggles to left column`() {
         let (sut, leftState, _, _) = makeSUT(optionCount: 2)
 
         sut.toggleSelection(at: 1)
@@ -49,16 +49,16 @@ struct TwoColumnDynamicDetailStateTests {
         #expect(leftState.options[1].isSelected)
     }
 
-    @Test("Provides options from left column")
-    func providesOptionsFromLeftColumn() {
+    @Test
+    func `Provides options from left column`() {
         let (sut, leftState, _, _) = makeSUT(optionCount: 3, selectedIndices: [2])
 
         #expect(sut.options.count == leftState.options.count)
         #expect(sut.options[2].isSelected)
     }
 
-    @Test("Uses left column metadata for header and footer")
-    func usesLeftColumnMetadataForHeaderAndFooter() {
+    @Test
+    func `Uses left column metadata for header and footer`() {
         let prompt = "Choose"
         let (sut, leftState, _, _) = makeSUT(prompt: prompt, isSingleSelection: false)
 
@@ -67,8 +67,8 @@ struct TwoColumnDynamicDetailStateTests {
         #expect(sut.bottomLineText == leftState.bottomLineText)
     }
 
-    @Test("Returns detail text from provided closure")
-    func returnsDetailTextFromProvidedClosure() {
+    @Test
+    func `Returns detail text from provided closure`() {
         let detailText = "Detail value"
         let (sut, _, options, detailCalls) = makeSUT(detailText: detailText)
         let item = options[0].item
@@ -81,16 +81,8 @@ struct TwoColumnDynamicDetailStateTests {
 }
 
 
-// MARK: - SUT
+// MARK: - Helpers
 private extension TwoColumnDynamicDetailStateTests {
-    func makeSUT(optionCount: Int = 1, selectedIndices: Set<Int> = [], prompt: String = "Prompt", isSingleSelection: Bool = true, detailText: String = "Detail") -> (TwoColumnDynamicDetailState<TestItem>, SelectionState<TestItem>, [Option<TestItem>], () -> [TestItem]) {
-        let options = TestFactory.makeOptions(count: optionCount, selectedIndices: selectedIndices)
-        let left = SelectionState(options: options, prompt: prompt, isSingleSelection: isSingleSelection)
-        let recorder = makeDetailRecorder(text: detailText)
-        let sut = TwoColumnDynamicDetailState(leftState: left, detailForItem: recorder.closure)
-        return (sut, left, options, recorder.calls)
-    }
-
     func makeDetailRecorder(text: String) -> (closure: (TestItem) -> String, calls: () -> [TestItem]) {
         var captured: [TestItem] = []
         let closure: (TestItem) -> String = { item in
@@ -98,5 +90,17 @@ private extension TwoColumnDynamicDetailStateTests {
             return text
         }
         return (closure, { captured })
+    }
+}
+
+
+// MARK: - SUT
+private extension TwoColumnDynamicDetailStateTests {
+func makeSUT(optionCount: Int = 1, selectedIndices: Set<Int> = [], prompt: String = "Prompt", isSingleSelection: Bool = true, detailText: String = "Detail") -> (TwoColumnDynamicDetailState<TestItem>, SelectionState<TestItem>, [Option<TestItem>], () -> [TestItem]) {
+        let options = TestFactory.makeOptions(count: optionCount, selectedIndices: selectedIndices)
+        let left = SelectionState(options: options, prompt: prompt, isSingleSelection: isSingleSelection)
+        let recorder = makeDetailRecorder(text: detailText)
+        let sut = TwoColumnDynamicDetailState(leftState: left, detailForItem: recorder.closure)
+        return (sut, left, options, recorder.calls)
     }
 }

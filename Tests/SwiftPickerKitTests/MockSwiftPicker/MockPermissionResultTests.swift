@@ -9,8 +9,8 @@ import Testing
 @testable import SwiftPickerTesting
 
 struct MockPermissionResultTests {
-    @Test("Creates disabled configuration by default")
-    func createsDisabledConfigurationByDefault() {
+    @Test
+    func `Creates disabled configuration by default`() {
         let sut = makeSUT()
 
         #expect(sut.defaultValue == false)
@@ -22,15 +22,15 @@ struct MockPermissionResultTests {
         }
     }
 
-    @Test("Accepts custom default value")
-    func acceptsCustomDefaultValue() {
+    @Test
+    func `Accepts custom default value`() {
         let sut = makeSUT(defaultValue: true)
 
         #expect(sut.defaultValue == true)
     }
 
-    @Test("Stores ordered response configuration")
-    func storesOrderedResponseConfiguration() {
+    @Test
+    func `Stores ordered response configuration`() {
         let responses = [true, false, true]
         let sut = makeSUT(type: .ordered(responses))
 
@@ -41,8 +41,8 @@ struct MockPermissionResultTests {
         }
     }
 
-    @Test("Stores dictionary response configuration")
-    func storesDictionaryResponseConfiguration() {
+    @Test
+    func `Stores dictionary response configuration`() {
         let mapping = ["prompt": true]
         let sut = makeSUT(type: .dictionary(mapping))
 
@@ -57,8 +57,8 @@ struct MockPermissionResultTests {
 
 // MARK: - Sequential Response Tests
 extension MockPermissionResultTests {
-    @Test("Provides boolean responses in order until exhausted")
-    func providesBooleanResponsesInOrderUntilExhausted() {
+    @Test
+    func `Provides boolean responses in order until exhausted`() {
         let responses = [true, false, false]
         var sut = makeSUT(type: .ordered(responses))
 
@@ -67,23 +67,23 @@ extension MockPermissionResultTests {
         #expect(sut.nextResponse(for: "prompt") == false)
     }
 
-    @Test("Falls back to default after responses exhausted")
-    func fallsBackToDefaultAfterResponsesExhausted() {
+    @Test
+    func `Falls back to default after responses exhausted`() {
         var sut = makeSUT(defaultValue: true, type: .ordered([false]))
 
         #expect(sut.nextResponse(for: "prompt") == false)
         #expect(sut.nextResponse(for: "prompt") == true)
     }
 
-    @Test("Returns default immediately when no responses configured")
-    func returnsDefaultImmediatelyWhenNoResponsesConfigured() {
+    @Test
+    func `Returns default immediately when no responses configured`() {
         var sut = makeSUT(defaultValue: true)
 
         #expect(sut.nextResponse(for: "prompt") == true)
     }
 
-    @Test("Removes used responses from available pool")
-    func removesUsedResponsesFromAvailablePool() {
+    @Test
+    func `Removes used responses from available pool`() {
         var sut = makeSUT(type: .ordered([true, false]))
 
         _ = sut.nextResponse(for: "prompt")
@@ -101,8 +101,8 @@ extension MockPermissionResultTests {
         }
     }
 
-    @Test("Ignores prompt text when sequential responses configured")
-    func ignoresPromptTextWhenSequentialResponsesConfigured() {
+    @Test
+    func `Ignores prompt text when sequential responses configured`() {
         var sut = makeSUT(defaultValue: false, type: .ordered([true]))
 
         let first = sut.nextResponse(for: "prompt one")
@@ -116,31 +116,31 @@ extension MockPermissionResultTests {
 
 // MARK: - Prompt-Mapped Response Tests
 extension MockPermissionResultTests {
-    @Test("Returns response matching mapped prompt key")
-    func returnsResponseMatchingMappedPromptKey() {
+    @Test
+    func `Returns response matching mapped prompt key`() {
         var sut = makeSUT(type: .dictionary(["allow?": true, "deny?": false]))
 
         #expect(sut.nextResponse(for: "allow?") == true)
         #expect(sut.nextResponse(for: "deny?") == false)
     }
 
-    @Test("Falls back to default for unknown prompts")
-    func fallsBackToDefaultForUnknownPrompts() {
+    @Test
+    func `Falls back to default for unknown prompts`() {
         var sut = makeSUT(defaultValue: true, type: .dictionary(["known": false]))
 
         #expect(sut.nextResponse(for: "unknown") == true)
     }
 
-    @Test("Returns consistent response for repeated prompts")
-    func returnsConsistentResponseForRepeatedPrompts() {
+    @Test
+    func `Returns consistent response for repeated prompts`() {
         var sut = makeSUT(type: .dictionary(["repeat": true]))
 
         #expect(sut.nextResponse(for: "repeat") == true)
         #expect(sut.nextResponse(for: "repeat") == true)
     }
 
-    @Test("Preserves mapping across multiple queries")
-    func preservesMappingAcrossMultipleQueries() {
+    @Test
+    func `Preserves mapping across multiple queries`() {
         var sut = makeSUT(type: .dictionary(["key": true]))
 
         _ = sut.nextResponse(for: "key")
@@ -154,15 +154,15 @@ extension MockPermissionResultTests {
         }
     }
 
-    @Test("Returns false for unknown prompts when default is false")
-    func returnsFalseForUnknownPromptsWhenDefaultIsFalse() {
+    @Test
+    func `Returns false for unknown prompts when default is false`() {
         var sut = makeSUT(defaultValue: false, type: .dictionary(["key": true]))
 
         #expect(sut.nextResponse(for: "missing") == false)
     }
 
-    @Test("Distinguishes prompts by exact case")
-    func distinguishesPromptsByExactCase() {
+    @Test
+    func `Distinguishes prompts by exact case`() {
         var sut = makeSUT(type: .dictionary(["Prompt": true]))
 
         #expect(sut.nextResponse(for: "Prompt") == true)

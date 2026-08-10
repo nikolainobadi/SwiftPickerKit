@@ -9,8 +9,8 @@ import Testing
 @testable import SwiftPickerTesting
 
 struct MockTreeNavigationResultTests {
-    @Test("Creates empty configuration by default")
-    func createsEmptyConfigurationByDefault() {
+    @Test
+    func `Creates empty configuration by default`() {
         let sut = makeSUT()
 
         #expect(sut.defaultOutcome == .none)
@@ -22,16 +22,16 @@ struct MockTreeNavigationResultTests {
         }
     }
 
-    @Test("Accepts custom default outcome")
-    func acceptsCustomDefaultOutcome() {
+    @Test
+    func `Accepts custom default outcome`() {
         let outcome = MockTreeSelectionOutcome.index(1)
         let sut = makeSUT(defaultOutcome: outcome)
 
         #expect(sut.defaultOutcome == outcome)
     }
 
-    @Test("Stores ordered responses")
-    func storesOrderedResponses() {
+    @Test
+    func `Stores ordered responses`() {
         let responses: [MockTreeSelectionOutcome] = [.index(0), .index(2)]
         let sut = makeSUT(type: .ordered(responses))
 
@@ -42,8 +42,8 @@ struct MockTreeNavigationResultTests {
         }
     }
 
-    @Test("Stores dictionary responses")
-    func storesDictionaryResponses() {
+    @Test
+    func `Stores dictionary responses`() {
         let mapping = ["prompt": MockTreeSelectionOutcome.index(3)]
         let sut = makeSUT(type: .dictionary(mapping))
 
@@ -58,8 +58,8 @@ struct MockTreeNavigationResultTests {
 
 // MARK: - Sequential Access
 extension MockTreeNavigationResultTests {
-    @Test("Provides outcomes in order until exhausted")
-    func providesOutcomesInOrderUntilExhausted() {
+    @Test
+    func `Provides outcomes in order until exhausted`() {
         let responses: [MockTreeSelectionOutcome] = [.index(0), .index(1)]
         var sut = makeSUT(type: .ordered(responses))
 
@@ -68,8 +68,8 @@ extension MockTreeNavigationResultTests {
         #expect(sut.nextOutcome(for: "prompt") == .none)
     }
 
-    @Test("Ignores prompt text for ordered responses")
-    func ignoresPromptTextForOrderedResponses() {
+    @Test
+    func `Ignores prompt text for ordered responses`() {
         let response = MockTreeSelectionOutcome.index(0)
         var sut = makeSUT(type: .ordered([response]))
 
@@ -84,8 +84,8 @@ extension MockTreeNavigationResultTests {
 
 // MARK: - Dictionary Access
 extension MockTreeNavigationResultTests {
-    @Test("Returns prompt specific outcomes")
-    func returnsPromptSpecificOutcomes() {
+    @Test
+    func `Returns prompt specific outcomes`() {
         let mapping = ["first": MockTreeSelectionOutcome.index(0), "second": .index(2)]
         var sut = makeSUT(type: .dictionary(mapping))
 
@@ -93,8 +93,8 @@ extension MockTreeNavigationResultTests {
         #expect(sut.nextOutcome(for: "second") == mapping["second"])
     }
 
-    @Test("Falls back to default when prompt missing")
-    func fallsBackToDefaultWhenPromptMissing() {
+    @Test
+    func `Falls back to default when prompt missing`() {
         let defaultOutcome = MockTreeSelectionOutcome.index(3)
         var sut = makeSUT(defaultOutcome: defaultOutcome, type: .dictionary([:]))
 

@@ -9,15 +9,15 @@ import Testing
 @testable import SwiftPickerKit
 
 struct TwoColumnDynamicDetailRendererTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let (_, pickerInput) = makeSUT()
         #expect(pickerInput.writtenText.isEmpty)
         #expect(pickerInput.moveToCalls.isEmpty)
     }
 
-    @Test("Renders items in left column with markers")
-    func rendersItemsInLeftColumnWithMarkers() {
+    @Test
+    func `Renders items in left column with markers`() {
         let items = [TestItem(name: "First"), TestItem(name: "Second")]
         let state = makeState(items: items, isSingle: true, detailForItem: { _ in "Detail" })
         let context = makeContext(startIndex: 0, endIndex: 2)
@@ -29,8 +29,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(hasMarkers)
     }
 
-    @Test("Displays active item with filled marker in single selection mode")
-    func displaysActiveItemWithFilledMarkerInSingleSelectionMode() {
+    @Test
+    func `Displays active item with filled marker in single selection mode`() {
         let items = [TestItem(name: "Active")]
         let state = makeState(items: items, isSingle: true, activeIndex: 0, detailForItem: { _ in "Detail" })
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -42,8 +42,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(hasFilledMarker)
     }
 
-    @Test("Displays selected items with filled marker in multi-selection mode")
-    func displaysSelectedItemsWithFilledMarkerInMultiSelectionMode() {
+    @Test
+    func `Displays selected items with filled marker in multi-selection mode`() {
         let items = [TestItem(name: "Selected")]
         let state = makeState(items: items, isSingle: false, selectedIndices: [0], detailForItem: { _ in "Detail" })
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -55,8 +55,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(hasFilledMarker)
     }
 
-    @Test("Applies underline to active item in left column")
-    func appliesUnderlineToActiveItemInLeftColumn() {
+    @Test
+    func `Applies underline to active item in left column`() {
         let items = [TestItem(name: "Active")]
         let state = makeState(items: items, isSingle: true, activeIndex: 0, detailForItem: { _ in "Detail" })
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -68,8 +68,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(hasItemText)
     }
 
-    @Test("Renders dynamic detail text in right column")
-    func rendersDynamicDetailTextInRightColumn() {
+    @Test
+    func `Renders dynamic detail text in right column`() {
         let detailText = "This is dynamic detail"
         let items = [TestItem(name: "Item")]
         let state = makeState(items: items, isSingle: true, detailForItem: { _ in detailText })
@@ -82,8 +82,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(hasDetailText)
     }
 
-    @Test("Updates detail text based on active item")
-    func updatesDetailTextBasedOnActiveItem() {
+    @Test
+    func `Updates detail text based on active item`() {
         let items = [TestItem(name: "First"), TestItem(name: "Second")]
         let state = makeState(items: items, isSingle: true, activeIndex: 1, detailForItem: { item in
             "Detail for \(item.displayName)"
@@ -97,8 +97,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(hasSecondDetail)
     }
 
-    @Test("Displays column divider between left and right columns")
-    func displaysColumnDividerBetweenLeftAndRightColumns() {
+    @Test
+    func `Displays column divider between left and right columns`() {
         let items = [TestItem(name: "Item")]
         let state = makeState(items: items, isSingle: true, detailForItem: { _ in "Detail" })
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -110,8 +110,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(hasDivider)
     }
 
-    @Test("Truncates long item names in left column")
-    func truncatesLongItemNamesInLeftColumn() {
+    @Test
+    func `Truncates long item names in left column`() {
         let longName = String(repeating: "A", count: 100)
         let items = [TestItem(name: longName)]
         let state = makeState(items: items, isSingle: true, detailForItem: { _ in "Detail" })
@@ -124,8 +124,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(hasEllipsis)
     }
 
-    @Test("Truncates long detail text in right column")
-    func truncatesLongDetailTextInRightColumn() {
+    @Test
+    func `Truncates long detail text in right column`() {
         let longDetail = String(repeating: "B", count: 200)
         let items = [TestItem(name: "Item")]
         let state = makeState(items: items, isSingle: true, detailForItem: { _ in longDetail })
@@ -138,8 +138,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(hasEllipsis)
     }
 
-    @Test("Positions left column at start of screen")
-    func positionsLeftColumnAtStartOfScreen() {
+    @Test
+    func `Positions left column at start of screen`() {
         let items = [TestItem(name: "Item")]
         let state = makeState(items: items, isSingle: true, detailForItem: { _ in "Detail" })
         let context = makeContext(startIndex: 0, endIndex: 1, listStartRow: 5)
@@ -151,8 +151,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(hasLeftColumnPosition)
     }
 
-    @Test("Positions right column after left column width")
-    func positionsRightColumnAfterLeftColumnWidth() {
+    @Test
+    func `Positions right column after left column width`() {
         let items = [TestItem(name: "Item")]
         let state = makeState(items: items, isSingle: true, detailForItem: { _ in "Detail" })
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -164,8 +164,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(hasRightColumnPosition)
     }
 
-    @Test("Renders multiple items in left column")
-    func rendersMultipleItemsInLeftColumn() {
+    @Test
+    func `Renders multiple items in left column`() {
         let items = [
             TestItem(name: "First"),
             TestItem(name: "Second"),
@@ -183,8 +183,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(hasFirst && hasSecond && hasThird)
     }
 
-    @Test("Respects visible row limit when rendering detail lines")
-    func respectsVisibleRowLimitWhenRenderingDetailLines() {
+    @Test
+    func `Respects visible row limit when rendering detail lines`() {
         let multilineDetail = Array(repeating: "Line", count: 100).joined(separator: "\n")
         let items = [TestItem(name: "Item")]
         let state = makeState(items: items, isSingle: true, detailForItem: { _ in multilineDetail })
@@ -197,8 +197,8 @@ struct TwoColumnDynamicDetailRendererTests {
         #expect(detailLineCalls.count <= 5)
     }
 
-    @Test("Renders only items within scroll window")
-    func rendersOnlyItemsWithinScrollWindow() {
+    @Test
+    func `Renders only items within scroll window`() {
         let items = [
             TestItem(name: "Item1"),
             TestItem(name: "Item2"),
@@ -220,12 +220,6 @@ struct TwoColumnDynamicDetailRendererTests {
 
 // MARK: - Helpers
 private extension TwoColumnDynamicDetailRendererTests {
-    func makeSUT() -> (TwoColumnDynamicDetailRenderer<TestItem>, MockPickerInput) {
-        let pickerInput = MockPickerInput()
-        let sut = TwoColumnDynamicDetailRenderer<TestItem>()
-        return (sut, pickerInput)
-    }
-
     func makeState(
         items: [TestItem],
         isSingle: Bool,
@@ -247,5 +241,15 @@ private extension TwoColumnDynamicDetailRendererTests {
 
     func makeContext(startIndex: Int, endIndex: Int, listStartRow: Int = 0, visibleRowCount: Int = 10) -> ScrollRenderContext {
         return .init(startIndex: startIndex, endIndex: endIndex, listStartRow: listStartRow, visibleRowCount: visibleRowCount)
+    }
+}
+
+
+// MARK: - SUT
+private extension TwoColumnDynamicDetailRendererTests {
+func makeSUT() -> (TwoColumnDynamicDetailRenderer<TestItem>, MockPickerInput) {
+        let pickerInput = MockPickerInput()
+        let sut = TwoColumnDynamicDetailRenderer<TestItem>()
+        return (sut, pickerInput)
     }
 }

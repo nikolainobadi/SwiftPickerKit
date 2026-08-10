@@ -9,15 +9,15 @@ import Testing
 @testable import SwiftPickerKit
 
 struct TwoColumnStaticTextRendererTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let (_, pickerInput) = makeSUT()
         #expect(pickerInput.writtenText.isEmpty)
         #expect(pickerInput.moveToCalls.isEmpty)
     }
 
-    @Test("Renders items in left column with markers")
-    func rendersItemsInLeftColumnWithMarkers() {
+    @Test
+    func `Renders items in left column with markers`() {
         let items = [TestItem(name: "First"), TestItem(name: "Second")]
         let state = makeState(items: items, isSingle: true, rightText: "Static text")
         let context = makeContext(startIndex: 0, endIndex: 2)
@@ -29,8 +29,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(hasMarkers)
     }
 
-    @Test("Displays active item with filled marker in single selection mode")
-    func displaysActiveItemWithFilledMarkerInSingleSelectionMode() {
+    @Test
+    func `Displays active item with filled marker in single selection mode`() {
         let items = [TestItem(name: "Active")]
         let state = makeState(items: items, isSingle: true, activeIndex: 0, rightText: "Text")
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -42,8 +42,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(hasFilledMarker)
     }
 
-    @Test("Displays selected items with filled marker in multi-selection mode")
-    func displaysSelectedItemsWithFilledMarkerInMultiSelectionMode() {
+    @Test
+    func `Displays selected items with filled marker in multi-selection mode`() {
         let items = [TestItem(name: "Selected")]
         let state = makeState(items: items, isSingle: false, selectedIndices: [0], rightText: "Text")
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -55,8 +55,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(hasFilledMarker)
     }
 
-    @Test("Applies underline to active item in left column")
-    func appliesUnderlineToActiveItemInLeftColumn() {
+    @Test
+    func `Applies underline to active item in left column`() {
         let items = [TestItem(name: "Active")]
         let state = makeState(items: items, isSingle: true, activeIndex: 0, rightText: "Text")
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -68,8 +68,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(hasItemText)
     }
 
-    @Test("Renders static text in right column")
-    func rendersStaticTextInRightColumn() {
+    @Test
+    func `Renders static text in right column`() {
         let staticText = "This is static information"
         let items = [TestItem(name: "Item")]
         let state = makeState(items: items, isSingle: true, rightText: staticText)
@@ -82,8 +82,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(hasStaticText)
     }
 
-    @Test("Maintains same static text regardless of active item")
-    func maintainsSameStaticTextRegardlessOfActiveItem() {
+    @Test
+    func `Maintains same static text regardless of active item`() {
         let staticText = "Unchanging text"
         let items = [TestItem(name: "First"), TestItem(name: "Second")]
         let state1 = makeState(items: items, isSingle: true, activeIndex: 0, rightText: staticText)
@@ -100,8 +100,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(hasText1 && hasText2)
     }
 
-    @Test("Displays column divider between left and right columns")
-    func displaysColumnDividerBetweenLeftAndRightColumns() {
+    @Test
+    func `Displays column divider between left and right columns`() {
         let items = [TestItem(name: "Item")]
         let state = makeState(items: items, isSingle: true, rightText: "Text")
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -113,8 +113,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(hasDivider)
     }
 
-    @Test("Truncates long item names in left column")
-    func truncatesLongItemNamesInLeftColumn() {
+    @Test
+    func `Truncates long item names in left column`() {
         let longName = String(repeating: "A", count: 100)
         let items = [TestItem(name: longName)]
         let state = makeState(items: items, isSingle: true, rightText: "Text")
@@ -127,8 +127,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(hasEllipsis)
     }
 
-    @Test("Truncates long static text in right column")
-    func truncatesLongStaticTextInRightColumn() {
+    @Test
+    func `Truncates long static text in right column`() {
         let longText = String(repeating: "B", count: 200)
         let items = [TestItem(name: "Item")]
         let state = makeState(items: items, isSingle: true, rightText: longText)
@@ -141,8 +141,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(hasEllipsis)
     }
 
-    @Test("Positions left column at start of screen")
-    func positionsLeftColumnAtStartOfScreen() {
+    @Test
+    func `Positions left column at start of screen`() {
         let items = [TestItem(name: "Item")]
         let state = makeState(items: items, isSingle: true, rightText: "Text")
         let context = makeContext(startIndex: 0, endIndex: 1, listStartRow: 5)
@@ -154,8 +154,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(hasLeftColumnPosition)
     }
 
-    @Test("Positions right column after left column width")
-    func positionsRightColumnAfterLeftColumnWidth() {
+    @Test
+    func `Positions right column after left column width`() {
         let items = [TestItem(name: "Item")]
         let state = makeState(items: items, isSingle: true, rightText: "Text")
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -167,8 +167,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(hasRightColumnPosition)
     }
 
-    @Test("Renders multiple items in left column")
-    func rendersMultipleItemsInLeftColumn() {
+    @Test
+    func `Renders multiple items in left column`() {
         let items = [
             TestItem(name: "First"),
             TestItem(name: "Second"),
@@ -186,8 +186,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(hasFirst && hasSecond && hasThird)
     }
 
-    @Test("Respects visible row limit when rendering static text lines")
-    func respectsVisibleRowLimitWhenRenderingStaticTextLines() {
+    @Test
+    func `Respects visible row limit when rendering static text lines`() {
         let multilineText = Array(repeating: "Line", count: 100).joined(separator: "\n")
         let items = [TestItem(name: "Item")]
         let state = makeState(items: items, isSingle: true, rightText: multilineText)
@@ -200,8 +200,8 @@ struct TwoColumnStaticTextRendererTests {
         #expect(textLineCalls.count <= 5)
     }
 
-    @Test("Renders only items within scroll window")
-    func rendersOnlyItemsWithinScrollWindow() {
+    @Test
+    func `Renders only items within scroll window`() {
         let items = [
             TestItem(name: "Item1"),
             TestItem(name: "Item2"),
@@ -223,12 +223,6 @@ struct TwoColumnStaticTextRendererTests {
 
 // MARK: - Helpers
 private extension TwoColumnStaticTextRendererTests {
-    func makeSUT() -> (TwoColumnStaticTextRenderer<TestItem>, MockPickerInput) {
-        let pickerInput = MockPickerInput()
-        let sut = TwoColumnStaticTextRenderer<TestItem>()
-        return (sut, pickerInput)
-    }
-
     func makeState(
         items: [TestItem],
         isSingle: Bool,
@@ -250,5 +244,15 @@ private extension TwoColumnStaticTextRendererTests {
 
     func makeContext(startIndex: Int, endIndex: Int, listStartRow: Int = 0, visibleRowCount: Int = 10) -> ScrollRenderContext {
         return .init(startIndex: startIndex, endIndex: endIndex, listStartRow: listStartRow, visibleRowCount: visibleRowCount)
+    }
+}
+
+
+// MARK: - SUT
+private extension TwoColumnStaticTextRendererTests {
+func makeSUT() -> (TwoColumnStaticTextRenderer<TestItem>, MockPickerInput) {
+        let pickerInput = MockPickerInput()
+        let sut = TwoColumnStaticTextRenderer<TestItem>()
+        return (sut, pickerInput)
     }
 }

@@ -9,14 +9,14 @@ import Testing
 @testable import SwiftPickerKit
 
 struct SwiftPickerCommandLinePermissionTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let (_, textInput) = makeSUT(permissionResponses: [])
         #expect(textInput.capturedPermissionPrompts.isEmpty)
     }
 
-    @Test("Returns configured response when permission requested")
-    func returnsConfiguredResponseWhenPermissionRequested() {
+    @Test
+    func `Returns configured response when permission requested`() {
         let expectedResponse = false
         let prompt = "Delete project?"
         let (sut, textInput) = makeSUT(permissionResponses: [expectedResponse])
@@ -28,16 +28,16 @@ struct SwiftPickerCommandLinePermissionTests {
         #expect(textInput.capturedPermissionPrompts == [prompt])
     }
 
-    @Test("Completes successfully when required permission is granted")
-    func completesSuccessfullyWhenRequiredPermissionIsGranted() throws {
+    @Test
+    func `Completes successfully when required permission is granted`() throws {
         let (sut, _) = makeSUT(permissionResponses: [true])
         let commandLinePermission: CommandLinePermission = sut
 
         try commandLinePermission.requiredPermission(prompt: "Proceed?")
     }
 
-    @Test("Throws error when required permission is denied")
-    func throwsErrorWhenRequiredPermissionIsDenied() {
+    @Test
+    func `Throws error when required permission is denied`() {
         let (sut, _) = makeSUT(permissionResponses: [false])
         let commandLinePermission: CommandLinePermission = sut
 
@@ -48,9 +48,11 @@ struct SwiftPickerCommandLinePermissionTests {
 }
 
 
-// MARK: - Helpers
-private func makeSUT(permissionResponses: [Bool]) -> (SwiftPicker, MockTextInput) {
-    let textInput = MockTextInput(permissionResponses: permissionResponses)
-    let sut = SwiftPicker(textInput: textInput, pickerInput: MockPickerInput())
-    return (sut, textInput)
+// MARK: - SUT
+private extension SwiftPickerCommandLinePermissionTests {
+    func makeSUT(permissionResponses: [Bool]) -> (SwiftPicker, MockTextInput) {
+        let textInput = MockTextInput(permissionResponses: permissionResponses)
+        let sut = SwiftPicker(textInput: textInput, pickerInput: MockPickerInput())
+        return (sut, textInput)
+    }
 }

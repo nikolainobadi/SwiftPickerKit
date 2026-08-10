@@ -9,8 +9,8 @@ import Testing
 @testable import SwiftPickerKit
 
 struct SelectionStateTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let prompt = "Prompt"
         let (sut, options) = makeSUT(optionCount: 2, isSingleSelection: true, prompt: prompt)
 
@@ -23,36 +23,36 @@ struct SelectionStateTests {
         #expect(sut.isShowingScrollUpIndicator == false)
     }
 
-    @Test("Shows single selection mode in header")
-    func showsSingleSelectionModeInHeader() {
+    @Test
+    func `Shows single selection mode in header`() {
         let (sut, _) = makeSUT(isSingleSelection: true)
 
         #expect(sut.topLineText == "SwiftPicker (single-selection)")
     }
 
-    @Test("Shows multi selection mode in header")
-    func showsMultiSelectionModeInHeader() {
+    @Test
+    func `Shows multi selection mode in header`() {
         let (sut, _) = makeSUT(isSingleSelection: false)
 
         #expect(sut.topLineText == "SwiftPicker (multi-selection)")
     }
 
-    @Test("Guides single selection completion")
-    func guidesSingleSelectionCompletion() {
+    @Test
+    func `Guides single selection completion`() {
         let (sut, _) = makeSUT(isSingleSelection: true)
 
         #expect(sut.bottomLineText == "Tap 'enter' to select. Type 'q' to quit.")
     }
 
-    @Test("Guides multi selection completion")
-    func guidesMultiSelectionCompletion() {
+    @Test
+    func `Guides multi selection completion`() {
         let (sut, _) = makeSUT(isSingleSelection: false)
 
         #expect(sut.bottomLineText == "Select multiple items with 'spacebar'. Tap 'enter' to finish.")
     }
 
-    @Test("Toggles option selection within bounds")
-    func togglesOptionSelectionWithinBounds() {
+    @Test
+    func `Toggles option selection within bounds`() {
         let (sut, _) = makeSUT(optionCount: 2, isSingleSelection: true)
 
         sut.toggleSelection(at: 1)
@@ -62,8 +62,8 @@ struct SelectionStateTests {
         #expect(sut.options[1].isSelected == false)
     }
 
-    @Test("Ignores selection changes outside option range")
-    func ignoresSelectionChangesOutsideOptionRange() {
+    @Test
+    func `Ignores selection changes outside option range`() {
         let (sut, _) = makeSUT(optionCount: 1, isSingleSelection: false)
         let initialSelectionStates = sut.options.map(\.isSelected)
 
@@ -72,8 +72,8 @@ struct SelectionStateTests {
         #expect(sut.options.map(\.isSelected) == initialSelectionStates)
     }
 
-    @Test("Returns only chosen options")
-    func returnsOnlyChosenOptions() {
+    @Test
+    func `Returns only chosen options`() {
         let selectedIndices: Set<Int> = [0, 2]
         let (sut, _) = makeSUT(optionCount: 3, isSingleSelection: false, selectedIndices: selectedIndices)
         let expectedNames = TestFactory.makeOptions(count: 3, selectedIndices: selectedIndices).filter(\.isSelected).map { $0.title }
@@ -84,16 +84,16 @@ struct SelectionStateTests {
         #expect(Set(selectedNames) == Set(expectedNames))
     }
 
-    @Test("Hides selection markers in single mode")
-    func hidesSelectionMarkersInSingleMode() {
+    @Test
+    func `Hides selection markers in single mode`() {
         let (sut, _) = makeSUT(optionCount: 1, isSingleSelection: true, selectedIndices: [0])
         let option = sut.options[0]
 
         #expect(sut.showAsSelected(option) == false)
     }
 
-    @Test("Reflects selection state in multi mode")
-    func reflectsSelectionStateInMultiMode() {
+    @Test
+    func `Reflects selection state in multi mode`() {
         let (sut, _) = makeSUT(optionCount: 2, isSingleSelection: false, selectedIndices: [1])
         let selectedOption = sut.options[1]
         let unselectedOption = sut.options[0]

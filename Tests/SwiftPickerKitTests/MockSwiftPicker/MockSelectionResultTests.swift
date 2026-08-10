@@ -9,8 +9,8 @@ import Testing
 @testable import SwiftPickerTesting
 
 struct MockSelectionResultTests {
-    @Test("Creates empty configuration by default")
-    func createsEmptyConfigurationByDefault() {
+    @Test
+    func `Creates empty configuration by default`() {
         let sut = makeSUT()
 
         #expect(sut.defaultSingle == .none)
@@ -29,8 +29,8 @@ struct MockSelectionResultTests {
         }
     }
 
-    @Test("Accepts custom defaults")
-    func acceptsCustomDefaults() {
+    @Test
+    func `Accepts custom defaults`() {
         let defaultSingle = MockSingleSelectionOutcome.index(2)
         let defaultMulti = MockMultiSelectionOutcome.indices([0, 3])
         let sut = makeSUT(defaultSingle: defaultSingle, defaultMulti: defaultMulti)
@@ -39,8 +39,8 @@ struct MockSelectionResultTests {
         #expect(sut.defaultMulti == defaultMulti)
     }
 
-    @Test("Stores ordered single selection responses")
-    func storesOrderedSingleSelectionResponses() {
+    @Test
+    func `Stores ordered single selection responses`() {
         let responses: [MockSingleSelectionOutcome] = [.index(1), .index(3)]
         let sut = makeSUT(singleType: .ordered(responses))
 
@@ -51,8 +51,8 @@ struct MockSelectionResultTests {
         }
     }
 
-    @Test("Stores ordered multi selection responses")
-    func storesOrderedMultiSelectionResponses() {
+    @Test
+    func `Stores ordered multi selection responses`() {
         let responses: [MockMultiSelectionOutcome] = [.indices([0]), .indices([1, 2])]
         let sut = makeSUT(multiType: .ordered(responses))
 
@@ -63,8 +63,8 @@ struct MockSelectionResultTests {
         }
     }
 
-    @Test("Stores dictionary single selection responses")
-    func storesDictionarySingleSelectionResponses() {
+    @Test
+    func `Stores dictionary single selection responses`() {
         let mapping = ["prompt": MockSingleSelectionOutcome.index(0)]
         let sut = makeSUT(singleType: .dictionary(mapping))
 
@@ -75,8 +75,8 @@ struct MockSelectionResultTests {
         }
     }
 
-    @Test("Stores dictionary multi selection responses")
-    func storesDictionaryMultiSelectionResponses() {
+    @Test
+    func `Stores dictionary multi selection responses`() {
         let mapping = ["prompt": MockMultiSelectionOutcome.indices([1])]
         let sut = makeSUT(multiType: .dictionary(mapping))
 
@@ -91,8 +91,8 @@ struct MockSelectionResultTests {
 
 // MARK: - Sequential Access Tests
 extension MockSelectionResultTests {
-    @Test("Provides single responses in order until exhausted")
-    func providesSingleResponsesInOrderUntilExhausted() {
+    @Test
+    func `Provides single responses in order until exhausted`() {
         let responses: [MockSingleSelectionOutcome] = [.index(0), .none]
         var sut = makeSUT(singleType: .ordered(responses))
 
@@ -105,8 +105,8 @@ extension MockSelectionResultTests {
         #expect(third == .none)
     }
 
-    @Test("Provides multi responses in order until exhausted")
-    func providesMultiResponsesInOrderUntilExhausted() {
+    @Test
+    func `Provides multi responses in order until exhausted`() {
         let responses: [MockMultiSelectionOutcome] = [.indices([0]), .indices([1, 2])]
         var sut = makeSUT(multiType: .ordered(responses))
 
@@ -119,8 +119,8 @@ extension MockSelectionResultTests {
         #expect(third == .none)
     }
 
-    @Test("Ignores prompt text when using ordered responses")
-    func ignoresPromptTextWhenUsingOrderedResponses() {
+    @Test
+    func `Ignores prompt text when using ordered responses`() {
         let response = MockSingleSelectionOutcome.index(1)
         var sut = makeSUT(singleType: .ordered([response]))
 
@@ -135,8 +135,8 @@ extension MockSelectionResultTests {
 
 // MARK: - Dictionary Access Tests
 extension MockSelectionResultTests {
-    @Test("Returns prompt specific single responses")
-    func returnsPromptSpecificSingleResponses() {
+    @Test
+    func `Returns prompt specific single responses`() {
         let mapping = [
             "first": MockSingleSelectionOutcome.index(0),
             "second": MockSingleSelectionOutcome.index(1)
@@ -147,8 +147,8 @@ extension MockSelectionResultTests {
         #expect(sut.nextSingleOutcome(for: "second") == mapping["second"])
     }
 
-    @Test("Returns prompt specific multi responses")
-    func returnsPromptSpecificMultiResponses() {
+    @Test
+    func `Returns prompt specific multi responses`() {
         let mapping = [
             "first": MockMultiSelectionOutcome.indices([0]),
             "second": MockMultiSelectionOutcome.indices([1, 2])
@@ -159,8 +159,8 @@ extension MockSelectionResultTests {
         #expect(sut.nextMultiOutcome(for: "second") == mapping["second"])
     }
 
-    @Test("Falls back to defaults for unknown prompts")
-    func fallsBackToDefaultsForUnknownPrompts() {
+    @Test
+    func `Falls back to defaults for unknown prompts`() {
         let defaultSingle = MockSingleSelectionOutcome.index(2)
         let defaultMulti = MockMultiSelectionOutcome.indices([0, 1])
         var sut = makeSUT(

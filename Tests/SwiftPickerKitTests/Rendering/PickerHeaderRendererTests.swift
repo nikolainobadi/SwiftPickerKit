@@ -9,8 +9,8 @@ import Testing
 @testable import SwiftPickerKit
 
 struct PickerHeaderRendererTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let (_, pickerInput) = makeSUT()
 
         #expect(pickerInput.writtenText.isEmpty)
@@ -18,8 +18,8 @@ struct PickerHeaderRendererTests {
         #expect(pickerInput.cursorMovedToHome == false)
     }
 
-    @Test("Centers header content with divider")
-    func centersHeaderContentWithDivider() {
+    @Test
+    func `Centers header content with divider`() {
         let screenWidth = 10
         let (sut, pickerInput) = makeSUT(dividerStyle: .single)
 
@@ -43,8 +43,8 @@ struct PickerHeaderRendererTests {
         ])
     }
 
-    @Test("Shows selected item details between dividers")
-    func showsSelectedItemDetailsBetweenDividers() {
+    @Test
+    func `Shows selected item details between dividers`() {
         let screenWidth = 12
         let details = ["First detail", "Second detail"]
         let (sut, pickerInput) = makeSUT(dividerStyle: .double)
@@ -65,8 +65,8 @@ struct PickerHeaderRendererTests {
         #expect(pickerInput.writtenText.contains { $0.contains("Selected: Choice") })
     }
 
-    @Test("Truncates prompt and detail lines beyond available width")
-    func truncatesPromptAndDetailLinesBeyondAvailableWidth() {
+    @Test
+    func `Truncates prompt and detail lines beyond available width`() {
         let screenWidth = 6
         let longPrompt = "prompt-long"
         let longDetail = "detail-long"
@@ -84,8 +84,8 @@ struct PickerHeaderRendererTests {
         #expect(pickerInput.writtenText.contains { $0.contains("det…") })
     }
 
-    @Test("Hides prompt text when requested")
-    func hidesPromptTextWhenRequested() {
+    @Test
+    func `Hides prompt text when requested`() {
         let screenWidth = 10
         let (sut, pickerInput) = makeSUT()
 
@@ -106,8 +106,8 @@ struct PickerHeaderRendererTests {
         #expect(hasDivider == false)
     }
 
-    @Test("Hides selected item section when requested")
-    func hidesSelectedItemSectionWhenRequested() {
+    @Test
+    func `Hides selected item section when requested`() {
         let screenWidth = 12
         let (sut, pickerInput) = makeSUT()
 
@@ -127,7 +127,7 @@ struct PickerHeaderRendererTests {
 }
 
 
-// MARK: - Helpers
+// MARK: - SUT
 private extension PickerHeaderRendererTests {
     func makeSUT(dividerStyle: PickerDividerStyle = .single) -> (PickerHeaderRenderer, MockPickerInput) {
         let pickerInput = MockPickerInput()

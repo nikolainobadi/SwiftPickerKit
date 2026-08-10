@@ -9,15 +9,15 @@ import Testing
 @testable import SwiftPickerKit
 
 struct SwiftPickerCommandLineSelectionTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let (_, pickerInput) = makeSUT()
         #expect(pickerInput.writtenText.isEmpty)
         #expect(pickerInput.moveToCalls.isEmpty)
     }
 
-    @Test("Returns selected item when user confirms choice")
-    func returnsSelectedItemWhenUserConfirmsChoice() {
+    @Test
+    func `Returns selected item when user confirms choice`() {
         let items = ["First", "Second"]
         let (sut, pickerInput) = makeSUT()
         let selection: CommandLineSelection = sut
@@ -36,8 +36,8 @@ struct SwiftPickerCommandLineSelectionTests {
         #expect(result == items[0])
     }
 
-    @Test("Returns nil when user quits selection")
-    func returnsNilWhenUserQuitsSelection() {
+    @Test
+    func `Returns nil when user quits selection`() {
         let items = ["Alpha", "Beta"]
         let (sut, pickerInput) = makeSUT()
         let selection: CommandLineSelection = sut
@@ -56,8 +56,8 @@ struct SwiftPickerCommandLineSelectionTests {
         #expect(result == nil)
     }
 
-    @Test("Throws error when user quits required selection")
-    func throwsErrorWhenUserQuitsRequiredSelection() {
+    @Test
+    func `Throws error when user quits required selection`() {
         let items = ["Red", "Blue"]
         let (sut, pickerInput) = makeSUT()
         let selection: CommandLineSelection = sut
@@ -76,8 +76,8 @@ struct SwiftPickerCommandLineSelectionTests {
         }
     }
 
-    @Test("Returns multiple selected items when confirmed")
-    func returnsMultipleSelectedItemsWhenConfirmed() {
+    @Test
+    func `Returns multiple selected items when confirmed`() {
         let items = ["One", "Two", "Three"]
         let (sut, pickerInput) = makeSUT()
         let selection: CommandLineSelection = sut
@@ -101,8 +101,8 @@ struct SwiftPickerCommandLineSelectionTests {
         #expect(result.contains(items[1]))
     }
 
-    @Test("Returns empty array when user quits multi-selection")
-    func returnsEmptyArrayWhenUserQuitsMultiSelection() {
+    @Test
+    func `Returns empty array when user quits multi-selection`() {
         let items = ["Spring", "Summer"]
         let (sut, pickerInput) = makeSUT()
         let selection: CommandLineSelection = sut
@@ -123,7 +123,7 @@ struct SwiftPickerCommandLineSelectionTests {
 }
 
 
-// MARK: - Helpers
+// MARK: - SUT
 private extension SwiftPickerCommandLineSelectionTests {
     func makeSUT() -> (SwiftPicker, MockPickerInput) {
         let pickerInput = MockPickerInput()

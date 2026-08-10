@@ -9,8 +9,8 @@ import Testing
 @testable import SwiftPickerTesting
 
 struct MockInputResultTests {
-    @Test("Creates empty configuration by default")
-    func createsEmptyConfigurationByDefault() {
+    @Test
+    func `Creates empty configuration by default`() {
         let sut = makeSUT()
 
         #expect(sut.defaultValue.isEmpty)
@@ -22,16 +22,16 @@ struct MockInputResultTests {
         }
     }
 
-    @Test("Accepts custom default value")
-    func acceptsCustomDefaultValue() {
+    @Test
+    func `Accepts custom default value`() {
         let customDefault = "fallback response"
         let sut = makeSUT(defaultValue: customDefault)
 
         #expect(sut.defaultValue == customDefault)
     }
 
-    @Test("Stores ordered response configuration")
-    func storesOrderedResponseConfiguration() {
+    @Test
+    func `Stores ordered response configuration`() {
         let responses = ["first", "second", "third"]
         let sut = makeSUT(type: .ordered(responses))
 
@@ -42,8 +42,8 @@ struct MockInputResultTests {
         }
     }
 
-    @Test("Stores dictionary response configuration")
-    func storesDictionaryResponseConfiguration() {
+    @Test
+    func `Stores dictionary response configuration`() {
         let mapping = ["greeting": "hello", "farewell": "goodbye"]
         let sut = makeSUT(type: .dictionary(mapping))
 
@@ -58,8 +58,8 @@ struct MockInputResultTests {
 
 // MARK: - Sequential Response Tests
 extension MockInputResultTests {
-    @Test("Provides responses in order until exhausted")
-    func providesResponsesInOrderUntilExhausted() {
+    @Test
+    func `Provides responses in order until exhausted`() {
         let responses = ["first", "second", "third"]
         var sut = makeSUT(type: .ordered(responses))
 
@@ -73,8 +73,8 @@ extension MockInputResultTests {
         #expect(thirdResponse == responses[2])
     }
 
-    @Test("Falls back to default value after responses exhausted")
-    func fallsBackToDefaultValueAfterResponsesExhausted() {
+    @Test
+    func `Falls back to default value after responses exhausted`() {
         let defaultValue = "fallback"
         let singleResponse = "only one"
         var sut = makeSUT(defaultValue: defaultValue, type: .ordered([singleResponse]))
@@ -89,8 +89,8 @@ extension MockInputResultTests {
         #expect(thirdResponse == defaultValue)
     }
 
-    @Test("Returns default immediately when no responses configured")
-    func returnsDefaultImmediatelyWhenNoResponsesConfigured() {
+    @Test
+    func `Returns default immediately when no responses configured`() {
         let defaultValue = "fallback"
         var sut = makeSUT(defaultValue: defaultValue, type: .ordered([]))
 
@@ -98,8 +98,8 @@ extension MockInputResultTests {
         #expect(response == defaultValue)
     }
 
-    @Test("Removes used responses from available pool")
-    func removesUsedResponsesFromAvailablePool() {
+    @Test
+    func `Removes used responses from available pool`() {
         let initialResponses = ["first", "second", "third"]
         var sut = makeSUT(type: .ordered(initialResponses))
 
@@ -130,8 +130,8 @@ extension MockInputResultTests {
         }
     }
 
-    @Test("Ignores prompt text when providing sequential responses")
-    func ignoresPromptTextWhenProvidingSequentialResponses() {
+    @Test
+    func `Ignores prompt text when providing sequential responses`() {
         let response = "response"
         let defaultValue = "default"
         var sut = makeSUT(defaultValue: defaultValue, type: .ordered([response]))
@@ -147,8 +147,8 @@ extension MockInputResultTests {
 
 // MARK: - Prompt-Mapped Response Tests
 extension MockInputResultTests {
-    @Test("Returns response matching prompt key")
-    func returnsResponseMatchingPromptKey() {
+    @Test
+    func `Returns response matching prompt key`() {
         let greetingPrompt = "greeting"
         let farewellPrompt = "farewell"
         let greetingResponse = "hello"
@@ -166,8 +166,8 @@ extension MockInputResultTests {
         #expect(actualFarewell == farewellResponse)
     }
 
-    @Test("Falls back to default value for unknown prompts")
-    func fallsBackToDefaultValueForUnknownPrompts() {
+    @Test
+    func `Falls back to default value for unknown prompts`() {
         let defaultValue = "unknown"
         let knownPrompt = "known"
         let unknownPrompt = "unknown prompt"
@@ -178,8 +178,8 @@ extension MockInputResultTests {
         #expect(response == defaultValue)
     }
 
-    @Test("Returns consistent response for repeated prompts")
-    func returnsConsistentResponseForRepeatedPrompts() {
+    @Test
+    func `Returns consistent response for repeated prompts`() {
         let prompt = "repeat"
         let response = "same"
         var sut = makeSUT(type: .dictionary([prompt: response]))
@@ -193,8 +193,8 @@ extension MockInputResultTests {
         #expect(third == response)
     }
 
-    @Test("Preserves all mappings across multiple queries")
-    func preservesAllMappingsAcrossMultipleQueries() {
+    @Test
+    func `Preserves all mappings across multiple queries`() {
         let prompt = "key"
         let response = "value"
         var sut = makeSUT(type: .dictionary([prompt: response]))
@@ -210,8 +210,8 @@ extension MockInputResultTests {
         }
     }
 
-    @Test("Returns empty string for unknown prompts when default is empty")
-    func returnsEmptyStringForUnknownPromptsWhenDefaultIsEmpty() {
+    @Test
+    func `Returns empty string for unknown prompts when default is empty`() {
         let unknownPrompt = "missing"
         var sut = makeSUT(defaultValue: "", type: .dictionary(["key": "value"]))
 
@@ -219,8 +219,8 @@ extension MockInputResultTests {
         #expect(response.isEmpty)
     }
 
-    @Test("Distinguishes prompts by exact case match")
-    func distinguishesPromptsByExactCaseMatch() {
+    @Test
+    func `Distinguishes prompts by exact case match`() {
         let uppercasePrompt = "Prompt"
         let lowercasePrompt = "prompt"
         let response = "uppercase"
