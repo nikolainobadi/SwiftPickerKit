@@ -9,122 +9,104 @@ import Testing
 @testable import SwiftPickerKit
 
 struct PickerTextFormatterTests {
-    @Test("Centers text with equal padding on both sides")
-    func centersTextWithEqualPaddingOnBothSides() {
-        let text = "Hello"
-        let width = 11
+    @Test
+    func `Centers text with equal padding on both sides`() {
+        let sut = makeSUT()
 
-        let result = PickerTextFormatter.centerText(text, inWidth: width)
-
-        #expect(result == "   Hello")
-        #expect(result.count == 8)
+        #expect(sut.centerText("Hello", inWidth: 11) == "   Hello")
     }
 
-    @Test("Returns text without padding when width matches text length")
-    func returnsTextWithoutPaddingWhenWidthMatchesTextLength() {
+    @Test
+    func `Returns text without padding when width matches text length`() {
+        let sut = makeSUT()
         let text = "Swift"
 
-        let result = PickerTextFormatter.centerText(text, inWidth: text.count)
-
-        #expect(result == text)
+        #expect(sut.centerText(text, inWidth: text.count) == text)
     }
 
-    @Test("Returns text without padding when width is smaller than text")
-    func returnsTextWithoutPaddingWhenWidthIsSmallerThanText() {
+    @Test
+    func `Returns text without padding when width is smaller than text`() {
+        let sut = makeSUT()
         let text = "LongText"
-        let width = 4
 
-        let result = PickerTextFormatter.centerText(text, inWidth: width)
-
-        #expect(result == text)
+        #expect(sut.centerText(text, inWidth: 4) == text)
     }
 
-    @Test("Handles empty text with width-based padding")
-    func handlesEmptyTextWithWidthBasedPadding() {
-        let text = ""
-        let width = 6
+    @Test
+    func `Handles empty text with width-based padding`() {
+        let sut = makeSUT()
 
-        let result = PickerTextFormatter.centerText(text, inWidth: width)
-
-        #expect(result == "   ")
-        #expect(result.count == 3)
+        #expect(sut.centerText("", inWidth: 6) == "   ")
     }
 
-    @Test("Returns text as-is when width is zero")
-    func returnsTextAsIsWhenWidthIsZero() {
+    @Test
+    func `Returns text as-is when width is zero`() {
+        let sut = makeSUT()
         let text = "Test"
 
-        let result = PickerTextFormatter.centerText(text, inWidth: 0)
-
-        #expect(result == text)
+        #expect(sut.centerText(text, inWidth: 0) == text)
     }
+}
 
-    @Test("Returns original text when shorter than maximum width")
-    func returnsOriginalTextWhenShorterThanMaximumWidth() {
+
+// MARK: - Truncation
+extension PickerTextFormatterTests {
+    @Test
+    func `Returns original text when shorter than maximum width`() {
+        let sut = makeSUT()
         let text = "Short"
-        let maxWidth = 10
 
-        let result = PickerTextFormatter.truncate(text, maxWidth: maxWidth)
-
-        #expect(result == text)
+        #expect(sut.truncate(text, maxWidth: 10) == text)
     }
 
-    @Test("Returns original text when equal to maximum width")
-    func returnsOriginalTextWhenEqualToMaximumWidth() {
+    @Test
+    func `Returns original text when equal to maximum width`() {
+        let sut = makeSUT()
         let text = "Exact"
 
-        let result = PickerTextFormatter.truncate(text, maxWidth: text.count)
-
-        #expect(result == text)
+        #expect(sut.truncate(text, maxWidth: text.count) == text)
     }
 
-    @Test("Truncates text with ellipsis when exceeding maximum width")
-    func truncatesTextWithEllipsisWhenExceedingMaximumWidth() {
-        let text = "This is a very long text"
-        let maxWidth = 10
+    @Test
+    func `Truncates text with ellipsis when exceeding maximum width`() {
+        let sut = makeSUT()
 
-        let result = PickerTextFormatter.truncate(text, maxWidth: maxWidth)
-
-        #expect(result == "This is a…")
-        #expect(result.count == maxWidth)
+        #expect(sut.truncate("This is a very long text", maxWidth: 10) == "This is a…")
     }
 
-    @Test("Returns empty string when maximum width is one")
-    func returnsEmptyStringWhenMaximumWidthIsOne() {
-        let text = "Any text"
+    @Test
+    func `Returns empty string when maximum width is one`() {
+        let sut = makeSUT()
 
-        let result = PickerTextFormatter.truncate(text, maxWidth: 1)
-
-        #expect(result == "")
+        #expect(sut.truncate("Any text", maxWidth: 1) == "")
     }
 
-    @Test("Returns empty string when maximum width is zero")
-    func returnsEmptyStringWhenMaximumWidthIsZero() {
-        let text = "Test"
+    @Test
+    func `Returns empty string when maximum width is zero`() {
+        let sut = makeSUT()
 
-        let result = PickerTextFormatter.truncate(text, maxWidth: 0)
-
-        #expect(result == "")
+        #expect(sut.truncate("Test", maxWidth: 0) == "")
     }
 
-    @Test("Returns empty text unchanged regardless of maximum width")
-    func returnsEmptyTextUnchangedRegardlessOfMaximumWidth() {
-        let text = ""
-        let maxWidth = 5
+    @Test
+    func `Returns empty text unchanged regardless of maximum width`() {
+        let sut = makeSUT()
 
-        let result = PickerTextFormatter.truncate(text, maxWidth: maxWidth)
-
-        #expect(result == "")
+        #expect(sut.truncate("", maxWidth: 5) == "")
     }
 
-    @Test("Preserves single character when truncating to width of two")
-    func preservesSingleCharacterWhenTruncatingToWidthOfTwo() {
-        let text = "Hello"
-        let maxWidth = 2
+    @Test
+    func `Preserves single character when truncating to width of two`() {
+        let sut = makeSUT()
 
-        let result = PickerTextFormatter.truncate(text, maxWidth: maxWidth)
+        #expect(sut.truncate("Hello", maxWidth: 2) == "H…")
+    }
+}
 
-        #expect(result == "H…")
-        #expect(result.count == maxWidth)
+
+// MARK: - SUT
+private extension PickerTextFormatterTests {
+    func makeSUT() -> PickerTextFormatter.Type {
+        return PickerTextFormatter.self
     }
 }

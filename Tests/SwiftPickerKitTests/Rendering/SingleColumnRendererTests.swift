@@ -9,15 +9,15 @@ import Testing
 @testable import SwiftPickerKit
 
 struct SingleColumnRendererTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let (_, pickerInput) = makeSUT()
         #expect(pickerInput.writtenText.isEmpty)
         #expect(pickerInput.moveToCalls.isEmpty)
     }
 
-    @Test("Renders single item at correct row position")
-    func rendersSingleItemAtCorrectRowPosition() {
+    @Test
+    func `Renders single item at correct row position`() {
         let items = [TestFactory.makeItem(name: "First")]
         let state = makeState(items: items, isSingle: true)
         let context = makeContext(startIndex: 0, endIndex: 1, listStartRow: 5)
@@ -29,8 +29,8 @@ struct SingleColumnRendererTests {
         #expect(rowCalls.contains(5))
     }
 
-    @Test("Displays active item with filled marker in single selection mode")
-    func displaysActiveItemWithFilledMarkerInSingleSelectionMode() {
+    @Test
+    func `Displays active item with filled marker in single selection mode`() {
         let items = [TestFactory.makeItem(name: "Active")]
         let state = makeState(items: items, isSingle: true, activeIndex: 0)
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -42,8 +42,8 @@ struct SingleColumnRendererTests {
         #expect(hasFilledMarker)
     }
 
-    @Test("Displays inactive item with empty marker in single selection mode")
-    func displaysInactiveItemWithEmptyMarkerInSingleSelectionMode() {
+    @Test
+    func `Displays inactive item with empty marker in single selection mode`() {
         let items = makeItems(names: ["First", "Second"])
         let state = makeState(items: items, isSingle: true, activeIndex: 0)
         let context = makeContext(startIndex: 0, endIndex: 2)
@@ -55,8 +55,8 @@ struct SingleColumnRendererTests {
         #expect(markerWrites.count == 2)
     }
 
-    @Test("Displays selected items with filled marker in multi-selection mode")
-    func displaysSelectedItemsWithFilledMarkerInMultiSelectionMode() {
+    @Test
+    func `Displays selected items with filled marker in multi-selection mode`() {
         let items = [TestFactory.makeItem(name: "Item")]
         let state = makeState(items: items, isSingle: false, selectedIndices: [0])
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -68,8 +68,8 @@ struct SingleColumnRendererTests {
         #expect(hasFilledMarker)
     }
 
-    @Test("Displays unselected items with empty marker in multi-selection mode")
-    func displaysUnselectedItemsWithEmptyMarkerInMultiSelectionMode() {
+    @Test
+    func `Displays unselected items with empty marker in multi-selection mode`() {
         let items = [TestFactory.makeItem(name: "Unselected")]
         let state = makeState(items: items, isSingle: false)
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -81,8 +81,8 @@ struct SingleColumnRendererTests {
         #expect(hasEmptyMarker)
     }
 
-    @Test("Applies underline formatting to active item text")
-    func appliesUnderlineFormattingToActiveItemText() {
+    @Test
+    func `Applies underline formatting to active item text`() {
         let items = [TestFactory.makeItem(name: "Active")]
         let state = makeState(items: items, isSingle: true, activeIndex: 0)
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -94,8 +94,8 @@ struct SingleColumnRendererTests {
         #expect(hasUnderlineText)
     }
 
-    @Test("Renders multiple items in sequential rows")
-    func rendersMultipleItemsInSequentialRows() {
+    @Test
+    func `Renders multiple items in sequential rows`() {
         let items = makeItems(names: ["First", "Second", "Third"])
         let state = makeState(items: items, isSingle: true)
         let context = makeContext(startIndex: 0, endIndex: 3, listStartRow: 10)
@@ -109,8 +109,8 @@ struct SingleColumnRendererTests {
         #expect(rowCalls.contains(12))
     }
 
-    @Test("Renders only visible items within scroll window")
-    func rendersOnlyVisibleItemsWithinScrollWindow() {
+    @Test
+    func `Renders only visible items within scroll window`() {
         let items = makeItems(names: ["Item1", "Item2", "Item3"])
         let state = makeState(items: items, isSingle: true)
         let context = makeContext(startIndex: 1, endIndex: 2)
@@ -122,8 +122,8 @@ struct SingleColumnRendererTests {
         #expect(textWrites.count == 1)
     }
 
-    @Test("Truncates text when exceeding screen width")
-    func truncatesTextWhenExceedingScreenWidth() {
+    @Test
+    func `Truncates text when exceeding screen width`() {
         let longName = String(repeating: "A", count: 100)
         let items = [TestFactory.makeItem(name: longName)]
         let state = makeState(items: items, isSingle: true)
@@ -137,8 +137,8 @@ struct SingleColumnRendererTests {
         #expect(textWithEllipsis)
     }
 
-    @Test("Positions cursor at column zero before moving right")
-    func positionsCursorAtColumnZeroBeforeMovingRight() {
+    @Test
+    func `Positions cursor at column zero before moving right`() {
         let items = [TestFactory.makeItem(name: "Item")]
         let state = makeState(items: items, isSingle: true)
         let context = makeContext(startIndex: 0, endIndex: 1)
@@ -149,8 +149,8 @@ struct SingleColumnRendererTests {
         #expect(pickerInput.moveToCalls.allSatisfy { $0.col == 0 })
     }
 
-    @Test("Writes item display names to output")
-    func writesItemDisplayNamesToOutput() {
+    @Test
+    func `Writes item display names to output`() {
         let itemName = "TestItem"
         let items = [TestFactory.makeItem(name: itemName)]
         let state = makeState(items: items, isSingle: true)
@@ -167,12 +167,6 @@ struct SingleColumnRendererTests {
 
 // MARK: - Helpers
 private extension SingleColumnRendererTests {
-    func makeSUT() -> (SingleColumnRenderer<TestItem>, MockPickerInput) {
-        let pickerInput = MockPickerInput()
-        let sut = SingleColumnRenderer<TestItem>()
-        return (sut, pickerInput)
-    }
-
     func makeState(items: [TestItem], isSingle: Bool, activeIndex: Int = 0, selectedIndices: [Int] = []) -> SelectionState<TestItem> {
         var options = items.map { Option(item: $0) }
         for index in selectedIndices {
@@ -191,5 +185,15 @@ private extension SingleColumnRendererTests {
 
     func makeItems(names: [String]) -> [TestItem] {
         names.map { TestFactory.makeItem(name: $0) }
+    }
+}
+
+
+// MARK: - SUT
+private extension SingleColumnRendererTests {
+func makeSUT() -> (SingleColumnRenderer<TestItem>, MockPickerInput) {
+        let pickerInput = MockPickerInput()
+        let sut = SingleColumnRenderer<TestItem>()
+        return (sut, pickerInput)
     }
 }

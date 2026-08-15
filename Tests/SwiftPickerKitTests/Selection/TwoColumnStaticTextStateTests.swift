@@ -9,8 +9,8 @@ import Testing
 @testable import SwiftPickerKit
 
 struct TwoColumnStaticTextStateTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let prompt = "Prompt"
         let rightText = "Right column text"
         let (sut, leftState, options) = makeSUT(prompt: prompt, rightText: rightText)
@@ -24,8 +24,8 @@ struct TwoColumnStaticTextStateTests {
         #expect(sut.wrappedRightLines(width: 20) == rightText.wrapToWidth(maxWidth: 20))
     }
 
-    @Test("Shares active index with left column")
-    func sharesActiveIndexWithLeftColumn() {
+    @Test
+    func `Shares active index with left column`() {
         let (sut, leftState, _) = makeSUT()
 
         sut.activeIndex = 1
@@ -33,16 +33,16 @@ struct TwoColumnStaticTextStateTests {
         #expect(leftState.activeIndex == 1)
     }
 
-    @Test("Reads active index from left column")
-    func readsActiveIndexFromLeftColumn() {
+    @Test
+    func `Reads active index from left column`() {
         let (sut, leftState, _) = makeSUT()
         leftState.activeIndex = 1
 
         #expect(sut.activeIndex == 1)
     }
 
-    @Test("Forwards selection toggles to left column")
-    func forwardsSelectionTogglesToLeftColumn() {
+    @Test
+    func `Forwards selection toggles to left column`() {
         let (sut, leftState, _) = makeSUT(optionCount: 2)
 
         sut.toggleSelection(at: 1)
@@ -50,16 +50,16 @@ struct TwoColumnStaticTextStateTests {
         #expect(leftState.options[1].isSelected)
     }
 
-    @Test("Provides options from left column")
-    func providesOptionsFromLeftColumn() {
+    @Test
+    func `Provides options from left column`() {
         let (sut, leftState, _) = makeSUT(optionCount: 3, selectedIndices: [2])
 
         #expect(sut.options.count == leftState.options.count)
         #expect(sut.options[2].isSelected)
     }
 
-    @Test("Wraps right column text to requested width")
-    func wrapsRightColumnTextToRequestedWidth() {
+    @Test
+    func `Wraps right column text to requested width`() {
         let rightText = "This is a longer line of text that should wrap across columns."
         let width = 15
         let (sut, _, _) = makeSUT(rightText: rightText)

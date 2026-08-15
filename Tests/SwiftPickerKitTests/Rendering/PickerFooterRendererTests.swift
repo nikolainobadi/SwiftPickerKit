@@ -9,22 +9,22 @@ import Testing
 @testable import SwiftPickerKit
 
 struct PickerFooterRendererTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let (_, pickerInput) = makeSUT()
         #expect(pickerInput.writtenText.isEmpty)
         #expect(pickerInput.moveToCalls.isEmpty)
     }
 
-    @Test("Reserves three rows for footer display")
-    func reservesThreeRowsForFooterDisplay() {
+    @Test
+    func `Reserves three rows for footer display`() {
         let (sut, _) = makeSUT()
 
         #expect(sut.height() == 3)
     }
 
-    @Test("Displays divider and instruction text in footer area")
-    func displaysDividerAndInstructionTextInFooterArea() {
+    @Test
+    func `Displays divider and instruction text in footer area`() {
         let instructionText = "Use arrows • Enter to confirm"
         let (sut, pickerInput) = makeSUT(screenSize: (rows: 20, cols: 8), dividerStyle: .double)
 
@@ -40,8 +40,8 @@ struct PickerFooterRendererTests {
         #expect(trailingWrites[2] == instructionText)
     }
 
-    @Test("Omits divider when style is set to none")
-    func omitsDividerWhenStyleIsSetToNone() {
+    @Test
+    func `Omits divider when style is set to none`() {
         let instructions = "Confirm?"
         let (sut, pickerInput) = makeSUT(screenSize: (rows: 15, cols: 5), dividerStyle: .none)
 
@@ -57,7 +57,7 @@ struct PickerFooterRendererTests {
 }
 
 
-// MARK: - Helpers
+// MARK: - SUT
 private extension PickerFooterRendererTests {
     func makeSUT(
         screenSize: (rows: Int, cols: Int) = (40, 100),

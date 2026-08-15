@@ -9,15 +9,15 @@ import Testing
 @testable import SwiftPickerKit
 
 struct ScrollRendererTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let (_, pickerInput) = makeSUT()
         #expect(pickerInput.writtenText.isEmpty)
         #expect(pickerInput.moveToCalls.isEmpty)
     }
 
-    @Test("Displays up arrow at specified row position")
-    func displaysUpArrowAtSpecifiedRowPosition() {
+    @Test
+    func `Displays up arrow at specified row position`() {
         let row = 5
         let (sut, pickerInput) = makeSUT()
 
@@ -30,8 +30,8 @@ struct ScrollRendererTests {
         #expect(pickerInput.writtenText[0].contains("↑"))
     }
 
-    @Test("Displays down arrow at specified row position")
-    func displaysDownArrowAtSpecifiedRowPosition() {
+    @Test
+    func `Displays down arrow at specified row position`() {
         let row = 10
         let (sut, pickerInput) = makeSUT()
 
@@ -44,8 +44,8 @@ struct ScrollRendererTests {
         #expect(pickerInput.writtenText[0].contains("↓"))
     }
 
-    @Test("Positions up arrow at column zero for any row")
-    func positionsUpArrowAtColumnZeroForAnyRow() {
+    @Test
+    func `Positions up arrow at column zero for any row`() {
         let (sut, pickerInput) = makeSUT()
 
         sut.renderUpArrow(at: 0)
@@ -55,8 +55,8 @@ struct ScrollRendererTests {
         #expect(pickerInput.moveToCalls.allSatisfy { $0.col == 0 })
     }
 
-    @Test("Positions down arrow at column zero for any row")
-    func positionsDownArrowAtColumnZeroForAnyRow() {
+    @Test
+    func `Positions down arrow at column zero for any row`() {
         let (sut, pickerInput) = makeSUT()
 
         sut.renderDownArrow(at: 1)
@@ -66,8 +66,8 @@ struct ScrollRendererTests {
         #expect(pickerInput.moveToCalls.allSatisfy { $0.col == 0 })
     }
 
-    @Test("Renders multiple arrows at different positions")
-    func rendersMultipleArrowsAtDifferentPositions() {
+    @Test
+    func `Renders multiple arrows at different positions`() {
         let (sut, pickerInput) = makeSUT()
 
         sut.renderUpArrow(at: 3)
@@ -81,8 +81,8 @@ struct ScrollRendererTests {
         #expect(pickerInput.writtenText[1].contains("↓"))
     }
 
-    @Test("Handles zero row position for up arrow")
-    func handlesZeroRowPositionForUpArrow() {
+    @Test
+    func `Handles zero row position for up arrow`() {
         let (sut, pickerInput) = makeSUT()
 
         sut.renderUpArrow(at: 0)
@@ -91,8 +91,8 @@ struct ScrollRendererTests {
         #expect(pickerInput.moveToCalls[0].col == 0)
     }
 
-    @Test("Handles zero row position for down arrow")
-    func handlesZeroRowPositionForDownArrow() {
+    @Test
+    func `Handles zero row position for down arrow`() {
         let (sut, pickerInput) = makeSUT()
 
         sut.renderDownArrow(at: 0)
@@ -103,7 +103,7 @@ struct ScrollRendererTests {
 }
 
 
-// MARK: - Helpers
+// MARK: - SUT
 private extension ScrollRendererTests {
     func makeSUT() -> (ScrollRenderer, MockPickerInput) {
         let pickerInput = MockPickerInput()

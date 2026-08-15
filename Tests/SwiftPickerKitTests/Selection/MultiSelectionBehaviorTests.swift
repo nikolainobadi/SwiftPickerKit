@@ -9,8 +9,8 @@ import Testing
 @testable import SwiftPickerKit
 
 struct MultiSelectionBehaviorTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let (sut, state) = makeSUT()
 
         #expect(state.selectedOptions.isEmpty)
@@ -23,8 +23,8 @@ struct MultiSelectionBehaviorTests {
         }
     }
 
-    @Test("Finishes with selected items on enter")
-    func finishesWithSelectedItemsOnEnter() {
+    @Test
+    func `Finishes with selected items on enter`() {
         let items = [TestFactory.makeItem(name: "First"), TestFactory.makeItem(name: "Second")]
         let (sut, state) = makeSUT(items: items, selectedIndices: [1])
 
@@ -38,8 +38,8 @@ struct MultiSelectionBehaviorTests {
         }
     }
 
-    @Test("Toggles active item selection on space")
-    func togglesActiveItemSelectionOnSpace() {
+    @Test
+    func `Toggles active item selection on space`() {
         let items = [TestFactory.makeItem(name: "Pick")]
         let (sut, state) = makeSUT(items: items, activeIndex: 0)
 
@@ -59,8 +59,8 @@ struct MultiSelectionBehaviorTests {
         #expect(secondSelection == false)
     }
 
-    @Test("Finishes with empty selection on quit")
-    func finishesWithEmptySelectionOnQuit() {
+    @Test
+    func `Finishes with empty selection on quit`() {
         let items = [TestFactory.makeItem(name: "One"), TestFactory.makeItem(name: "Two")]
         let (sut, state) = makeSUT(items: items, selectedIndices: [0, 1])
 

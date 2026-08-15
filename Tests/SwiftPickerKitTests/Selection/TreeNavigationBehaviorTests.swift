@@ -9,8 +9,8 @@ import Testing
 @testable import SwiftPickerKit
 
 struct TreeNavigationBehaviorTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let roots = TestFactory.makeTreeItems(names: ["Root"])
         let (sut, state) = makeSUT(rootItems: roots)
 
@@ -23,8 +23,8 @@ struct TreeNavigationBehaviorTests {
         }
     }
 
-    @Test("Moves up and clamps at start of list")
-    func movesUpAndClampsAtStartOfList() {
+    @Test
+    func `Moves up and clamps at start of list`() {
         let roots = TestFactory.makeTreeItems(names: ["Root 1", "Root 2"])
         let (sut, state) = makeSUT(rootItems: roots)
         state.activeIndex = 0
@@ -35,8 +35,8 @@ struct TreeNavigationBehaviorTests {
         #expect(mutableState.activeIndex == 0)
     }
 
-    @Test("Moves down and clamps at end of list")
-    func movesDownAndClampsAtEndOfList() {
+    @Test
+    func `Moves down and clamps at end of list`() {
         let roots = TestFactory.makeTreeItems(names: ["Root 1", "Root 2"])
         let (sut, state) = makeSUT(rootItems: roots)
         state.activeIndex = roots.count - 1
@@ -47,8 +47,8 @@ struct TreeNavigationBehaviorTests {
         #expect(mutableState.activeIndex == roots.count - 1)
     }
 
-    @Test("Descends into children on right arrow")
-    func descendsIntoChildrenOnRightArrow() {
+    @Test
+    func `Descends into children on right arrow`() {
         let children = TestFactory.makeTreeItems(names: ["Child 1", "Child 2"])
         let roots = [TestFactory.makeTreeItem(name: "Root", children: children)]
         let (sut, state) = makeSUT(rootItems: roots)
@@ -60,8 +60,8 @@ struct TreeNavigationBehaviorTests {
         #expect(mutableState.activeIndex == 0)
     }
 
-    @Test("Left arrow focuses parent column before ascending")
-    func leftArrowFocusesParentColumnBeforeAscending() {
+    @Test
+    func `Left arrow focuses parent column before ascending`() {
         let children = TestFactory.makeTreeItems(names: ["Child"])
         let roots = [TestFactory.makeTreeItem(name: "Root", children: children)]
         let (sut, state) = makeSUT(rootItems: roots)
@@ -78,8 +78,8 @@ struct TreeNavigationBehaviorTests {
         #expect(mutableState.currentItems.map(\.displayName) == roots.map(\.displayName))
     }
 
-    @Test("Parent navigation updates current column children")
-    func parentNavigationUpdatesCurrentColumnChildren() {
+    @Test
+    func `Parent navigation updates current column children`() {
         let firstChildren = TestFactory.makeTreeItems(names: ["First Child"])
         let secondChildren = TestFactory.makeTreeItems(names: ["Second Child 1", "Second Child 2"])
         let roots = [
@@ -97,8 +97,8 @@ struct TreeNavigationBehaviorTests {
         #expect(mutableState.currentItems.map(\.displayName) == secondChildren.map(\.displayName))
     }
 
-    @Test("Right arrow does nothing when current column is empty")
-    func rightArrowDoesNothingWhenCurrentColumnIsEmpty() {
+    @Test
+    func `Right arrow does nothing when current column is empty`() {
         let children = TestFactory.makeTreeItems(names: ["Child"])
         let roots = [
             TestFactory.makeTreeItem(name: "First Root", children: children),
@@ -120,8 +120,8 @@ struct TreeNavigationBehaviorTests {
         #expect(mutableState.currentItems.isEmpty)
     }
 
-    @Test("Hidden root does not surface in parent column")
-    func hiddenRootDoesNotSurfaceInParentColumn() {
+    @Test
+    func `Hidden root does not surface in parent column`() {
         let children = TestFactory.makeTreeItems(names: ["Child 1", "Child 2"])
         let roots = [TestFactory.makeTreeItem(name: "Root", children: children)]
         let (sut, state) = makeSUT(rootItems: roots)
@@ -136,8 +136,8 @@ struct TreeNavigationBehaviorTests {
         #expect(mutableState.currentItems.map(\.displayName) == children.map(\.displayName))
     }
 
-    @Test("Enter selects selectable folders")
-    func enterSelectsSelectableFolders() {
+    @Test
+    func `Enter selects selectable folders`() {
         let roots = [TestFactory.makeTreeItem(name: "Root", children: TestFactory.makeTreeItems(names: ["Child"]))]
         let (sut, state) = makeSUT(rootItems: roots)
 
@@ -151,8 +151,8 @@ struct TreeNavigationBehaviorTests {
         }
     }
 
-    @Test("Enter skips non-selectable folders")
-    func enterSkipsNonSelectableFolders() {
+    @Test
+    func `Enter skips non-selectable folders`() {
         let roots = [TestFactory.makeTreeItem(
             name: "Root",
             children: TestFactory.makeTreeItems(names: ["Child"]),
@@ -167,8 +167,8 @@ struct TreeNavigationBehaviorTests {
         }
     }
 
-    @Test("Enter selects leaf nodes")
-    func enterSelectsLeafNodes() {
+    @Test
+    func `Enter selects leaf nodes`() {
         let leaves = TestFactory.makeTreeItems(names: ["Leaf"])
         let (sut, state) = makeSUT(rootItems: leaves)
 
@@ -182,8 +182,8 @@ struct TreeNavigationBehaviorTests {
         }
     }
 
-    @Test("Enter skips non-selectable items")
-    func enterSkipsNonSelectableItems() {
+    @Test
+    func `Enter skips non-selectable items`() {
         let leaves = [TestFactory.makeTreeItem(name: "Leaf", isSelectable: false)]
         let (sut, state) = makeSUT(rootItems: leaves)
 
@@ -194,8 +194,8 @@ struct TreeNavigationBehaviorTests {
         }
     }
 
-    @Test("Enter continues when no items available")
-    func enterContinuesWhenNoItemsAvailable() {
+    @Test
+    func `Enter continues when no items available`() {
         let (sut, state) = makeSUT(rootItems: [])
 
         let result = sut.handleSpecialChar(char: .enter, state: state)
@@ -205,8 +205,8 @@ struct TreeNavigationBehaviorTests {
         }
     }
 
-    @Test("Quit finishes with nil")
-    func quitFinishesWithNil() {
+    @Test
+    func `Quit finishes with nil`() {
         let (sut, state) = makeSUT()
 
         let result = sut.handleSpecialChar(char: .quit, state: state)

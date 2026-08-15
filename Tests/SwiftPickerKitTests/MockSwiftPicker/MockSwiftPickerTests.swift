@@ -10,8 +10,8 @@ import Testing
 @testable import SwiftPickerTesting
 
 struct MockSwiftPickerTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let sut = makeSUT()
 
         #expect(sut.capturedPrompts.isEmpty)
@@ -21,15 +21,15 @@ struct MockSwiftPickerTests {
         #expect(sut.capturedTreeNavigationPrompts.isEmpty)
     }
 
-    @Test("Starts with empty prompt history")
-    func startsWithEmptyPromptHistory() {
+    @Test
+    func `Starts with empty prompt history`() {
         let sut = makeSUT()
 
         #expect(sut.capturedPrompts.isEmpty)
     }
 
-    @Test("Accepts custom input configuration")
-    func acceptsCustomInputConfiguration() {
+    @Test
+    func `Accepts custom input configuration`() {
         let responses = ["first", "second"]
         let inputResult = makeInputResult(type: .ordered(responses))
         let sut = makeSUT(inputResult: inputResult)
@@ -45,8 +45,8 @@ struct MockSwiftPickerTests {
 
 // MARK: - Prompt Capture Tests
 extension MockSwiftPickerTests {
-    @Test("Records all prompts in order")
-    func recordsAllPromptsInOrder() {
+    @Test
+    func `Records all prompts in order`() {
         let firstPrompt = "Enter name"
         let secondPrompt = "Enter email"
         let sut = makeSUT()
@@ -59,8 +59,8 @@ extension MockSwiftPickerTests {
         #expect(sut.capturedPrompts[1] == secondPrompt)
     }
 
-    @Test("Records prompts from required input calls")
-    func recordsPromptsFromRequiredInputCalls() throws {
+    @Test
+    func `Records prompts from required input calls`() throws {
         let prompt = "Enter value"
         let response = "non-empty"
         let inputResult = makeInputResult(type: .ordered([response]))
@@ -71,8 +71,8 @@ extension MockSwiftPickerTests {
         #expect(sut.capturedPrompts.contains(prompt))
     }
 
-    @Test("Preserves prompt history across multiple calls")
-    func preservesPromptHistoryAcrossMultipleCalls() {
+    @Test
+    func `Preserves prompt history across multiple calls`() {
         let prompts = ["first", "second", "third"]
         let sut = makeSUT()
 
@@ -87,15 +87,15 @@ extension MockSwiftPickerTests {
 
 // MARK: - Permission Tests
 extension MockSwiftPickerTests {
-    @Test("Starts with empty permission prompt history")
-    func startsWithEmptyPermissionPromptHistory() {
+    @Test
+    func `Starts with empty permission prompt history`() {
         let sut = makeSUT()
 
         #expect(sut.capturedPermissionPrompts.isEmpty)
     }
 
-    @Test("Records permission prompts in order")
-    func recordsPermissionPromptsInOrder() {
+    @Test
+    func `Records permission prompts in order`() {
         let prompts = ["Delete?", "Retry?"]
         let permissionResult = makePermissionResult(type: .ordered([true, false]))
         let sut = makeSUT(permissionResult: permissionResult)
@@ -106,8 +106,8 @@ extension MockSwiftPickerTests {
         #expect(sut.capturedPermissionPrompts == prompts)
     }
 
-    @Test("Returns configured permission responses sequentially")
-    func returnsConfiguredPermissionResponsesSequentially() {
+    @Test
+    func `Returns configured permission responses sequentially`() {
         let responses: [Bool] = [true, false, true]
         let permissionResult = makePermissionResult(type: .ordered(responses))
         let sut = makeSUT(permissionResult: permissionResult)
@@ -117,8 +117,8 @@ extension MockSwiftPickerTests {
         #expect(sut.getPermission(prompt: "three") == responses[2])
     }
 
-    @Test("Returns prompt specific permission responses from dictionary")
-    func returnsPromptSpecificPermissionResponsesFromDictionary() {
+    @Test
+    func `Returns prompt specific permission responses from dictionary`() {
         let mapping = ["allow?": true, "deny?": false]
         let permissionResult = makePermissionResult(type: .dictionary(mapping))
         let sut = makeSUT(permissionResult: permissionResult)
@@ -127,8 +127,8 @@ extension MockSwiftPickerTests {
         #expect(sut.getPermission(prompt: "deny?") == false)
     }
 
-    @Test("Throws when permission response is false")
-    func throwsWhenPermissionResponseIsFalse() {
+    @Test
+    func `Throws when permission response is false`() {
         let permissionResult = makePermissionResult(type: .ordered([false]))
         let sut = makeSUT(permissionResult: permissionResult)
 
@@ -137,8 +137,8 @@ extension MockSwiftPickerTests {
         }
     }
 
-    @Test("Continues when permission response is true")
-    func continuesWhenPermissionResponseIsTrue() throws {
+    @Test
+    func `Continues when permission response is true`() throws {
         let permissionResult = makePermissionResult(type: .ordered([true]))
         let sut = makeSUT(permissionResult: permissionResult)
 
@@ -149,8 +149,8 @@ extension MockSwiftPickerTests {
 
 // MARK: - Input Response Tests
 extension MockSwiftPickerTests {
-    @Test("Returns configured sequential responses")
-    func returnsConfiguredSequentialResponses() {
+    @Test
+    func `Returns configured sequential responses`() {
         let responses = ["first", "second", "third"]
         let inputResult = makeInputResult(type: .ordered(responses))
         let sut = makeSUT(inputResult: inputResult)
@@ -164,8 +164,8 @@ extension MockSwiftPickerTests {
         #expect(third == responses[2])
     }
 
-    @Test("Returns prompt-specific responses from dictionary")
-    func returnsPromptSpecificResponsesFromDictionary() {
+    @Test
+    func `Returns prompt-specific responses from dictionary`() {
         let namePrompt = "Enter name"
         let emailPrompt = "Enter email"
         let nameResponse = "John"
@@ -184,8 +184,8 @@ extension MockSwiftPickerTests {
         #expect(email == emailResponse)
     }
 
-    @Test("Falls back to default value for unconfigured prompts")
-    func fallsBackToDefaultValueForUnconfiguredPrompts() {
+    @Test
+    func `Falls back to default value for unconfigured prompts`() {
         let defaultValue = "default"
         let inputResult = makeInputResult(defaultValue: defaultValue, type: .ordered([]))
         let sut = makeSUT(inputResult: inputResult)
@@ -199,8 +199,8 @@ extension MockSwiftPickerTests {
 
 // MARK: - Required Input Tests
 extension MockSwiftPickerTests {
-    @Test("Returns non-empty response for required input")
-    func returnsNonEmptyResponseForRequiredInput() throws {
+    @Test
+    func `Returns non-empty response for required input`() throws {
         let expectedResponse = "valid input"
         let inputResult = makeInputResult(type: .ordered([expectedResponse]))
         let sut = makeSUT(inputResult: inputResult)
@@ -210,8 +210,8 @@ extension MockSwiftPickerTests {
         #expect(response == expectedResponse)
     }
 
-    @Test("Throws error when required input is empty")
-    func throwsErrorWhenRequiredInputIsEmpty() throws {
+    @Test
+    func `Throws error when required input is empty`() throws {
         let emptyResponse = ""
         let inputResult = makeInputResult(defaultValue: emptyResponse, type: .ordered([]))
         let sut = makeSUT(inputResult: inputResult)
@@ -221,8 +221,8 @@ extension MockSwiftPickerTests {
         }
     }
 
-    @Test("Throws input required error for empty response")
-    func throwsInputRequiredErrorForEmptyResponse() throws {
+    @Test
+    func `Throws input required error for empty response`() throws {
         let inputResult = makeInputResult(defaultValue: "", type: .ordered([]))
         let sut = makeSUT(inputResult: inputResult)
 
@@ -234,8 +234,8 @@ extension MockSwiftPickerTests {
         }
     }
 
-    @Test("Accepts empty string from optional input")
-    func acceptsEmptyStringFromOptionalInput() {
+    @Test
+    func `Accepts empty string from optional input`() {
         let emptyResponse = ""
         let inputResult = makeInputResult(defaultValue: emptyResponse, type: .ordered([]))
         let sut = makeSUT(inputResult: inputResult)
@@ -249,16 +249,16 @@ extension MockSwiftPickerTests {
 
 // MARK: - Selection Tests
 extension MockSwiftPickerTests {
-    @Test("Starts with empty single and multi selection histories")
-    func startsWithEmptySelectionHistories() {
+    @Test
+    func `Starts with empty single and multi selection histories`() {
         let sut = makeSUT()
 
         #expect(sut.capturedSingleSelectionPrompts.isEmpty)
         #expect(sut.capturedMultiSelectionPrompts.isEmpty)
     }
 
-    @Test("Records single selection prompts in order")
-    func recordsSingleSelectionPromptsInOrder() {
+    @Test
+    func `Records single selection prompts in order`() {
         let prompts = ["Pick a color", "Pick a shape"]
         let selectionResult = makeSelectionResult(singleType: .ordered([.index(0), .index(1)]))
         let sut = makeSUT(selectionResult: selectionResult)
@@ -269,8 +269,8 @@ extension MockSwiftPickerTests {
         #expect(sut.capturedSingleSelectionPrompts == prompts)
     }
 
-    @Test("Records multi selection prompts in order")
-    func recordsMultiSelectionPromptsInOrder() {
+    @Test
+    func `Records multi selection prompts in order`() {
         let prompts = ["Pick toppings", "Pick extras"]
         let selectionResult = makeSelectionResult(multiType: .ordered([.indices([]), .indices([])]))
         let sut = makeSUT(selectionResult: selectionResult)
@@ -281,8 +281,8 @@ extension MockSwiftPickerTests {
         #expect(sut.capturedMultiSelectionPrompts == prompts)
     }
 
-    @Test("Returns items using configured selection indexes")
-    func returnsItemsUsingConfiguredSelectionIndexes() {
+    @Test
+    func `Returns items using configured selection indexes`() {
         let items = ["red", "blue", "green"]
         let selectionResult = makeSelectionResult(singleType: .ordered([.index(1)]))
         let sut = makeSUT(selectionResult: selectionResult)
@@ -292,8 +292,8 @@ extension MockSwiftPickerTests {
         #expect(selection == items[1])
     }
 
-    @Test("Returns nil when single selection index is missing")
-    func returnsNilWhenSingleSelectionIndexIsMissing() {
+    @Test
+    func `Returns nil when single selection index is missing`() {
         let items = ["red", "blue"]
         let selectionResult = makeSelectionResult(singleType: .ordered([.none]))
         let sut = makeSUT(selectionResult: selectionResult)
@@ -303,8 +303,8 @@ extension MockSwiftPickerTests {
         #expect(selection == nil)
     }
 
-    @Test("Throws when single selection outcome missing")
-    func throwsWhenSingleSelectionOutcomeMissing() {
+    @Test
+    func `Throws when single selection outcome missing`() {
         let selectionResult = makeSelectionResult(singleType: .ordered([.none]))
         let sut = makeSUT(selectionResult: selectionResult)
 
@@ -313,8 +313,8 @@ extension MockSwiftPickerTests {
         }
     }
 
-    @Test("Returns selected item matching configured index")
-    func returnsSelectedItemMatchingConfiguredIndex() throws {
+    @Test
+    func `Returns selected item matching configured index`() throws {
         let items = ["red", "blue"]
         let selectionResult = makeSelectionResult(singleType: .ordered([.index(1)]))
         let sut = makeSUT(selectionResult: selectionResult)
@@ -324,8 +324,8 @@ extension MockSwiftPickerTests {
         #expect(value == items[1])
     }
 
-    @Test("Returns selected items for configured indices")
-    func returnsSelectedItemsForConfiguredIndices() {
+    @Test
+    func `Returns selected items for configured indices`() {
         let items = ["pepperoni", "mushroom", "olive"]
         let selectionResult = makeSelectionResult(multiType: .ordered([.indices([0, 2])]))
         let sut = makeSUT(selectionResult: selectionResult)
@@ -335,8 +335,8 @@ extension MockSwiftPickerTests {
         #expect(result == ["pepperoni", "olive"])
     }
 
-    @Test("Ignores out of bounds indexes when building selection")
-    func ignoresOutOfBoundsIndexesWhenBuildingSelection() {
+    @Test
+    func `Ignores out of bounds indexes when building selection`() {
         let items = ["pepperoni", "mushroom"]
         let selectionResult = makeSelectionResult(multiType: .ordered([.indices([0, 5])]))
         let sut = makeSUT(selectionResult: selectionResult)
@@ -350,15 +350,15 @@ extension MockSwiftPickerTests {
 
 // MARK: - Tree Navigation Tests
 extension MockSwiftPickerTests {
-    @Test("Starts with empty tree navigation history")
-    func startsWithEmptyTreeNavigationHistory() {
+    @Test
+    func `Starts with empty tree navigation history`() {
         let sut = makeSUT()
 
         #expect(sut.capturedTreeNavigationPrompts.isEmpty)
     }
 
-    @Test("Records tree navigation prompts in order")
-    func recordsTreeNavigationPromptsInOrder() {
+    @Test
+    func `Records tree navigation prompts in order`() {
         let prompts = ["Choose folder", "Choose project"]
         let treeNavigationResult = makeTreeNavigationResult(type: .ordered([.index(0), .index(0)]))
         let sut = makeSUT(treeNavigationResult: treeNavigationResult)
@@ -380,8 +380,8 @@ extension MockSwiftPickerTests {
         #expect(sut.capturedTreeNavigationPrompts == prompts)
     }
 
-    @Test("Returns tree navigation items using configured indexes")
-    func returnsTreeNavigationItemsUsingConfiguredIndexes() {
+    @Test
+    func `Returns tree navigation items using configured indexes`() {
         let nodes = makeTreeNodes(["first", "second"])
         let treeNavigationResult = makeTreeNavigationResult(type: .ordered([.index(1)]))
         let sut = makeSUT(treeNavigationResult: treeNavigationResult)
@@ -396,8 +396,8 @@ extension MockSwiftPickerTests {
         #expect(result == nodes[1])
     }
 
-    @Test("Returns nil when tree navigation outcome is missing")
-    func returnsNilWhenTreeNavigationOutcomeIsMissing() {
+    @Test
+    func `Returns nil when tree navigation outcome is missing`() {
         let treeNavigationResult = makeTreeNavigationResult(type: .ordered([.none]))
         let sut = makeSUT(treeNavigationResult: treeNavigationResult)
 
@@ -411,8 +411,8 @@ extension MockSwiftPickerTests {
         #expect(result == nil)
     }
 
-    @Test("Throws when tree navigation selection missing")
-    func throwsWhenTreeNavigationSelectionMissing() {
+    @Test
+    func `Throws when tree navigation selection missing`() {
         let treeNavigationResult = makeTreeNavigationResult(type: .ordered([.none]))
         let sut = makeSUT(treeNavigationResult: treeNavigationResult)
 
@@ -426,8 +426,8 @@ extension MockSwiftPickerTests {
         }
     }
 
-    @Test("Returns tree navigation item matching configured index")
-    func returnsTreeNavigationItemMatchingConfiguredIndex() throws {
+    @Test
+    func `Returns tree navigation item matching configured index`() throws {
         let nodes = makeTreeNodes(["first", "second"])
         let treeNavigationResult = makeTreeNavigationResult(type: .ordered([.index(1)]))
         let sut = makeSUT(treeNavigationResult: treeNavigationResult)
@@ -442,8 +442,8 @@ extension MockSwiftPickerTests {
         #expect(result == nodes[1])
     }
 
-    @Test("Returns child item using configured parent and child indexes")
-    func returnsChildItemUsingConfiguredParentAndChildIndexes() {
+    @Test
+    func `Returns child item using configured parent and child indexes`() {
         let children = makeTreeNodes(["child 1", "child 2"])
         let parent = MockTreeNode(name: "Parent", children: children)
         let root = makeTreeRoot([parent])
@@ -460,8 +460,8 @@ extension MockSwiftPickerTests {
         #expect(result == children[1])
     }
 
-    @Test("Returns nil when child index is out of bounds")
-    func returnsNilWhenChildIndexIsOutOfBounds() {
+    @Test
+    func `Returns nil when child index is out of bounds`() {
         let children = makeTreeNodes(["child"])
         let parent = MockTreeNode(name: "Parent", children: children)
         let root = makeTreeRoot([parent])
@@ -480,22 +480,8 @@ extension MockSwiftPickerTests {
 }
 
 
-// MARK: - SUT
+// MARK: - Helpers
 private extension MockSwiftPickerTests {
-    func makeSUT(
-        inputResult: MockInputResult = .init(),
-        permissionResult: MockPermissionResult = .init(),
-        selectionResult: MockSelectionResult = .init(),
-        treeNavigationResult: MockTreeNavigationResult = .init()
-    ) -> MockSwiftPicker {
-        return makeSwiftPicker(
-            inputResult: inputResult,
-            permissionResult: permissionResult,
-            selectionResult: selectionResult,
-            treeNavigationResult: treeNavigationResult
-        )
-    }
-
     func makeSwiftPicker(
         inputResult: MockInputResult,
         permissionResult: MockPermissionResult,
@@ -561,4 +547,22 @@ private struct MockTreeNode: TreeNodePickerItem, Equatable {
     var hasChildren: Bool { !children.isEmpty }
     func loadChildren() -> [MockTreeNode] { children }
     var metadata: TreeNodeMetadata? { nil }
+}
+
+
+// MARK: - SUT
+private extension MockSwiftPickerTests {
+func makeSUT(
+        inputResult: MockInputResult = .init(),
+        permissionResult: MockPermissionResult = .init(),
+        selectionResult: MockSelectionResult = .init(),
+        treeNavigationResult: MockTreeNavigationResult = .init()
+    ) -> MockSwiftPicker {
+        return makeSwiftPicker(
+            inputResult: inputResult,
+            permissionResult: permissionResult,
+            selectionResult: selectionResult,
+            treeNavigationResult: treeNavigationResult
+        )
+    }
 }

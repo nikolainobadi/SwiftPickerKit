@@ -9,15 +9,15 @@ import Testing
 @testable import SwiftPickerKit
 
 struct TreeNavigationRendererTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let (_, pickerInput) = makeSUT()
         #expect(pickerInput.writtenText.isEmpty)
         #expect(pickerInput.moveToCalls.isEmpty)
     }
 
-    @Test("Displays breadcrumb path when navigation depth exists")
-    func displaysBreadcrumbPathWhenNavigationDepthExists() {
+    @Test
+    func `Displays breadcrumb path when navigation depth exists`() {
         let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: [
             TestTreeNode(name: "Child")
         ])
@@ -33,8 +33,8 @@ struct TreeNavigationRendererTests {
         #expect(hasBreadcrumb)
     }
 
-    @Test("Omits parent column at root level")
-    func omitsParentColumnAtRootLevel() {
+    @Test
+    func `Omits parent column at root level`() {
         let items = [TestTreeNode(name: "Item")]
         let state = makeState(rootItems: items)
         let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
@@ -48,8 +48,8 @@ struct TreeNavigationRendererTests {
         #expect(hasRootMessage == false)
     }
 
-    @Test("Renders parent and current column headers when a parent exists")
-    func rendersParentAndCurrentColumnHeadersWhenParentExists() {
+    @Test
+    func `Renders parent and current column headers when a parent exists`() {
         let items = [TestTreeNode(name: "Root", hasChildren: true, children: [TestTreeNode(name: "Child")])]
         let state = makeState(rootItems: items)
         state.descendIntoChildIfPossible()
@@ -64,8 +64,8 @@ struct TreeNavigationRendererTests {
         #expect(hasCurrentHeader)
     }
 
-    @Test("Displays active item with highlighted marker in current column")
-    func displaysActiveItemWithHighlightedMarkerInCurrentColumn() {
+    @Test
+    func `Displays active item with highlighted marker in current column`() {
         let items = [TestTreeNode(name: "Active")]
         let state = makeState(rootItems: items)
         let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
@@ -77,8 +77,8 @@ struct TreeNavigationRendererTests {
         #expect(hasActiveMarker)
     }
 
-    @Test("Displays item names in current column")
-    func displaysItemNamesInCurrentColumn() {
+    @Test
+    func `Displays item names in current column`() {
         let itemName = "TestItem"
         let items = [TestTreeNode(name: itemName)]
         let state = makeState(rootItems: items)
@@ -91,8 +91,8 @@ struct TreeNavigationRendererTests {
         #expect(hasItemName)
     }
 
-    @Test("Shows folder icon for items with children")
-    func showsFolderIconForItemsWithChildren() {
+    @Test
+    func `Shows folder icon for items with children`() {
         let items = [TestTreeNode(name: "Folder", hasChildren: true)]
         let state = makeState(rootItems: items)
         let context = makeContext(startIndex: 0, endIndex: 1, visibleRowCount: 10)
@@ -104,8 +104,8 @@ struct TreeNavigationRendererTests {
         #expect(hasFolderIcon)
     }
 
-    @Test("Displays empty placeholder for column with no items")
-    func displaysEmptyPlaceholderForColumnWithNoItems() {
+    @Test
+    func `Displays empty placeholder for column with no items`() {
         let items: [TestTreeNode] = []
         let state = makeState(rootItems: items)
         let context = makeContext(startIndex: 0, endIndex: 0, visibleRowCount: 10)
@@ -117,8 +117,8 @@ struct TreeNavigationRendererTests {
         #expect(hasEmptyMessage)
     }
 
-    @Test("Renders multiple items in current column")
-    func rendersMultipleItemsInCurrentColumn() {
+    @Test
+    func `Renders multiple items in current column`() {
         let items = [
             TestTreeNode(name: "First"),
             TestTreeNode(name: "Second"),
@@ -136,8 +136,8 @@ struct TreeNavigationRendererTests {
         #expect(hasFirst && hasSecond && hasThird)
     }
 
-    @Test("Uses custom icon from metadata when available")
-    func usesCustomIconFromMetadataWhenAvailable() {
+    @Test
+    func `Uses custom icon from metadata when available`() {
         let customIcon = "📁"
         let metadata = TreeNodeMetadata(icon: customIcon)
         let items = [TestTreeNode(name: "Item", metadata: metadata)]
@@ -151,8 +151,8 @@ struct TreeNavigationRendererTests {
         #expect(hasCustomIcon)
     }
 
-    @Test("Positions columns with appropriate spacing when parent exists")
-    func positionsColumnsWithAppropriateSpacingWhenParentExists() {
+    @Test
+    func `Positions columns with appropriate spacing when parent exists`() {
         let items = [TestTreeNode(name: "Root", hasChildren: true, children: [TestTreeNode(name: "Child")])]
         let state = makeState(rootItems: items)
         state.descendIntoChildIfPossible()
@@ -166,8 +166,8 @@ struct TreeNavigationRendererTests {
         #expect(hasLeftColumnCalls && hasRightColumnCalls)
     }
 
-    @Test("Renders parent column when navigated into child level")
-    func rendersParentColumnWhenNavigatedIntoChildLevel() {
+    @Test
+    func `Renders parent column when navigated into child level`() {
         let parentName = "Parent"
         let childName = "Child"
         let rootItem = TestTreeNode(name: parentName, hasChildren: true, children: [
@@ -186,8 +186,8 @@ struct TreeNavigationRendererTests {
         #expect(hasParentName && hasChildName)
     }
 
-    @Test("Shows arrows on parent header when parent column is active")
-    func showsArrowsOnParentHeaderWhenParentColumnIsActive() {
+    @Test
+    func `Shows arrows on parent header when parent column is active`() {
         let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: [
             TestTreeNode(name: "Child")
         ])
@@ -207,8 +207,8 @@ struct TreeNavigationRendererTests {
         #expect(hasParentTitle && hasLeftArrow && hasRightArrow)
     }
 
-    @Test("Shows arrows on current header when current column is active and can navigate")
-    func showsArrowsOnCurrentHeaderWhenCurrentColumnIsActiveAndCanNavigate() {
+    @Test
+    func `Shows arrows on current header when current column is active and can navigate`() {
         let child = TestTreeNode(name: "Child", hasChildren: true, children: [TestTreeNode(name: "Grandchild")])
         let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: [child])
         let items = [rootItem]
@@ -226,8 +226,8 @@ struct TreeNavigationRendererTests {
         #expect(hasCurrentTitle && hasLeadingArrow && hasTrailingArrow)
     }
 
-    @Test("Shows children title when parent column is active")
-    func showsChildrenTitleWhenParentColumnIsActive() {
+    @Test
+    func `Shows children title when parent column is active`() {
         let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: [
             TestTreeNode(name: "Child")
         ])
@@ -245,8 +245,8 @@ struct TreeNavigationRendererTests {
         #expect(hasChildrenTitle)
     }
 
-    @Test("Shows scroll indicators for parent column when parent items exceed visible rows")
-    func showsScrollIndicatorsForParentColumnWhenParentItemsExceedVisibleRows() {
+    @Test
+    func `Shows scroll indicators for parent column when parent items exceed visible rows`() {
         let manyItems = (0..<20).map { TestTreeNode(name: "Item\($0)", hasChildren: true, children: [TestTreeNode(name: "Child\($0)")]) }
         let state = makeState(rootItems: manyItems)
         state.descendIntoChildIfPossible()
@@ -263,8 +263,8 @@ struct TreeNavigationRendererTests {
         #expect(downArrowAtLeftColumn)
     }
 
-    @Test("Shows scroll up indicators for parent column when parent items exceed visible rows and scrolled")
-    func showsScrollUpIndicatorsForParentColumnWhenParentItemsExceedVisibleRowsAndScrolled() {
+    @Test
+    func `Shows scroll up indicators for parent column when parent items exceed visible rows and scrolled`() {
         let manyItems = (0..<20).map { TestTreeNode(name: "Item\($0)", hasChildren: true, children: [TestTreeNode(name: "Child\($0)")]) }
         let state = makeState(rootItems: manyItems)
         state.descendIntoChildIfPossible()
@@ -285,8 +285,8 @@ struct TreeNavigationRendererTests {
         #expect(upArrowAtLeftColumn)
     }
 
-    @Test("Shows scroll indicators for current column when current items exceed visible rows")
-    func showsScrollIndicatorsForCurrentColumnWhenCurrentItemsExceedVisibleRows() {
+    @Test
+    func `Shows scroll indicators for current column when current items exceed visible rows`() {
         let manyChildren = (0..<20).map { TestTreeNode(name: "Child\($0)") }
         let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: manyChildren)
         let state = makeState(rootItems: [rootItem])
@@ -303,8 +303,8 @@ struct TreeNavigationRendererTests {
         #expect(downArrowAtRightColumn)
     }
 
-    @Test("Shows scroll up indicators for current column when current items exceed visible rows and scrolled")
-    func showsScrollUpIndicatorsForCurrentColumnWhenCurrentItemsExceedVisibleRowsAndScrolled() {
+    @Test
+    func `Shows scroll up indicators for current column when current items exceed visible rows and scrolled`() {
         let manyChildren = (0..<20).map { TestTreeNode(name: "Child\($0)") }
         let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: manyChildren)
         let state = makeState(rootItems: [rootItem])
@@ -325,8 +325,8 @@ struct TreeNavigationRendererTests {
         #expect(upArrowAtRightColumn)
     }
 
-    @Test("Shows scroll indicators for both columns when both exceed visible rows")
-    func showsScrollIndicatorsForBothColumnsWhenBothExceedVisibleRows() {
+    @Test
+    func `Shows scroll indicators for both columns when both exceed visible rows`() {
         let manyChildren = (0..<20).map { TestTreeNode(name: "Child\($0)") }
         let manyItems = (0..<20).map { index in
             TestTreeNode(name: "Item\(index)", hasChildren: true, children: index == 0 ? manyChildren : [])
@@ -345,8 +345,8 @@ struct TreeNavigationRendererTests {
         #expect(downArrowAtRightColumn)
     }
 
-    @Test("Positions scroll up arrow at correct row")
-    func positionsScrollUpArrowAtCorrectRow() {
+    @Test
+    func `Positions scroll up arrow at correct row`() {
         let manyChildren = (0..<20).map { TestTreeNode(name: "Child\($0)") }
         let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: manyChildren)
         let state = makeState(rootItems: [rootItem])
@@ -367,8 +367,8 @@ struct TreeNavigationRendererTests {
         #expect(hasUpArrowAtCorrectRow)
     }
 
-    @Test("Positions scroll down arrow at correct row")
-    func positionsScrollDownArrowAtCorrectRow() {
+    @Test
+    func `Positions scroll down arrow at correct row`() {
         let manyChildren = (0..<20).map { TestTreeNode(name: "Child\($0)") }
         let rootItem = TestTreeNode(name: "Root", hasChildren: true, children: manyChildren)
         let state = makeState(rootItems: [rootItem])
@@ -390,12 +390,6 @@ struct TreeNavigationRendererTests {
 
 // MARK: - Helpers
 private extension TreeNavigationRendererTests {
-    func makeSUT(screenSize: (rows: Int, cols: Int) = (40, 100)) -> (TreeNavigationRenderer<TestTreeNode>, MockPickerInput) {
-        let pickerInput = MockPickerInput(screenSize: screenSize)
-        let sut = TreeNavigationRenderer<TestTreeNode>()
-        return (sut, pickerInput)
-    }
-
     func makeState(rootItems: [TestTreeNode]) -> TreeNavigationState<TestTreeNode> {
         TreeNavigationState(rootItems: rootItems, prompt: "Test")
     }
@@ -427,5 +421,15 @@ private struct TestTreeNode: TreeNodePickerItem {
 
     func loadChildren() -> [TestTreeNode] {
         children
+    }
+}
+
+
+// MARK: - SUT
+private extension TreeNavigationRendererTests {
+func makeSUT(screenSize: (rows: Int, cols: Int) = (40, 100)) -> (TreeNavigationRenderer<TestTreeNode>, MockPickerInput) {
+        let pickerInput = MockPickerInput(screenSize: screenSize)
+        let sut = TreeNavigationRenderer<TestTreeNode>()
+        return (sut, pickerInput)
     }
 }

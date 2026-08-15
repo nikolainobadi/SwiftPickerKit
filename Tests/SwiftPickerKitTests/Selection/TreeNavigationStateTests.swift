@@ -9,8 +9,8 @@ import Testing
 @testable import SwiftPickerKit
 
 struct TreeNavigationStateTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let prompt = "Prompt"
         let roots = TestFactory.makeTreeItems(names: ["Root 1", "Root 2"])
         let (sut, _) = makeSUT(rootItems: roots, prompt: prompt)
@@ -24,8 +24,8 @@ struct TreeNavigationStateTests {
         #expect(sut.selectedDetailLines.isEmpty)
     }
 
-    @Test("Clamps active index within current level bounds")
-    func clampsActiveIndexWithinCurrentLevelBounds() {
+    @Test
+    func `Clamps active index within current level bounds`() {
         let roots = TestFactory.makeTreeItems(names: ["Root 1", "Root 2"])
         let (sut, _) = makeSUT(rootItems: roots)
 
@@ -34,8 +34,8 @@ struct TreeNavigationStateTests {
         #expect(sut.activeIndex == roots.count - 1)
     }
 
-    @Test("Descends into child when children exist")
-    func descendsIntoChildWhenChildrenExist() {
+    @Test
+    func `Descends into child when children exist`() {
         let children = TestFactory.makeTreeItems(names: ["Child 1", "Child 2"])
         let roots = [TestFactory.makeTreeItem(name: "Root", children: children)]
         let (sut, _) = makeSUT(rootItems: roots)
@@ -47,8 +47,8 @@ struct TreeNavigationStateTests {
         #expect(sut.isEmptyHint(level: 0, index: 0) == false)
     }
 
-    @Test("Shows empty folder hint when child list is empty")
-    func showsEmptyFolderHintWhenChildListIsEmpty() {
+    @Test
+    func `Shows empty folder hint when child list is empty`() {
         let roots = [TestFactory.makeTreeItem(name: "Empty", children: [], hasChildren: true)]
         let (sut, _) = makeSUT(rootItems: roots)
 
@@ -58,8 +58,8 @@ struct TreeNavigationStateTests {
         #expect(sut.selectedDetailLines.contains { $0.contains("'Empty' is empty") })
     }
 
-    @Test("Clears empty folder hint when active selection changes")
-    func clearsEmptyFolderHintWhenActiveSelectionChanges() {
+    @Test
+    func `Clears empty folder hint when active selection changes`() {
         let roots = [
             TestFactory.makeTreeItem(name: "Empty", children: [], hasChildren: true),
             TestFactory.makeTreeItem(name: "Other")
@@ -73,8 +73,8 @@ struct TreeNavigationStateTests {
         #expect(sut.selectedDetailLines.isEmpty)
     }
 
-    @Test("Ascends to parent and restores previous level")
-    func ascendsToParentAndRestoresPreviousLevel() {
+    @Test
+    func `Ascends to parent and restores previous level`() {
         let grandChildren = TestFactory.makeTreeItems(names: ["Grandchild"])
         let children = [TestFactory.makeTreeItem(name: "Child", children: grandChildren)]
         let roots = [TestFactory.makeTreeItem(name: "Root", children: children)]
@@ -89,8 +89,8 @@ struct TreeNavigationStateTests {
         #expect(sut.isEmptyHint(level: 1, index: 0) == false)
     }
 
-    @Test("Builds breadcrumb path from current navigation stack")
-    func buildsBreadcrumbPathFromCurrentNavigationStack() {
+    @Test
+    func `Builds breadcrumb path from current navigation stack`() {
         let children = TestFactory.makeTreeItems(names: ["Child 1", "Child 2"])
         let roots = [
             TestFactory.makeTreeItem(name: "First"),
@@ -104,8 +104,8 @@ struct TreeNavigationStateTests {
         #expect(sut.breadcrumbPath() == "Second ▸ Child 1")
     }
 
-    @Test("Builds detail lines from item metadata")
-    func buildsDetailLinesFromItemMetadata() {
+    @Test
+    func `Builds detail lines from item metadata`() {
         let metadata = TestFactory.makeTreeMetadata(subtitle: "Subtitle", detailLines: ["Line 1", "Line 2"])
         let roots = [TestFactory.makeTreeItem(name: "Root", metadata: metadata)]
         let (sut, _) = makeSUT(rootItems: roots)
@@ -117,8 +117,8 @@ struct TreeNavigationStateTests {
         #expect(details.contains("Line 2".foreColor(244)))
     }
 
-    @Test("Prevents navigating left when using a named root wrapper")
-    func preventsNavigatingLeftWhenUsingNamedRootWrapper() {
+    @Test
+    func `Prevents navigating left when using a named root wrapper`() {
         let children = TestFactory.makeTreeItems(names: ["Child 1", "Child 2"])
         let sut = TreeNavigationState(rootItems: children, rootDisplayName: "Root", prompt: "Prompt")
 

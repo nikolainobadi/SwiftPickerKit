@@ -9,8 +9,8 @@ import Testing
 @testable import SwiftPickerKit
 
 struct TwoColumnDynamicDetailSingleBehaviorTests {
-    @Test("Starting values empty")
-    func emptyStartingValues() {
+    @Test
+    func `Starting values empty`() {
         let (sut, state) = makeSUT()
 
         #expect(state.activeIndex == 0)
@@ -27,8 +27,8 @@ struct TwoColumnDynamicDetailSingleBehaviorTests {
         }
     }
 
-    @Test("Finishes with active item on enter")
-    func finishesWithActiveItemOnEnter() {
+    @Test
+    func `Finishes with active item on enter`() {
         let items = [TestFactory.makeItem(name: "First"), TestFactory.makeItem(name: "Second")]
         let (sut, state) = makeSUT(items: items, activeIndex: 1)
 
@@ -42,8 +42,8 @@ struct TwoColumnDynamicDetailSingleBehaviorTests {
         }
     }
 
-    @Test("Finishes with nil on quit")
-    func finishesWithNilOnQuit() {
+    @Test
+    func `Finishes with nil on quit`() {
         let items = [TestFactory.makeItem(name: "QuitItem")]
         let (sut, state) = makeSUT(items: items)
 
