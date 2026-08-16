@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `requiredMultiSelection(prompt:items:flagHint:)`, which treats an empty selection as a failure rather than silently continuing with zero items
 - `PickerRequirementError` with `missingInput`, `missingSelection`, and `confirmationRequired` cases, describing the missing value and the flag that supplies it
 - `Sendable` conformance on `MockSingleSelectionOutcome`, `MockMultiSelectionOutcome`, and `MockTreeSelectionOutcome`
+- The SwiftPickerKit API-reference skill now ships in this repo at `Skills/SwiftPickerKit/`, installable from the `nn-swift-skills` marketplace and pinned to this release's tag. It previously lived in a separate repo, where it drifted out of date
+- A `Skill docs` CI check that fails pull requests changing the public API without updating `Skills/`, waivable with the `skip-skill-check` label
 
 ### Changed
 - Adopted the Swift 6 language mode (`swift-tools-version: 6.2`). **Requires Xcode 26 or later to build.**
