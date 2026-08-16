@@ -25,14 +25,24 @@ lived elsewhere and drifted out of date for months.
 ### Releasing
 
 The skill is consumed through the `nn-swift-skills` marketplace, pinned to a **tag** rather
-than tracking `main`. That means a release is two steps in two repos:
+than tracking `main`. A release is therefore two steps in two repos — but the second is now
+automated:
 
-1. Tag this repo (`0.10.0`, no `v` prefix — matches the last four tags).
-2. Update `ref` in `nn-swift-skills/.claude-plugin/marketplace.json` to the new tag, then
-   commit and push that repo.
+1. Tag this repo (no `v` prefix — matches the last four tags) and push the tag.
+2. `.github/workflows/skill-ref-bump.yml` fires on that push, rewrites `ref` in
+   `nn-swift-skills/.claude-plugin/marketplace.json`, and opens a PR there. **Merge it.**
 
-Skipping step 2 leaves consumers on the previous tag's docs. Nothing breaks and nothing warns —
-they just silently keep reading the old reference.
+Until that PR merges, consumers stay on the previous tag's docs. Nothing breaks and nothing warns —
+they just silently keep reading the old reference, which is why step 2 is automated rather than
+written on a checklist.
+
+The workflow authenticates with the repo secret **`MARKETPLACE_TOKEN`**: a fine-grained PAT named
+`nn-swift-skills-ref-bump`, scoped to `nn-swift-skills` only (Contents + Pull requests, read and
+write), **expiring 2027-08-15**. It is **shared with every other package repo** publishing to that
+marketplace, so rotating it means re-setting the secret in each of them, not just here.
+
+When it expires the workflow fails loudly on tag push — a red X, not silence. Treat that as "rotate
+the shared token", not "this repo's workflow is broken."
 
 ## Build & Test
 - `swift build` — compile and resolve dependencies
