@@ -7,6 +7,33 @@ Swift Package Manager library for interactive terminal pickers: single/multi sel
 
 Two products: `SwiftPickerKit` (the library) and `SwiftPickerTesting` (mocks for consumers).
 
+## Skill Documentation
+
+`Skills/SwiftPickerKit/` holds the published API-reference skill. It lives here — not in a
+separate skills repo — so the API and its documentation change in the same PR. It previously
+lived elsewhere and drifted out of date for months.
+
+- **Any PR changing the public API must update `Skills/`.** The `Skill docs` workflow
+  (`.github/workflows/skill-docs.yml`) fails PRs that touch `public`/`open`/`package`
+  declarations in `Sources/` without touching `Skills/`. Apply the `skip-skill-check` label
+  when a PR genuinely changes no documented behavior (renames, reformatting, file moves).
+- **`Skills/SwiftPickerKit/.claude-plugin/plugin.json` deliberately has no `version` field.**
+  Do not reintroduce one — the installer keys its cache by commit sha, and a hand-maintained
+  version number is exactly the stale-number problem this layout removes.
+- **SwiftPM ignores `Skills/`** — it is not a target and must not become one.
+
+### Releasing
+
+The skill is consumed through the `nn-swift-skills` marketplace, pinned to a **tag** rather
+than tracking `main`. That means a release is two steps in two repos:
+
+1. Tag this repo (`0.10.0`, no `v` prefix — matches the last four tags).
+2. Update `ref` in `nn-swift-skills/.claude-plugin/marketplace.json` to the new tag, then
+   commit and push that repo.
+
+Skipping step 2 leaves consumers on the previous tag's docs. Nothing breaks and nothing warns —
+they just silently keep reading the old reference.
+
 ## Build & Test
 - `swift build` — compile and resolve dependencies
 - `swift test` — run the Swift Testing suite in `Tests/SwiftPickerKitTests`

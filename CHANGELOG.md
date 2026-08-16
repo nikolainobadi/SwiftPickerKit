@@ -7,12 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-08-15
+
+### Added
+- `NonInteractivePicker`, a `CommandLinePicker` that never prompts — every method returns immediately with a "nothing was provided" value, so `required*` calls throw instead of hanging in scripted, piped, or CI runs. Pass `assumeYes: true` to resolve permission prompts to `true`
+- `flagHint:` overloads of `getRequiredInput`, `requiredPermission`, `requiredSingleSelection`, `requiredMultiSelection`, and `requiredTreeNavigation` that name the command line flag a caller can pass instead of answering the prompt
+- `requiredMultiSelection(prompt:items:flagHint:)`, which treats an empty selection as a failure rather than silently continuing with zero items
+- `PickerRequirementError` with `missingInput`, `missingSelection`, and `confirmationRequired` cases, describing the missing value and the flag that supplies it
+- `Sendable` conformance on `MockSingleSelectionOutcome`, `MockMultiSelectionOutcome`, and `MockTreeSelectionOutcome`
+
 ### Changed
 - Adopted the Swift 6 language mode (`swift-tools-version: 6.2`). **Requires Xcode 26 or later to build.**
 - Annotated the process-global signal handler state and `FileSystemNode.showHiddenFiles` / `selectionType` as `nonisolated(unsafe)`; call sites are unchanged
-
-### Added
-- `Sendable` conformance on `MockSingleSelectionOutcome`, `MockMultiSelectionOutcome`, and `MockTreeSelectionOutcome`
 
 ## [0.9.0] - 2025-12-11
 
