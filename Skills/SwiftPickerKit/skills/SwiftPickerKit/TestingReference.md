@@ -4,11 +4,12 @@ Mock types from the `SwiftPickerTesting` module for testing code that depends on
 
 **Import:** `import SwiftPickerTesting`
 
-## Choosing Between MockSwiftPicker and NonInteractivePicker
+## Choosing a Test Double
 
 | Need | Use | Module |
 |------|-----|--------|
 | Scripted responses, prompt capture, assertions on what was asked | `MockSwiftPicker` | `SwiftPickerTesting` |
+| The same, for a flow that asks several kinds of question in order | `ScriptedPicker` | `SwiftPickerTesting` |
 | Every prompt to resolve to "nothing provided" so `required*` throws | `NonInteractivePicker` | `SwiftPickerKit` |
 
 `NonInteractivePicker` is production code, not a test double — it ships in the main module for
@@ -59,6 +60,62 @@ open class MockSwiftPicker {
 - **Tree navigation depth limit** — Resolves at most one level of children (root → child). Subclass `MockSwiftPicker` for deeper trees.
 - **Multi-selection order** — Returns items in the order of `selectedIndices`, not item array order. Out-of-bounds indices are silently dropped.
 - **Open for subclassing** — Override methods for custom test double behavior.
+
+---
+
+## Enum: ScriptedPicker
+
+Static factories that build a `MockSwiftPicker` from ordered queues. Use it when a test scripts
+more than one kind of prompt; reach for `MockSwiftPicker` directly when it scripts only one.
+
+```swift
+public enum ScriptedPicker {
+    public static func make(
+        permissions: [Bool] = [],
+        singles: [MockSingleSelectionOutcome] = [],
+        multis: [MockMultiSelectionOutcome] = [],
+        inputs: [String] = [],
+        treeNavigations: [MockTreeSelectionOutcome] = []
+    ) -> MockSwiftPicker
+
+    public static func silent() -> MockSwiftPicker
+}
+```
+
+Name only the queues the flow under test exercises. The omission carries meaning: a call naming
+`inputs` alone says the flow asks for text and nothing else.
+
+### Fallbacks
+
+Each queue falls back independently once drained. These are the `Mock*Result` defaults, restated
+here because they are what makes a scripted flow terminate rather than repeat:
+
+| Question | Method | Fallback |
+|----------|--------|----------|
+| Text input | `getInput` | `""` |
+| Permission | `getPermission` | `false` |
+| Single selection | `singleSelection` | `.none` (returns `nil`) |
+| Multi selection | `multiSelection` | `.none` (returns `[]`) |
+| Tree navigation | `treeNavigation` | `.none` (returns `nil`) |
+
+### Behavioral Notes
+
+- **Queues advance independently** — the third `getInput` takes the third element of `inputs`, no matter how many permission prompts came between
+- **Exhaustion is not an error** — a flow that asks more questions than the script anticipated gets "no" and "nothing chosen", so a `while` loop asking permission terminates rather than spinning
+- **`silent()` vs `NonInteractivePicker`** — both answer "nothing provided" to everything. Use `silent()` when the test asserts on `captured*Prompts`; use `NonInteractivePicker` when it only needs `required*` calls to throw
+- **Ordered mode only** — every queue is `.ordered`. For prompt-keyed answers, construct `MockSwiftPicker` directly with a `.dictionary` `Mock*Result`
+
+```swift
+let picker = ScriptedPicker.make(
+    permissions: [true],
+    singles: [.index(1)],
+    inputs: ["MyProject"]
+)
+
+let name = picker.getInput(prompt: "Project name:")   // "MyProject"
+let confirmed = picker.getPermission(prompt: "Create?") // true
+let again = picker.getPermission(prompt: "Another?")    // false (drained)
+```
 
 ---
 
@@ -330,6 +387,7 @@ mock.getPermission(prompt: "Unknown?")   // false (defaultValue)
 
 ## Best Practices
 
+- **Prefer `ScriptedPicker` for multi-prompt flows** — `ScriptedPicker.make` takes the queues directly instead of assembling `Mock*Result` values, and you name only the ones the flow exercises. Use `ScriptedPicker.silent()` for a picker that should never be asked anything.
 - **Inject via `CommandLinePicker` protocol** — Your production code should depend on `CommandLinePicker` (or a narrower protocol). In tests, pass `MockSwiftPicker`; in production, pass `SwiftPicker()`.
 - **Use `.ordered` for sequential tests, `.dictionary` for prompt-keyed** — Ordered mode is simpler for tests with a known call sequence. Dictionary mode is better when multiple prompts occur in unpredictable order.
 - **Dictionary matching is case-sensitive** — `"Prompt"` and `"prompt"` are different keys. Match the exact prompt string your production code passes.
