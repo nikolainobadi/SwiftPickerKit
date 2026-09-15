@@ -1,6 +1,6 @@
 ---
 name: SwiftPickerKit
-description: SwiftPickerKit Swift API reference for terminal-based interactive pickers with single/multi-selection, two-column layouts, tree navigation, and file system browsing. USE WHEN writing code that imports SwiftPickerKit, implementing terminal pickers, configuring picker layouts, adding tree navigation, browsing directories, testing with MockSwiftPicker.
+description: SwiftPickerKit Swift API reference for terminal-based interactive pickers with single/multi-selection, two-column layouts, tree navigation, and file system browsing. USE WHEN writing code that imports SwiftPickerKit, implementing terminal pickers, configuring picker layouts, adding tree navigation, browsing directories, testing with MockSwiftPicker or ScriptedPicker.
 user-invocable: true
 ---
 
@@ -20,7 +20,7 @@ Interactive terminal-based picker library for macOS with single-selection, multi
 |------|---------|-----------|
 | `PickerApi.md` | Core picker protocols, SwiftPicker entry point, layouts, errors | Writing picker selection code, configuring layouts, handling input/permissions |
 | `TreeNavigationApi.md` | Tree navigation protocol, TreeNode, FileSystemNode, directory browsing | Implementing hierarchical navigation, file browsing, custom tree items |
-| `TestingReference.md` | MockSwiftPicker and all mock result types | Writing tests for code that depends on CommandLinePicker |
+| `TestingReference.md` | MockSwiftPicker, ScriptedPicker, and all mock result types | Writing tests for code that depends on CommandLinePicker |
 
 ## Quick Reference
 
@@ -36,6 +36,8 @@ Interactive terminal-based picker library for macOS with single-selection, multi
 
 ### Testing
 - **`MockSwiftPicker`** — Open class conforming to `CommandLinePicker`; no terminal I/O
+- **`ScriptedPicker.make(...)`** — Builds a `MockSwiftPicker` from independent ordered queues for multi-prompt flows
+- **`ScriptedPicker.silent()`** — Uses empty queues and fallback responses while still capturing prompts
 - **Response modes:** `.ordered([...])` for sequential responses, `.dictionary([prompt: value])` for prompt-keyed
 - **Prompt capture:** `capturedPrompts`, `capturedSingleSelectionPrompts`, `capturedMultiSelectionPrompts`, `capturedTreeNavigationPrompts`
 

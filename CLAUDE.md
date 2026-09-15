@@ -91,4 +91,5 @@ Add a State, a Behavior, and a Renderer in the directories above, then construct
 - Swift Testing (`@Test func ...`), tests mirror production structure under `Tests/SwiftPickerKitTests/`
 - Use the `makeSUT` pattern; memory leak tracking is NOT required in this project
 - `SwiftPickerTesting.MockSwiftPicker` is `open` — subclass it to test consumers without terminal I/O
+- Prefer `ScriptedPicker.make` for flows that need ordered answers across multiple prompt kinds. Each queue advances independently and falls back to `""`, `false`, or no selection when exhausted; use `ScriptedPicker.silent()` when only prompt capture or empty fallbacks are needed
 - Behavior-driven test names; prioritize coverage on selection flows and renderer trimming

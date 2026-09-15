@@ -44,7 +44,7 @@ SwiftPickerKit is a Swift Package Manager library for building interactive termi
 - **Customizable Layouts** — Configure single-column, static two-column, or dynamic two-column rendering
 - **Scroll Support** — Automatic scrolling with visual indicators for large lists
 - **Terminal Control** — Built on ANSITerminal for full terminal manipulation
-- **Testing Support** — Includes `SwiftPickerTesting` module with `MockSwiftPicker` for unit tests
+- **Testing Support** — Includes `SwiftPickerTesting` with `MockSwiftPicker` and `ScriptedPicker` for unit tests
 - **State-Behavior-Renderer Architecture** — Clean separation between state management, input handling, and rendering
 
 ## Requirements
@@ -401,6 +401,18 @@ import SwiftPickerTesting
     #expect(result == "Expected")
 }
 ```
+
+For flows that ask several kinds of questions, use `ScriptedPicker` to provide independent ordered response queues:
+
+```swift
+let picker = ScriptedPicker.make(permissions: [true], singles: [.index(1)], inputs: ["MyProject"])
+
+let name = picker.getInput(prompt: "Project name:")
+let confirmed = picker.getPermission(prompt: "Create?")
+let selection = picker.singleSelection(prompt: "Choose a template", items: ["Library", "Executable"], layout: .singleColumn)
+```
+
+Each queue falls back safely when exhausted: text input returns `""`, permission prompts return `false`, single and tree selections return `nil`, and multi-selection returns an empty array. Use `ScriptedPicker.silent()` when every prompt should use these fallback values while still being captured for assertions.
 
 ## Dependencies
 

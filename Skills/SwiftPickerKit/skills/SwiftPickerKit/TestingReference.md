@@ -1,6 +1,6 @@
 # Testing Reference
 
-Mock types from the `SwiftPickerTesting` module for testing code that depends on `CommandLinePicker`.
+Testing helpers and mock types from the `SwiftPickerTesting` module for code that depends on `CommandLinePicker`.
 
 **Import:** `import SwiftPickerTesting`
 

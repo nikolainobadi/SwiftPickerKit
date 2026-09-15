@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-09-14
+
+### Added
+- `ScriptedPicker.make(...)` and `ScriptedPicker.silent()` in `SwiftPickerTesting` for building `MockSwiftPicker` instances with independent ordered response queues for multi-prompt tests; exhausted queues fall back to empty input, denied permission, or no selection
+
 ## [0.10.0] - 2026-08-15
 
 ### Added
