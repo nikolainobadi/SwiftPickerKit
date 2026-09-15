@@ -13,10 +13,7 @@ Two products: `SwiftPickerKit` (the library) and `SwiftPickerTesting` (mocks for
 separate skills repo — so the API and its documentation change in the same PR. It previously
 lived elsewhere and drifted out of date for months.
 
-- **Any PR changing the public API must update `Skills/`.** The `Skill docs` workflow
-  (`.github/workflows/skill-docs.yml`) fails PRs that touch `public`/`open`/`package`
-  declarations in `Sources/` without touching `Skills/`. Apply the `skip-skill-check` label
-  when a PR genuinely changes no documented behavior (renames, reformatting, file moves).
+- **Any PR changing the public API must update `Skills/`.**
 - **`Skills/SwiftPickerKit/.claude-plugin/plugin.json` deliberately has no `version` field.**
   Do not reintroduce one — the installer keys its cache by commit sha, and a hand-maintained
   version number is exactly the stale-number problem this layout removes.
