@@ -8,6 +8,7 @@
 import Testing
 @testable import SwiftPickerKit
 
+@Suite(.signalState)
 struct SwiftPickerCommandLineSelectionTests {
     @Test
     func `Starting values empty`() {

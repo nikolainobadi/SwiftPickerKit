@@ -150,6 +150,9 @@ extension SelectionHandler {
     /// is properly restored even if the program is interrupted. Without this,
     /// interrupted pickers can leave the terminal in an unusable state.
     ///
+    /// If the host application handles the signal itself and the process keeps running,
+    /// the loop finishes with the same outcome as pressing `q`.
+    ///
     /// ## Input Processing
     ///
     /// The loop distinguishes between:
@@ -177,6 +180,12 @@ extension SelectionHandler {
 
         // Main input loop
         while true {
+            // A host that handles SIGINT/SIGTERM itself keeps the process running after the
+            // terminal is restored; stop drawing and finish as if the user had quit
+            if SignalHandler.wasInterrupted {
+                return behavior.handleSpecialChar(char: .quit, state: state)
+            }
+
             pickerInput.clearBuffer()
 
             if pickerInput.keyPressed() {
