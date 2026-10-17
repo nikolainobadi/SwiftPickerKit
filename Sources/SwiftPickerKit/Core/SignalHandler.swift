@@ -139,6 +139,16 @@ enum SignalHandler {
         return interruptReceived != 0
     }
 
+    /// Blocks the calling thread for good, leaving the host's interrupt handling to end the process.
+    ///
+    /// Used by `PickerInterruptBehavior.waitForTermination`. The picker's handlers stay installed,
+    /// so a further signal still restores the terminal and reaches the host's handler.
+    static func parkUntilTermination() -> Never {
+        while true {
+            pause()
+        }
+    }
+
     /// Decides how a received signal is passed on, based on the host's saved action.
     ///
     /// - Parameter previousAction: The action the host had installed before the picker

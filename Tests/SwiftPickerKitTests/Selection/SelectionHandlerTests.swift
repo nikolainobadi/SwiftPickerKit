@@ -99,13 +99,290 @@ struct SelectionHandlerTests {
 }
 
 
+// MARK: - Required Prompts
+extension SelectionHandlerTests {
+    @Test
+    func `Interrupted required single selection throws an interrupted error`() {
+        withIgnoredInterrupt {
+            let (sut, pickerInput) = makeSUT()
+            interruptOnFirstPoll(pickerInput)
+
+            #expect(throws: PickerInterruptedError()) {
+                _ = try sut.requiredSingleSelection(
+                    prompt: "Pick one",
+                    items: ["First", "Second"],
+                    layout: .singleColumn,
+                    newScreen: false,
+                    showSelectedItemText: true
+                )
+            }
+        }
+    }
+
+    @Test
+    func `Interrupted required tree navigation throws an interrupted error`() {
+        withIgnoredInterrupt {
+            let (sut, pickerInput) = makeSUT()
+            interruptOnFirstPoll(pickerInput)
+
+            #expect(throws: PickerInterruptedError()) {
+                _ = try sut.requiredTreeNavigation(
+                    prompt: "Pick one",
+                    root: makeTreeRoot(),
+                    showPromptText: true,
+                    showSelectedItemText: true
+                )
+            }
+        }
+    }
+
+    @Test
+    func `Interrupted flag hint single selection throws an interrupted error`() {
+        withIgnoredInterrupt {
+            let (sut, pickerInput) = makeSUT()
+            interruptOnFirstPoll(pickerInput)
+
+            #expect(throws: PickerInterruptedError()) {
+                _ = try sut.requiredSingleSelection(
+                    prompt: "Pick one",
+                    items: ["First", "Second"],
+                    flagHint: "--item",
+                    layout: .singleColumn,
+                    newScreen: false,
+                    showSelectedItemText: true
+                )
+            }
+        }
+    }
+
+    @Test
+    func `Interrupted flag hint multi selection throws an interrupted error`() {
+        withIgnoredInterrupt {
+            let (sut, pickerInput) = makeSUT()
+            interruptOnFirstPoll(pickerInput)
+
+            #expect(throws: PickerInterruptedError()) {
+                _ = try sut.requiredMultiSelection(
+                    prompt: "Pick many",
+                    items: ["First", "Second"],
+                    flagHint: "--items",
+                    layout: .singleColumn,
+                    newScreen: false,
+                    showSelectedItemText: true
+                )
+            }
+        }
+    }
+
+    @Test
+    func `Interrupted flag hint tree navigation throws an interrupted error`() {
+        withIgnoredInterrupt {
+            let (sut, pickerInput) = makeSUT()
+            interruptOnFirstPoll(pickerInput)
+
+            #expect(throws: PickerInterruptedError()) {
+                _ = try sut.requiredTreeNavigation(
+                    prompt: "Pick one",
+                    root: makeTreeRoot(),
+                    flagHint: "--path",
+                    showPromptText: true,
+                    showSelectedItemText: true
+                )
+            }
+        }
+    }
+
+    @Test
+    func `Quitting a required selection still throws selection cancelled`() {
+        withIgnoredInterrupt {
+            let (sut, pickerInput) = makeSUT()
+            pickerInput.pressKey = true
+            pickerInput.enqueueSpecialChar(.quit)
+
+            #expect(throws: SwiftPickerError.selectionCancelled) {
+                _ = try sut.requiredSingleSelection(
+                    prompt: "Pick one",
+                    items: ["First", "Second"],
+                    layout: .singleColumn,
+                    newScreen: false,
+                    showSelectedItemText: true
+                )
+            }
+        }
+    }
+
+    @Test
+    func `Other pickers ignore an interrupt from an earlier SwiftPicker prompt`() {
+        withIgnoredInterrupt {
+            let (sut, pickerInput) = makeSUT()
+            interruptOnFirstPoll(pickerInput)
+            _ = sut.singleSelection(
+                prompt: "Pick one",
+                items: ["First", "Second"],
+                layout: .singleColumn,
+                newScreen: false,
+                showSelectedItemText: true
+            )
+
+            let nonInteractive = NonInteractivePicker(assumeYes: false)
+
+            #expect(throws: SwiftPickerError.selectionCancelled) {
+                _ = try nonInteractive.requiredSingleSelection(
+                    prompt: "Pick one",
+                    items: ["First", "Second"],
+                    layout: .singleColumn,
+                    newScreen: false,
+                    showSelectedItemText: true
+                )
+            }
+        }
+    }
+}
+
+
+// MARK: - Wait For Termination
+/// In production the wait never returns; these record the call and let it return, so the loop
+/// then finishes as cancelled.
+extension SelectionHandlerTests {
+    @Test
+    func `Interrupted single selection waits for termination when asked to`() {
+        withIgnoredInterrupt {
+            var waitCount = 0
+            let (sut, pickerInput) = makeSUT(waitForTermination: { waitCount += 1 })
+            interruptOnFirstPoll(pickerInput)
+
+            _ = sut.singleSelection(
+                prompt: "Pick one",
+                items: ["First", "Second"],
+                layout: .singleColumn,
+                newScreen: false,
+                showSelectedItemText: true
+            )
+
+            #expect(waitCount == 1)
+        }
+    }
+
+    @Test
+    func `Interrupted multi selection waits for termination when asked to`() {
+        withIgnoredInterrupt {
+            var waitCount = 0
+            let (sut, pickerInput) = makeSUT(waitForTermination: { waitCount += 1 })
+            interruptOnFirstPoll(pickerInput)
+
+            _ = sut.multiSelection(
+                prompt: "Pick many",
+                items: ["First", "Second"],
+                layout: .singleColumn,
+                newScreen: false,
+                showSelectedItemText: true
+            )
+
+            #expect(waitCount == 1)
+        }
+    }
+
+    @Test
+    func `Interrupted tree navigation waits for termination when asked to`() {
+        withIgnoredInterrupt {
+            var waitCount = 0
+            let (sut, pickerInput) = makeSUT(waitForTermination: { waitCount += 1 })
+            interruptOnFirstPoll(pickerInput)
+
+            _ = sut.treeNavigation(
+                prompt: "Pick one",
+                root: makeTreeRoot(),
+                showPromptText: true,
+                showSelectedItemText: true
+            )
+
+            #expect(waitCount == 1)
+        }
+    }
+
+    @Test
+    func `Uninterrupted selection never waits`() {
+        withIgnoredInterrupt {
+            var waitCount = 0
+            let (sut, pickerInput) = makeSUT(waitForTermination: { waitCount += 1 })
+            pickerInput.pressKey = true
+            pickerInput.enqueueSpecialChar(.enter)
+
+            let result = sut.singleSelection(
+                prompt: "Pick one",
+                items: ["First", "Second"],
+                layout: .singleColumn,
+                newScreen: false,
+                showSelectedItemText: true
+            )
+
+            #expect(result == "First")
+            #expect(waitCount == 0)
+        }
+    }
+
+    @Test
+    func `Quitting a selection never waits`() {
+        withIgnoredInterrupt {
+            var waitCount = 0
+            let (sut, pickerInput) = makeSUT(waitForTermination: { waitCount += 1 })
+            pickerInput.pressKey = true
+            pickerInput.enqueueSpecialChar(.quit)
+
+            _ = sut.singleSelection(
+                prompt: "Pick one",
+                items: ["First", "Second"],
+                layout: .singleColumn,
+                newScreen: false,
+                showSelectedItemText: true
+            )
+
+            #expect(waitCount == 0)
+        }
+    }
+
+    @Test
+    func `Finish as cancelled behavior does not wait`() {
+        let sut = SwiftPicker(interruptBehavior: .finishAsCancelled)
+
+        #expect(sut.waitForTermination == nil)
+    }
+
+    @Test
+    func `Default picker does not wait`() {
+        let sut = SwiftPicker()
+
+        #expect(sut.waitForTermination == nil)
+    }
+
+    @Test
+    func `Wait for termination behavior installs a wait`() {
+        let sut = SwiftPicker(interruptBehavior: .waitForTermination)
+
+        #expect(sut.waitForTermination != nil)
+    }
+}
+
+
 // MARK: - SUT
 private extension SelectionHandlerTests {
+    func makeSUT(waitForTermination: @escaping () -> Void) -> (SwiftPicker, MockPickerInput) {
+        let pickerInput = MockPickerInput()
+        let textInput = MockTextInput()
+        let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput, waitForTermination: waitForTermination)
+        return (sut, pickerInput)
+    }
+
     func makeSUT() -> (SwiftPicker, MockPickerInput) {
         let pickerInput = MockPickerInput()
         let textInput = MockTextInput()
-        let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput)
+        let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput, waitForTermination: nil)
         return (sut, pickerInput)
+    }
+
+    func makeTreeRoot() -> TreeNavigationRoot<TreeTestItem> {
+        let item = TestFactory.makeTreeItem(name: "Leaf")
+        return TreeNavigationRoot(displayName: "Root", children: [item])
     }
 }
 

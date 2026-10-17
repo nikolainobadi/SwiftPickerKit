@@ -157,7 +157,8 @@ private extension SwiftPicker {
             state: state,
             pickerInput: pickerInput,
             behavior: behavior,
-            renderer: renderer
+            renderer: renderer,
+            waitForTermination: waitForTermination
         )
         return handler.captureUserInput()
     }

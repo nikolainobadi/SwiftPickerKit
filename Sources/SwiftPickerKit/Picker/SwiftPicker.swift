@@ -8,18 +8,39 @@
 public struct SwiftPicker {
     internal let textInput: TextInput
     internal let pickerInput: PickerInput
-    
-    internal init(textInput: TextInput, pickerInput: PickerInput) {
+
+    /// Called when an interrupted selection prompt finishes, before it returns; `nil` finishes as
+    /// cancelled straight away. See `PickerInterruptBehavior`.
+    internal let waitForTermination: (() -> Void)?
+
+    internal init(textInput: TextInput, pickerInput: PickerInput, waitForTermination: (() -> Void)?) {
         self.textInput = textInput
         self.pickerInput = pickerInput
+        self.waitForTermination = waitForTermination
     }
 }
 
 
 // MARK: - Init
 public extension SwiftPicker {
+    /// Creates a picker whose interrupted selection prompts finish as if the user quit
+    /// (`PickerInterruptBehavior.finishAsCancelled`).
     init() {
-        self.init(textInput: DefaultTextInput(), pickerInput: DefaultPickerInput())
+        self.init(interruptBehavior: .finishAsCancelled)
+    }
+
+    /// Creates a picker with the given response to a selection prompt interrupted by Ctrl+C or
+    /// SIGTERM while the host keeps running.
+    ///
+    /// - Parameter interruptBehavior: Whether interrupted prompts finish as cancelled or wait for
+    ///   the host to end the process
+    init(interruptBehavior: PickerInterruptBehavior) {
+        switch interruptBehavior {
+        case .finishAsCancelled:
+            self.init(textInput: DefaultTextInput(), pickerInput: DefaultPickerInput(), waitForTermination: nil)
+        case .waitForTermination:
+            self.init(textInput: DefaultTextInput(), pickerInput: DefaultPickerInput(), waitForTermination: { SignalHandler.parkUntilTermination() })
+        }
     }
 }
 

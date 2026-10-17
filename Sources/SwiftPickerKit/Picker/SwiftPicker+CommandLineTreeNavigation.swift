@@ -31,7 +31,8 @@ extension SwiftPicker: CommandLineTreeNavigation {
             state: state,
             pickerInput: pickerInput,
             behavior: behavior,
-            renderer: renderer
+            renderer: renderer,
+            waitForTermination: waitForTermination
         )
 
         let outcome = handler.captureUserInput()
