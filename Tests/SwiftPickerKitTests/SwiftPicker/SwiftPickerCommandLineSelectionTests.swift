@@ -8,6 +8,7 @@
 import Testing
 @testable import SwiftPickerKit
 
+@Suite(.signalState)
 struct SwiftPickerCommandLineSelectionTests {
     @Test
     func `Starting values empty`() {
@@ -128,7 +129,7 @@ private extension SwiftPickerCommandLineSelectionTests {
     func makeSUT() -> (SwiftPicker, MockPickerInput) {
         let pickerInput = MockPickerInput()
         let textInput = MockTextInput()
-        let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput)
+        let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput, waitForTermination: nil)
         return (sut, pickerInput)
     }
 }

@@ -33,7 +33,7 @@ public enum SwiftPickerError: Error {
     /// Thrown when a required selection or permission is cancelled by the user.
     ///
     /// This occurs when:
-    /// - `requiredSingleSelection` is cancelled (user presses 'q' or Ctrl+C)
+    /// - `requiredSingleSelection` is cancelled (user presses 'q')
     /// - `requiredTreeNavigation` is cancelled
     /// - `requiredPermission` is denied (user selects 'no')
     ///

@@ -77,10 +77,15 @@ public extension CommandLineTreeNavigation {
     ///   - root: The root container wrapping initial tree items
     ///   - showPromptText: If `true`, displays the prompt text
     ///   - showSelectedItemText: If `true`, shows selected item text in the header
-    /// - Throws: `SwiftPickerError.selectionCancelled` when the user exits without a selection
+    /// - Throws: `SwiftPickerError.selectionCancelled` when the user exits without a selection,
+    ///   or `PickerInterruptedError` when the prompt is ended by Ctrl+C or SIGTERM
     /// - Returns: The selected item
     func requiredTreeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, showPromptText: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
         guard let selection = treeNavigation(prompt: prompt, root: root, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText) else {
+            if let interruption = PickerInterruptedError.interruption(for: self) {
+                throw interruption
+            }
+
             throw SwiftPickerError.selectionCancelled
         }
         

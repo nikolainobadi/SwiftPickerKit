@@ -55,7 +55,7 @@ struct SwiftPickerCommandLineInputTests {
 private extension SwiftPickerCommandLineInputTests {
     func makeSUT(inputResponses: [String]) -> (SwiftPicker, MockTextInput) {
         let textInput = MockTextInput(inputResponses: inputResponses)
-        let sut = SwiftPicker(textInput: textInput, pickerInput: MockPickerInput())
+        let sut = SwiftPicker(textInput: textInput, pickerInput: MockPickerInput(), waitForTermination: nil)
         return (sut, textInput)
     }
 }

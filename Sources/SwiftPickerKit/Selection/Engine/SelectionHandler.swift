@@ -71,9 +71,10 @@
 ///
 /// let handler = SelectionHandler(
 ///     state: state,
+///     pickerInput: pickerInput,
 ///     behavior: behavior,
 ///     renderer: renderer,
-///     pickerInput: pickerInput
+///     waitForTermination: nil
 /// )
 ///
 /// let outcome = handler.captureUserInput()
@@ -108,6 +109,9 @@ final class SelectionHandler<
     /// Cache of the currently focused item (used for header rendering)
     private var currentSelectedItem: Item?
 
+    /// Called on interrupt before finishing as cancelled; `nil` finishes straight away
+    private let waitForTermination: (() -> Void)?
+
     /// Creates a new SelectionHandler with the given State, Behavior, and Renderer.
     ///
     /// - Parameters:
@@ -115,15 +119,19 @@ final class SelectionHandler<
     ///   - pickerInput: Terminal I/O interface
     ///   - behavior: Input handler for arrow keys and special characters
     ///   - renderer: Visual renderer for the picker content
+    ///   - waitForTermination: Called when SIGINT/SIGTERM ends the prompt and the process keeps
+    ///     running, before the loop finishes as cancelled; `nil` to finish straight away
     init(
         state: Behavior.State,
         pickerInput: PickerInput,
         behavior: Behavior,
-        renderer: Renderer
+        renderer: Renderer,
+        waitForTermination: (() -> Void)?
     ) {
         self.state = state
         self.behavior = behavior
         self.pickerInput = pickerInput
+        self.waitForTermination = waitForTermination
 
         self.headerRenderer = .init(pickerInput: pickerInput)
         self.footerRenderer = .init(pickerInput: pickerInput)
@@ -149,6 +157,9 @@ extension SelectionHandler {
     /// Registers handlers for SIGINT (Ctrl+C) and SIGTERM to ensure terminal
     /// is properly restored even if the program is interrupted. Without this,
     /// interrupted pickers can leave the terminal in an unusable state.
+    ///
+    /// If the host application handles the signal itself and the process keeps running,
+    /// the loop finishes with the same outcome as pressing `q`.
     ///
     /// ## Input Processing
     ///
@@ -177,6 +188,14 @@ extension SelectionHandler {
 
         // Main input loop
         while true {
+            // A host that handles SIGINT/SIGTERM itself keeps the process running after the
+            // terminal is restored; stop drawing, wait for the host if asked to, and otherwise
+            // finish as if the user had quit
+            if SignalHandler.wasInterrupted {
+                waitForTermination?()
+                return behavior.handleSpecialChar(char: .quit, state: state)
+            }
+
             pickerInput.clearBuffer()
 
             if pickerInput.keyPressed() {

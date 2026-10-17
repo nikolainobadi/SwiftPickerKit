@@ -77,12 +77,18 @@ public extension CommandLineSelection {
     /// Required variant that throws if the user cancels.
     ///
     /// Use this when a selection is mandatory for your workflow. If the user cancels
-    /// (presses 'q' or Ctrl+C), this method throws `SwiftPickerError.selectionCancelled`.
+    /// (presses 'q'), this method throws `SwiftPickerError.selectionCancelled`. If the
+    /// prompt is ended by Ctrl+C or SIGTERM, it throws `PickerInterruptedError`.
     ///
-    /// - Throws: `SwiftPickerError.selectionCancelled` if user cancels
+    /// - Throws: `SwiftPickerError.selectionCancelled` if user cancels, or
+    ///   `PickerInterruptedError` if the prompt is interrupted
     /// - Returns: The selected item (guaranteed non-nil)
     func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool) throws -> Item {
         guard let value = singleSelection(prompt: prompt, items: items, layout: layout, newScreen: newScreen, showSelectedItemText: showSelectedItemText) else {
+            if let interruption = PickerInterruptedError.interruption(for: self) {
+                throw interruption
+            }
+
             throw SwiftPickerError.selectionCancelled
         }
         return value
@@ -90,7 +96,8 @@ public extension CommandLineSelection {
 
     /// Required variant with default parameter values and unlabeled prompt.
     ///
-    /// - Throws: `SwiftPickerError.selectionCancelled` if user cancels
+    /// - Throws: `SwiftPickerError.selectionCancelled` if user cancels, or
+    ///   `PickerInterruptedError` if the prompt is interrupted
     /// - Returns: The selected item (guaranteed non-nil)
     func requiredSingleSelection<Item: DisplayablePickerItem>(_ prompt: String, items: [Item], layout: PickerLayout<Item> = .singleColumn, newScreen: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
         return try requiredSingleSelection(prompt: prompt, items: items, layout: layout, newScreen: newScreen, showSelectedItemText: showSelectedItemText)

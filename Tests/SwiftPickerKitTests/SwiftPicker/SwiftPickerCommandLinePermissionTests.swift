@@ -52,7 +52,7 @@ struct SwiftPickerCommandLinePermissionTests {
 private extension SwiftPickerCommandLinePermissionTests {
     func makeSUT(permissionResponses: [Bool]) -> (SwiftPicker, MockTextInput) {
         let textInput = MockTextInput(permissionResponses: permissionResponses)
-        let sut = SwiftPicker(textInput: textInput, pickerInput: MockPickerInput())
+        let sut = SwiftPicker(textInput: textInput, pickerInput: MockPickerInput(), waitForTermination: nil)
         return (sut, textInput)
     }
 }

@@ -65,9 +65,14 @@ public extension CommandLineSelection {
     ///   - newScreen: If `true`, uses alternate screen buffer
     ///   - showSelectedItemText: If `true`, shows selected item text in the header
     /// - Throws: `PickerRequirementError.missingSelection` if nothing was selected
+    ///   or `PickerInterruptedError` if the prompt was ended by Ctrl+C or SIGTERM
     /// - Returns: The selected item (guaranteed non-nil)
     func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], flagHint: String, layout: PickerLayout<Item> = .singleColumn, newScreen: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
         guard let selection = singleSelection(prompt: prompt, items: items, layout: layout, newScreen: newScreen, showSelectedItemText: showSelectedItemText) else {
+            if let interruption = PickerInterruptedError.interruption(for: self) {
+                throw interruption
+            }
+
             throw PickerRequirementError.missingSelection(prompt: prompt, flagHint: flagHint)
         }
 
@@ -89,11 +94,16 @@ public extension CommandLineSelection {
     ///   - newScreen: If `true`, uses alternate screen buffer
     ///   - showSelectedItemText: If `true`, shows selected item text in the header
     /// - Throws: `PickerRequirementError.missingSelection` if no items were selected
+    ///   or `PickerInterruptedError` if the prompt was ended by Ctrl+C or SIGTERM
     /// - Returns: The selected items (guaranteed non-empty)
     func requiredMultiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], flagHint: String, layout: PickerLayout<Item> = .singleColumn, newScreen: Bool = true, showSelectedItemText: Bool = true) throws -> [Item] {
         let selections = multiSelection(prompt: prompt, items: items, layout: layout, newScreen: newScreen, showSelectedItemText: showSelectedItemText)
 
         guard !selections.isEmpty else {
+            if let interruption = PickerInterruptedError.interruption(for: self) {
+                throw interruption
+            }
+
             throw PickerRequirementError.missingSelection(prompt: prompt, flagHint: flagHint)
         }
 
@@ -113,9 +123,14 @@ public extension CommandLineTreeNavigation {
     ///   - showPromptText: If `true`, displays the prompt text
     ///   - showSelectedItemText: If `true`, shows selected item text in the header
     /// - Throws: `PickerRequirementError.missingSelection` if nothing was selected
+    ///   or `PickerInterruptedError` if the prompt was ended by Ctrl+C or SIGTERM
     /// - Returns: The selected item
     func requiredTreeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, flagHint: String, showPromptText: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
         guard let selection = treeNavigation(prompt: prompt, root: root, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText) else {
+            if let interruption = PickerInterruptedError.interruption(for: self) {
+                throw interruption
+            }
+
             throw PickerRequirementError.missingSelection(prompt: prompt, flagHint: flagHint)
         }
 

@@ -9,6 +9,7 @@
 
 final class MockPickerInput: PickerInput {
     var pressKey = false
+    var onKeyPressed: (() -> Void)?
 
     private enum Event {
         case special(SpecialChar)
@@ -57,7 +58,8 @@ extension MockPickerInput {
     }
 
     func keyPressed() -> Bool {
-        pressKey && !events.isEmpty
+        onKeyPressed?()
+        return pressKey && !events.isEmpty
     }
 
     func write(_ text: String) {
