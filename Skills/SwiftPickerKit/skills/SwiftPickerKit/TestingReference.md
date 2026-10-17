@@ -59,6 +59,7 @@ open class MockSwiftPicker {
 - **Ignores layout, newScreen, showSelectedItemText** — All display parameters are ignored; only prompt and items matter
 - **Tree navigation depth limit** — Resolves at most one level of children (root → child). Subclass `MockSwiftPicker` for deeper trees.
 - **Multi-selection order** — Returns items in the order of `selectedIndices`, not item array order. Out-of-bounds indices are silently dropped.
+- **Cancellation is not interruption** — `.none` responses exercise ordinary cancellation or missing-selection errors. Required selection extensions detect `PickerInterruptedError` only for a `SwiftPicker` receiver, so mocks (including `ScriptedPicker` results) and `NonInteractivePicker` do not simulate signal interruption.
 - **Open for subclassing** — Override methods for custom test double behavior.
 
 ---

@@ -15,6 +15,7 @@
 - [Usage](#usage)
   - [Basic Single Selection](#basic-single-selection)
   - [Multi-Selection](#multi-selection)
+  - [Interrupt Handling](#interrupt-handling)
   - [Controlling Header Display](#controlling-header-display)
   - [Two-Column Layout with Static Detail](#two-column-layout-with-static-detail)
   - [Two-Column Layout with Dynamic Detail](#two-column-layout-with-dynamic-detail)
@@ -44,6 +45,7 @@ SwiftPickerKit is a Swift Package Manager library for building interactive termi
 - **Customizable Layouts** — Configure single-column, static two-column, or dynamic two-column rendering
 - **Scroll Support** — Automatic scrolling with visual indicators for large lists
 - **Terminal Control** — Built on ANSITerminal for full terminal manipulation
+- **Interrupt Handling** — Restore the terminal and preserve host signal handling, with configurable behavior for interrupted selection prompts
 - **Testing Support** — Includes `SwiftPickerTesting` with `MockSwiftPicker` and `ScriptedPicker` for unit tests
 - **State-Behavior-Renderer Architecture** — Clean separation between state management, input handling, and rendering
 
@@ -151,6 +153,20 @@ let selected = picker.multiSelection(
 )
 
 print("Selected \(selected.count) items")
+```
+
+### Interrupt Handling
+
+When Ctrl+C (SIGINT) or SIGTERM interrupts a selection prompt, SwiftPicker restores the terminal and respects the host application's signal handling. With default system signal handling, the process terminates from the signal.
+
+If the host keeps running, `SwiftPicker()` uses `.finishAsCancelled`: single and tree selections return `nil`, and multi-selection returns an empty array. On `SwiftPicker`, `requiredSingleSelection`, `requiredTreeNavigation`, and the `flagHint:` variants of required single, multi, and tree selection throw `PickerInterruptedError`. Pressing `q` still uses the usual cancellation behavior.
+
+For hosts whose signal handling always terminates the process, use `.waitForTermination` to prevent an interrupted selection from returning while shutdown is underway. Only use this option when the host ends the process on every interrupt; otherwise, the prompt never returns.
+
+```swift
+import SwiftPickerKit
+
+let picker = SwiftPicker(interruptBehavior: .waitForTermination)
 ```
 
 ### Controlling Header Display

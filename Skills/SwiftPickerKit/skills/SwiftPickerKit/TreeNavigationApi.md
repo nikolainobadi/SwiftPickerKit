@@ -32,6 +32,19 @@ public protocol CommandLineTreeNavigation {
 | `requiredTreeNavigation(prompt:root:flagHint:showPromptText:showSelectedItemText:) throws` | `Item` | Throws `PickerRequirementError.missingSelection` naming the CLI flag that supplies the choice |
 | `browseDirectories(prompt:startURL:showPromptText:showSelectedItemText:selectionType:)` | `FileSystemNode?` | File system browser starting at given URL |
 
+### Interrupts
+
+On `SwiftPicker` with the default `.finishAsCancelled` behavior, SIGINT (Ctrl+C) or SIGTERM
+returns `nil` from `treeNavigation` and `browseDirectories` if the host keeps running. Both
+`requiredTreeNavigation` overloads throw `PickerInterruptedError` in that situation, instead of
+`.selectionCancelled` or `PickerRequirementError.missingSelection`. A custom conformer wrapping
+`SwiftPicker` does not inherit this interruption detection.
+
+`SwiftPicker(interruptBehavior: .waitForTermination)` restores the terminal and blocks until the
+host ends the process; use it only if the host terminates on every interrupt. With the default
+signal action, the process terminates by the signal. See [Picker API](PickerApi.md) for the full
+signal-handling and error contract.
+
 ### Default Parameter Values
 
 - `showPromptText: true`

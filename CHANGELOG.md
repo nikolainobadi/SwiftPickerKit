@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-10-17
+
+### Added
+- `SwiftPicker(interruptBehavior:)` with `PickerInterruptBehavior.finishAsCancelled` (the default) and `.waitForTermination` to control interrupted selection prompts when the host keeps running. Use `.waitForTermination` only when the host always terminates on interrupt; otherwise the prompt never returns
+- `PickerInterruptedError` distinguishes Ctrl+C or SIGTERM from user cancellation in `SwiftPicker`'s `requiredSingleSelection` and `requiredTreeNavigation`, including their `flagHint:` overloads, and `requiredMultiSelection(flagHint:)`. Catch this error to stop the interrupted workflow when the host keeps running
+
+### Fixed
+- Selection prompts restore the terminal before forwarding SIGINT or SIGTERM to the host's signal handling, and restore the host's original handlers when the prompt closes; hosts without a handler now terminate by the received signal instead of always exiting with code 130
+- Interrupted single selection, multi-selection, and tree navigation stop processing input when the host keeps running; with the default interrupt behavior, optional selections return `nil` or an empty array
+
 ## [0.11.0] - 2026-09-14
 
 ### Added

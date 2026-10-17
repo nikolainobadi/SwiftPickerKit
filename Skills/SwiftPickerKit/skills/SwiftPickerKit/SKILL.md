@@ -18,7 +18,7 @@ Interactive terminal-based picker library for macOS with single-selection, multi
 
 | File | Purpose | Load When |
 |------|---------|-----------|
-| `PickerApi.md` | Core picker protocols, SwiftPicker entry point, layouts, errors | Writing picker selection code, configuring layouts, handling input/permissions |
+| `PickerApi.md` | Core picker protocols, SwiftPicker entry point, layouts, errors | Writing picker selection code, configuring layouts, handling input/permissions or interrupts |
 | `TreeNavigationApi.md` | Tree navigation protocol, TreeNode, FileSystemNode, directory browsing | Implementing hierarchical navigation, file browsing, custom tree items |
 | `TestingReference.md` | MockSwiftPicker, ScriptedPicker, and all mock result types | Writing tests for code that depends on CommandLinePicker |
 
@@ -26,13 +26,14 @@ Interactive terminal-based picker library for macOS with single-selection, multi
 
 ### Production
 - **Entry point:** `SwiftPicker()` — conforms to `CommandLinePicker` (typealias of all four protocols)
+- **Interrupts:** `SwiftPicker()` uses `.finishAsCancelled`; choose `SwiftPicker(interruptBehavior: .waitForTermination)` only when the host ends the process on every interrupt. See `PickerApi.md` for signal handling and wrapper constraints.
 - **Scripted/CI:** `NonInteractivePicker(assumeYes:)` — same protocols, never prompts; every primitive returns its "nothing provided" value so the `required*` variants throw instead of hanging
 - **Depend on protocols:** Use `CommandLinePicker`, `CommandLineSelection`, `CommandLineInput`, `CommandLinePermission`, or `CommandLineTreeNavigation` as dependency types
 - **Layouts:** `.singleColumn`, `.twoColumnStatic(detailText:)`, `.twoColumnDynamic(detailForItem:)`
 - **Custom items:** Conform to `DisplayablePickerItem` (just `displayName: String`)
 - **Tree items:** Conform to `TreeNodePickerItem` for hierarchical navigation; use `FileSystemNode` for filesystem browsing
 - **Named flags:** `flagHint:` overloads of the `required*` methods report which CLI flag supplies a value instead of prompting for it
-- **Errors:** `SwiftPickerError.selectionCancelled` (user quit), `.inputRequired` (empty text input); `PickerRequirementError` from the `flagHint:` overloads
+- **Errors:** `SwiftPickerError.selectionCancelled` (user quit), `.inputRequired` (empty text input); `PickerRequirementError` from the `flagHint:` overloads; `PickerInterruptedError` for interrupted required selections on `SwiftPicker` when the host keeps running and the picker uses `.finishAsCancelled`
 
 ### Testing
 - **`MockSwiftPicker`** — Open class conforming to `CommandLinePicker`; no terminal I/O

@@ -130,6 +130,10 @@ public protocol CommandLineSelection {
 | `requiredSingleSelection(prompt:items:flagHint:layout:newScreen:showSelectedItemText:) throws` | `Item` | Throws `PickerRequirementError.missingSelection` naming the CLI flag that supplies the choice |
 | `requiredMultiSelection(prompt:items:flagHint:layout:newScreen:showSelectedItemText:) throws` | `[Item]` | Throws `PickerRequirementError.missingSelection` when the result is empty |
 
+For `SwiftPicker` using `.finishAsCancelled`, required selection methods also throw
+`PickerInterruptedError` when SIGINT or SIGTERM ends the prompt and the host keeps running.
+This includes both `requiredSingleSelection` forms and the `flagHint:` single/multi variants.
+
 ### Default Parameter Values
 
 - `layout: .singleColumn`
@@ -299,12 +303,39 @@ These overloads fire for a live `SwiftPicker` too — pressing Enter at an empty
 `missingInput` just as a scripted run does. The messages deliberately never mention interactive or
 non-interactive mode so they read correctly in both cases.
 
-### Two Error Types On One Call Path
+### Error Types On One Call Path
 
 Adopting `flagHint:` incrementally leaves some calls throwing `SwiftPickerError` and others
-`PickerRequirementError`. Catch both, or catch `Error` and render `localizedDescription` —
+`PickerRequirementError`. Interrupted required selections on `SwiftPicker` can also throw
+`PickerInterruptedError`; handle that separately when the workflow should stop. Catch the remaining
+errors by type, or catch `Error` and render `localizedDescription` —
 `PickerRequirementError` conforms to `LocalizedError` so it prints its message; `SwiftPickerError`
 does not, so it prints its case name.
+
+---
+
+## Struct: PickerInterruptedError
+
+A separate error for a required selection ended by SIGINT (Ctrl+C) or SIGTERM while the host
+keeps running and the picker uses `.finishAsCancelled`.
+
+```swift
+public struct PickerInterruptedError: Error, Equatable, LocalizedError {
+    public init()
+    public var errorDescription: String? { get }
+}
+```
+
+The localized message is `"The prompt was interrupted."`. It is thrown by
+`requiredSingleSelection` and `requiredTreeNavigation`, including their `flagHint:` overloads,
+and by `requiredMultiSelection(prompt:items:flagHint:)`. Text input and permission methods do
+not use this interruption error. Pressing the quit key still produces the usual cancellation
+or missing-selection error.
+
+Detection requires the receiver to be a `SwiftPicker`, including one held through a picker
+protocol. A custom conformer that wraps a `SwiftPicker` gets its usual cancellation error from
+these protocol extensions instead. `MockSwiftPicker` and `NonInteractivePicker` do not report
+interruptions. Non-throwing selections still return `nil` or `[]`.
 
 ---
 
@@ -408,6 +439,7 @@ The concrete entry point conforming to `CommandLinePicker`.
 ```swift
 public struct SwiftPicker {
     public init()
+    public init(interruptBehavior: PickerInterruptBehavior)
 }
 ```
 
@@ -415,7 +447,8 @@ public struct SwiftPicker {
 
 | Initializer | Description |
 |-------------|-------------|
-| `init()` | Creates a picker with default terminal input handling |
+| `init()` | Creates a picker with default terminal input handling and `.finishAsCancelled` interrupt behavior |
+| `init(interruptBehavior:)` | Chooses how interrupted selection prompts finish when the host keeps running |
 
 ### Conformances
 
@@ -423,9 +456,34 @@ public struct SwiftPicker {
 
 ### Terminal Side Effects
 
-- Registers SIGINT/SIGTERM signal handlers during picker display (cleaned up on exit)
+- Registers SIGINT/SIGTERM signal handlers during selection display and restores the host’s saved handlers when the prompt returns
 - Each keypress triggers a full screen clear and redraw cycle
-- If SIGINT arrives during a picker, the handler restores terminal state and calls `exit(130)`
+- On SIGINT or SIGTERM, restores terminal state before forwarding to the host’s saved signal action
+- With the default signal action, re-raises the signal so the process terminates by SIGINT or SIGTERM (shell status 130 or 143)
+- Calls a saved custom handler; preserves ignored signals without re-raising them (including hosts observing signals through a `DispatchSource`)
+
+### Enum: PickerInterruptBehavior
+
+```swift
+public enum PickerInterruptBehavior: Sendable {
+    case finishAsCancelled
+    case waitForTermination
+}
+```
+
+This choice applies to single/multi-selection, tree navigation, and directory browsing when the
+host handles the signal and keeps the process running. The terminal is restored first in both
+cases; text input and yes/no permission prompts are not governed by this setting.
+
+| Case | Behavior |
+|------|----------|
+| `finishAsCancelled` | Default. Non-throwing selections return `nil` or `[]`; required selections throw `PickerInterruptedError` |
+| `waitForTermination` | Blocks the calling thread until the host ends the process; further signals still reach the host’s handler |
+
+Use `SwiftPicker(interruptBehavior: .waitForTermination)` only when the host ends the process on
+every interrupt. A host that merely cancels the current command, such as a REPL, would leave the
+prompt blocked indefinitely. With the default signal action, the process terminates regardless
+of this setting.
 
 ### Usage Example
 
