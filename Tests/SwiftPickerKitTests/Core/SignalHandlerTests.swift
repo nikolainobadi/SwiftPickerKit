@@ -5,8 +5,8 @@
 //  Created by Nikolai Nobadi on 10/16/26.
 //
 
-import Foundation
 import Testing
+import Foundation
 @testable import SwiftPickerKit
 
 /// Signal dispositions are process-global, so these tests run serialized and put the

@@ -5,8 +5,8 @@
 //  Created by Nikolai Nobadi on 10/16/26.
 //
 
-import Foundation
 import Testing
+import Foundation
 @testable import SwiftPickerKit
 
 /// The host ignores SIGINT in these tests (as a `DispatchSource`-based host would), so the
