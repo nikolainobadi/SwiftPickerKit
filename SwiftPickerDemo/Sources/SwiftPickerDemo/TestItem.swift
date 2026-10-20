@@ -21,7 +21,6 @@ struct TestItem {
     }
 }
 
-
 // MARK: - Helpers
 extension TestItem {
     static let smallList: [TestItem] = [
@@ -69,7 +68,6 @@ extension TestItem {
         .init(name: "Scheme", description: "Minimalist Lisp dialect", emoji: "🟥")
     ]
 }
-
 
 // MARK: - DynamicList
 extension TestItem {
@@ -139,7 +137,6 @@ extension TestItem {
         )
     ]
 }
-
 
 // MARK: - DisplayablePickerItem
 extension TestItem: DisplayablePickerItem {

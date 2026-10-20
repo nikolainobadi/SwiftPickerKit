@@ -55,7 +55,6 @@ struct MockInputResultTests {
     }
 }
 
-
 // MARK: - Sequential Response Tests
 extension MockInputResultTests {
     @Test
@@ -143,7 +142,6 @@ extension MockInputResultTests {
         #expect(secondResponse == defaultValue)
     }
 }
-
 
 // MARK: - Prompt-Mapped Response Tests
 extension MockInputResultTests {
@@ -234,7 +232,6 @@ extension MockInputResultTests {
         #expect(lowercaseResponse.isEmpty)
     }
 }
-
 
 // MARK: - SUT
 private extension MockInputResultTests {

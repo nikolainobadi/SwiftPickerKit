@@ -42,7 +42,6 @@ struct MockSwiftPickerTests {
     }
 }
 
-
 // MARK: - Prompt Capture Tests
 extension MockSwiftPickerTests {
     @Test
@@ -83,7 +82,6 @@ extension MockSwiftPickerTests {
         #expect(sut.capturedPrompts == prompts)
     }
 }
-
 
 // MARK: - Permission Tests
 extension MockSwiftPickerTests {
@@ -146,7 +144,6 @@ extension MockSwiftPickerTests {
     }
 }
 
-
 // MARK: - Input Response Tests
 extension MockSwiftPickerTests {
     @Test
@@ -196,7 +193,6 @@ extension MockSwiftPickerTests {
     }
 }
 
-
 // MARK: - Required Input Tests
 extension MockSwiftPickerTests {
     @Test
@@ -245,7 +241,6 @@ extension MockSwiftPickerTests {
         #expect(response.isEmpty)
     }
 }
-
 
 // MARK: - Selection Tests
 extension MockSwiftPickerTests {
@@ -346,7 +341,6 @@ extension MockSwiftPickerTests {
         #expect(result == ["pepperoni"])
     }
 }
-
 
 // MARK: - Tree Navigation Tests
 extension MockSwiftPickerTests {
@@ -479,7 +473,6 @@ extension MockSwiftPickerTests {
     }
 }
 
-
 // MARK: - Helpers
 private extension MockSwiftPickerTests {
     func makeSwiftPicker(
@@ -536,7 +529,6 @@ private extension MockSwiftPickerTests {
     }
 }
 
-
 // MARK: - Helpers
 private struct MockTreeNode: TreeNodePickerItem, Equatable {
     let name: String
@@ -548,7 +540,6 @@ private struct MockTreeNode: TreeNodePickerItem, Equatable {
     func loadChildren() -> [MockTreeNode] { children }
     var metadata: TreeNodeMetadata? { nil }
 }
-
 
 // MARK: - SUT
 private extension MockSwiftPickerTests {

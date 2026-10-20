@@ -20,7 +20,6 @@ public struct SwiftPicker {
     }
 }
 
-
 // MARK: - Init
 public extension SwiftPicker {
     /// Creates a picker whose interrupted selection prompts finish as if the user quit
@@ -43,7 +42,6 @@ public extension SwiftPicker {
         }
     }
 }
-
 
 // MARK: - Dependencies (unchanged)
 enum Direction {

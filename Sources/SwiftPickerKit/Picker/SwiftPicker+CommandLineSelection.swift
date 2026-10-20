@@ -25,7 +25,6 @@ extension SwiftPicker: CommandLineSelection {
     }
 }
 
-
 // MARK: - Private Methods
 private extension SwiftPicker {
     @discardableResult

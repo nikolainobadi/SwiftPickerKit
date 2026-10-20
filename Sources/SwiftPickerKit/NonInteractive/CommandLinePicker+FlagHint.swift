@@ -36,7 +36,6 @@ public extension CommandLineInput {
     }
 }
 
-
 // MARK: - CommandLinePermission
 public extension CommandLinePermission {
     /// Required permission variant that names the flag a caller can pass instead.
@@ -51,7 +50,6 @@ public extension CommandLinePermission {
         }
     }
 }
-
 
 // MARK: - CommandLineSelection
 public extension CommandLineSelection {
@@ -110,7 +108,6 @@ public extension CommandLineSelection {
         return selections
     }
 }
-
 
 // MARK: - CommandLineTreeNavigation
 public extension CommandLineTreeNavigation {

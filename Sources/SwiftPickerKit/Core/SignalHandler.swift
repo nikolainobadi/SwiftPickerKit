@@ -165,7 +165,6 @@ enum SignalHandler {
     }
 }
 
-
 // MARK: - SignalForwarding
 /// What the picker's signal handler does after restoring the terminal.
 enum SignalForwarding: Equatable {
@@ -181,7 +180,6 @@ enum SignalForwarding: Equatable {
     /// The host installed its own C handler: call it with the same signal.
     case chainToHandler
 }
-
 
 // MARK: - Private Implementation
 /// Global cleanup handler storage.

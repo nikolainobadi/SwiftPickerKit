@@ -19,13 +19,11 @@ public struct MockTreeNavigationResult {
     }
 }
 
-
 // MARK: - Response Types
 public enum MockTreeSelectionType {
     case ordered([MockTreeSelectionOutcome])
     case dictionary([String: MockTreeSelectionOutcome])
 }
-
 
 // MARK: - Outcome
 public struct MockTreeSelectionOutcome: Equatable, Sendable {
@@ -47,7 +45,6 @@ public struct MockTreeSelectionOutcome: Equatable, Sendable {
         return .init(selectedRootIndex: parentIndex, selectedChildIndex: childIndex)
     }
 }
-
 
 // MARK: - Internal Helpers
 extension MockTreeNavigationResult {

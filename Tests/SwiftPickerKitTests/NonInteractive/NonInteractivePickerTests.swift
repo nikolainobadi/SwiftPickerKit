@@ -69,7 +69,6 @@ struct NonInteractivePickerTests {
     }
 }
 
-
 // MARK: - Required Values
 extension NonInteractivePickerTests {
     @Test
@@ -117,7 +116,6 @@ extension NonInteractivePickerTests {
         }
     }
 }
-
 
 // MARK: - Named Flags
 extension NonInteractivePickerTests {
@@ -171,7 +169,6 @@ extension NonInteractivePickerTests {
     }
 }
 
-
 // MARK: - Concurrency
 extension NonInteractivePickerTests {
     @Test
@@ -182,7 +179,6 @@ extension NonInteractivePickerTests {
         #expect(granted)
     }
 }
-
 
 // MARK: - Helpers
 private extension NonInteractivePickerTests {
@@ -207,7 +203,6 @@ private extension NonInteractivePickerTests {
         }
     }
 }
-
 
 // MARK: - SUT
 private extension NonInteractivePickerTests {

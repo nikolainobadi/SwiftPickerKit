@@ -70,12 +70,10 @@ struct TwoColumnStateTests {
     }
 }
 
-
 // MARK: - Helpers
 private extension TwoColumnStateTests {
 
 }
-
 
 // MARK: - Test Factory Helpers
 private extension TestFactory {
@@ -85,7 +83,6 @@ private extension TestFactory {
         }
     }
 }
-
 
 // MARK: - SUT
 private extension TwoColumnStateTests {

@@ -51,7 +51,6 @@ public enum PickerRequirementError: Error, LocalizedError {
     }
 }
 
-
 // MARK: - Private Helpers
 private extension PickerRequirementError {
     /// Renders the "here's how to fix it" half of the message.

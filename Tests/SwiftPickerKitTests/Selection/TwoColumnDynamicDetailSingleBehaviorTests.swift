@@ -58,7 +58,6 @@ struct TwoColumnDynamicDetailSingleBehaviorTests {
     }
 }
 
-
 // MARK: - SUT
 private extension TwoColumnDynamicDetailSingleBehaviorTests {
     func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0) -> (TwoColumnDynamicDetailSingleBehavior<TestItem>, TwoColumnDynamicDetailState<TestItem>) {

@@ -220,7 +220,6 @@ struct TreeNavigationBehaviorTests {
     }
 }
 
-
 // MARK: - SUT
 private extension TreeNavigationBehaviorTests {
     func makeSUT(rootItems: [TreeTestItem] = TestFactory.makeTreeItems(names: ["Root"])) -> (TreeNavigationBehavior<TreeTestItem>, TreeNavigationState<TreeTestItem>) {

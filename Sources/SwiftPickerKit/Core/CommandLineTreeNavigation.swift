@@ -67,7 +67,6 @@ public protocol CommandLineTreeNavigation {
     func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool, showSelectedItemText: Bool, selectionType: FileSystemNode.SelectionType) -> FileSystemNode?
 }
 
-
 // MARK: - CommandLineTreeNavigation Convenience
 public extension CommandLineTreeNavigation {
     /// Displays a tree navigation picker and throws if the user cancels.

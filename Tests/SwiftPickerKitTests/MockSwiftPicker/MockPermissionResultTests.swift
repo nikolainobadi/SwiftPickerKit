@@ -54,7 +54,6 @@ struct MockPermissionResultTests {
     }
 }
 
-
 // MARK: - Sequential Response Tests
 extension MockPermissionResultTests {
     @Test
@@ -113,7 +112,6 @@ extension MockPermissionResultTests {
     }
 }
 
-
 // MARK: - Prompt-Mapped Response Tests
 extension MockPermissionResultTests {
     @Test
@@ -169,7 +167,6 @@ extension MockPermissionResultTests {
         #expect(sut.nextResponse(for: "prompt") == false)
     }
 }
-
 
 // MARK: - SUT
 private extension MockPermissionResultTests {

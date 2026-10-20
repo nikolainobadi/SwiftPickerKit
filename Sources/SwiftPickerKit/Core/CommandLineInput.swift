@@ -38,7 +38,6 @@ public protocol CommandLineInput {
     func getInput(prompt: String) -> String
 }
 
-
 // MARK: - CommandLineInput Convenience
 
 public extension CommandLineInput {

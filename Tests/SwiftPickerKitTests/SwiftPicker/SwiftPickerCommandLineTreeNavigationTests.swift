@@ -111,7 +111,6 @@ struct SwiftPickerCommandLineTreeNavigationTests {
     }
 }
 
-
 // MARK: - Helpers
 private extension SwiftPickerCommandLineTreeNavigationTests {
     func makeRoot(from item: TreeTestItem) -> TreeNavigationRoot<TreeTestItem> {
@@ -121,7 +120,6 @@ private extension SwiftPickerCommandLineTreeNavigationTests {
         return TreeNavigationRoot(displayName: item.displayName, children: [item])
     }
 }
-
 
 // MARK: - SUT
 private extension SwiftPickerCommandLineTreeNavigationTests {

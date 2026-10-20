@@ -54,7 +54,6 @@ public struct NonInteractivePicker: CommandLinePicker, Sendable {
     }
 }
 
-
 // MARK: - CommandLineInput
 public extension NonInteractivePicker {
     /// Returns an empty string, so `getRequiredInput` throws `SwiftPickerError.inputRequired`.
@@ -63,7 +62,6 @@ public extension NonInteractivePicker {
     }
 }
 
-
 // MARK: - CommandLinePermission
 public extension NonInteractivePicker {
     /// Returns the configured `assumeYes` value without prompting.
@@ -71,7 +69,6 @@ public extension NonInteractivePicker {
         return assumeYes
     }
 }
-
 
 // MARK: - CommandLineSelection
 public extension NonInteractivePicker {
@@ -86,7 +83,6 @@ public extension NonInteractivePicker {
         return []
     }
 }
-
 
 // MARK: - CommandLineTreeNavigation
 public extension NonInteractivePicker {

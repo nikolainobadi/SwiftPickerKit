@@ -102,7 +102,6 @@ struct ScrollRendererTests {
     }
 }
 
-
 // MARK: - SUT
 private extension ScrollRendererTests {
     func makeSUT() -> (ScrollRenderer, MockPickerInput) {

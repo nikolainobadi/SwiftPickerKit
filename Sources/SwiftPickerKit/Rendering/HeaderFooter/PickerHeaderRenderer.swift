@@ -78,7 +78,6 @@ struct PickerHeaderRenderer {
     }
 }
 
-
 // MARK: - Methods for Rendering
 extension PickerHeaderRenderer {
     /// Renders the complete header section and returns the number of rows consumed.
@@ -163,7 +162,6 @@ extension PickerHeaderRenderer {
         return height
     }
 }
-
 
 // MARK: - Private Methods
 private extension PickerHeaderRenderer {

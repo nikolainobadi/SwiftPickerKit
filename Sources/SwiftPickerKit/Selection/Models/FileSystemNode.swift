@@ -58,7 +58,6 @@ public struct FileSystemNode: TreeNodePickerItem {
     }
 }
 
-
 // MARK: - Helpers
 public extension FileSystemNode {
     func loadChildren() -> [FileSystemNode] {
@@ -81,14 +80,12 @@ public extension FileSystemNode {
     }
 }
 
-
 // MARK: - Dependencies
 public extension FileSystemNode {
     enum SelectionType {
         case onlyFiles, onlyFolders, filesAndFolders
     }
 }
-
 
 // MARK: - Extension Dependencies
 public extension FileSystemNode {

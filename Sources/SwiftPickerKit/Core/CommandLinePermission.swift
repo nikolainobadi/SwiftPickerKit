@@ -44,7 +44,6 @@ public protocol CommandLinePermission {
     func getPermission(prompt: String) -> Bool
 }
 
-
 // MARK: - CommandLinePermission Convenience
 
 public extension CommandLinePermission {

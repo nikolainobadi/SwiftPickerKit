@@ -58,7 +58,6 @@ struct TwoColumnStaticTextSingleBehaviorTests {
     }
 }
 
-
 // MARK: - SUT
 private extension TwoColumnStaticTextSingleBehaviorTests {
     func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0) -> (TwoColumnStaticTextSingleBehavior<TestItem>, TwoColumnStaticTextState<TestItem>) {

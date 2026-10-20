@@ -73,7 +73,6 @@ struct TwoColumnStaticTextMultiBehaviorTests {
     }
 }
 
-
 // MARK: - SUT
 private extension TwoColumnStaticTextMultiBehaviorTests {
     func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0, selectedIndices: Set<Int> = []) -> (TwoColumnStaticTextMultiBehavior<TestItem>, TwoColumnStaticTextState<TestItem>) {

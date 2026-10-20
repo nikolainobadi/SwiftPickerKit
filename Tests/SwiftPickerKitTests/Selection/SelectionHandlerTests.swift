@@ -5,8 +5,8 @@
 //  Created by Nikolai Nobadi on 10/16/26.
 //
 
-import Foundation
 import Testing
+import Foundation
 @testable import SwiftPickerKit
 
 /// The host ignores SIGINT in these tests (as a `DispatchSource`-based host would), so the
@@ -97,7 +97,6 @@ struct SelectionHandlerTests {
         }
     }
 }
-
 
 // MARK: - Required Prompts
 extension SelectionHandlerTests {
@@ -239,7 +238,6 @@ extension SelectionHandlerTests {
     }
 }
 
-
 // MARK: - Wait For Termination
 /// In production the wait never returns; these record the call and let it return, so the loop
 /// then finishes as cancelled.
@@ -363,7 +361,6 @@ extension SelectionHandlerTests {
     }
 }
 
-
 // MARK: - SUT
 private extension SelectionHandlerTests {
     func makeSUT(waitForTermination: @escaping () -> Void) -> (SwiftPicker, MockPickerInput) {
@@ -385,7 +382,6 @@ private extension SelectionHandlerTests {
         return TreeNavigationRoot(displayName: "Root", children: [item])
     }
 }
-
 
 // MARK: - Helpers
 private extension SelectionHandlerTests {

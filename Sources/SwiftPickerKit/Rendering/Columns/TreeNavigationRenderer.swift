@@ -126,7 +126,6 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
     }
 }
 
-
 // MARK: - Private Methods
 private extension TreeNavigationRenderer {
     func renderColumn(

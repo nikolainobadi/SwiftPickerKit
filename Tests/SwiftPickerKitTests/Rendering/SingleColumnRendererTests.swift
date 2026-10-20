@@ -164,7 +164,6 @@ struct SingleColumnRendererTests {
     }
 }
 
-
 // MARK: - Helpers
 private extension SingleColumnRendererTests {
     func makeState(items: [TestItem], isSingle: Bool, activeIndex: Int = 0, selectedIndices: [Int] = []) -> SelectionState<TestItem> {
@@ -187,7 +186,6 @@ private extension SingleColumnRendererTests {
         names.map { TestFactory.makeItem(name: $0) }
     }
 }
-
 
 // MARK: - SUT
 private extension SingleColumnRendererTests {

@@ -50,7 +50,6 @@ struct SwiftPickerCommandLineInputTests {
     }
 }
 
-
 // MARK: - SUT
 private extension SwiftPickerCommandLineInputTests {
     func makeSUT(inputResponses: [String]) -> (SwiftPicker, MockTextInput) {

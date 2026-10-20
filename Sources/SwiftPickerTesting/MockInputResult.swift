@@ -16,13 +16,11 @@ public struct MockInputResult {
     }
 }
 
-
 // MARK: - Response Type
 public enum MockInputType {
     case ordered([String])
     case dictionary([String: String])
 }
-
 
 // MARK: - Internal Helpers
 extension MockInputResult {
