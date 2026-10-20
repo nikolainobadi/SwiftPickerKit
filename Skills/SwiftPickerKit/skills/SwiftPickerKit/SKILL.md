@@ -36,6 +36,7 @@ Interactive terminal-based picker library for macOS with single-selection, multi
 - **Errors:** `SwiftPickerError.selectionCancelled` (user quit), `.inputRequired` (empty text input); `PickerRequirementError` from the `flagHint:` overloads; `PickerInterruptedError` for interrupted required selections on `SwiftPicker` when the host keeps running and the picker uses `.finishAsCancelled`
 
 ### Testing
+- **Import:** `import SwiftPickerTesting` also exposes the public `SwiftPickerKit` API; a separate `import SwiftPickerKit` is unnecessary for public picker types.
 - **`MockSwiftPicker`** — Open class conforming to `CommandLinePicker`; no terminal I/O
 - **`ScriptedPicker.make(...)`** — Builds a `MockSwiftPicker` from independent ordered queues for multi-prompt flows
 - **`ScriptedPicker.silent()`** — Uses empty queues and fallback responses while still capturing prompts

@@ -394,6 +394,8 @@ The `SelectionHandler` orchestrates these three components in a render loop, man
 
 ## Testing
 
+`SwiftPickerTesting` re-exports `SwiftPickerKit`, so importing it also makes SwiftPickerKit's public types and protocols available without a separate `import SwiftPickerKit`.
+
 The package includes a `SwiftPickerTesting` module with `MockSwiftPicker` for testing without terminal I/O:
 
 ```swift

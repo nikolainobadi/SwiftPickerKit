@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-10-20
+
+### Changed
+- `SwiftPickerTesting` now re-exports `SwiftPickerKit`, so files that import `SwiftPickerTesting` can use public `SwiftPickerKit` APIs without a separate `import SwiftPickerKit`
+
 ## [0.12.0] - 2026-10-17
 
 ### Added

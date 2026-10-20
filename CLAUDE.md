@@ -5,7 +5,7 @@ Guidance for Claude Code when working in this repository. See README.md for the 
 ## Overview
 Swift Package Manager library for interactive terminal pickers: single/multi selection, two-column layouts, tree navigation, and file system browsing. macOS 13+, swift-tools 6.2 (Swift 6 language mode), depends on ANSITerminalModified.
 
-Two products: `SwiftPickerKit` (the library) and `SwiftPickerTesting` (mocks for consumers).
+Two products: `SwiftPickerKit` (the library) and `SwiftPickerTesting` (mocks for consumers). `SwiftPickerTesting` re-exports `SwiftPickerKit`, so importing it also exposes the library's public APIs.
 
 ## Skill Documentation
 

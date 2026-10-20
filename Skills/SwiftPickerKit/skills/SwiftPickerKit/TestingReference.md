@@ -4,6 +4,11 @@ Testing helpers and mock types from the `SwiftPickerTesting` module for code tha
 
 **Import:** `import SwiftPickerTesting`
 
+Add the `SwiftPickerTesting` product to your test target's dependencies. It re-exports
+`SwiftPickerKit`, so this import also exposes public picker protocols, models, errors, and
+`NonInteractivePicker`. A separate `import SwiftPickerKit` is unnecessary when using those
+public APIs alongside the testing helpers.
+
 ## Choosing a Test Double
 
 | Need | Use | Module |
