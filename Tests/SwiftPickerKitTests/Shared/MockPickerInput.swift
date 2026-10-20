@@ -40,7 +40,6 @@ final class MockPickerInput: PickerInput {
     }
 }
 
-
 // MARK: - PickerInput
 extension MockPickerInput {
     func cursorOff() {}

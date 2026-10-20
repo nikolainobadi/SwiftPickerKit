@@ -59,7 +59,6 @@ struct SingleSelectionBehaviorTests {
     }
 }
 
-
 // MARK: - SUT
 private extension SingleSelectionBehaviorTests {
     func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0) -> (SingleSelectionBehavior<TestItem>, SelectionState<TestItem>) {

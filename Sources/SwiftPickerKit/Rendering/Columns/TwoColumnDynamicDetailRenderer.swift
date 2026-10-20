@@ -44,7 +44,6 @@ struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRende
     }
 }
 
-
 // MARK: - Private Methods
 private extension TwoColumnDynamicDetailRenderer {
     func optionMarker(option: Option<Item>, isActive: Bool, isSingle: Bool) -> String {

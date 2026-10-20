@@ -39,7 +39,6 @@ open class MockSwiftPicker {
     }
 }
 
-
 // MARK: - CommandLineInput
 extension MockSwiftPicker: CommandLineInput {
     public func getInput(prompt: String) -> String {
@@ -49,7 +48,6 @@ extension MockSwiftPicker: CommandLineInput {
     }
 }
 
-
 // MARK: - CommandLinePermission
 extension MockSwiftPicker: CommandLinePermission {
     public func getPermission(prompt: String) -> Bool {
@@ -57,7 +55,6 @@ extension MockSwiftPicker: CommandLinePermission {
         return permissionResult.nextResponse(for: prompt)
     }
 }
-
 
 // MARK: - CommandLineSelection
 extension MockSwiftPicker: CommandLineSelection {
@@ -84,7 +81,6 @@ extension MockSwiftPicker: CommandLineSelection {
         }
     }
 }
-
 
 // MARK: - CommandLineTreeNavigation
 extension MockSwiftPicker: CommandLineTreeNavigation {

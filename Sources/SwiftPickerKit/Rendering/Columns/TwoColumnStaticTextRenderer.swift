@@ -45,7 +45,6 @@ struct TwoColumnStaticTextRenderer<Item: DisplayablePickerItem>: ContentRenderer
     }
 }
 
-
 // MARK: - Private Methods
 private extension TwoColumnStaticTextRenderer {
     func renderRightColumnBlock(fullTextLines: [String], context: ScrollRenderContext, leftWidth: Int, rightWidth: Int, input: PickerInput) {

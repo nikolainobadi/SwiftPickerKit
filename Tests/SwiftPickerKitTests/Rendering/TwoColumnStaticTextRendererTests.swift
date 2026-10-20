@@ -220,7 +220,6 @@ struct TwoColumnStaticTextRendererTests {
     }
 }
 
-
 // MARK: - Helpers
 private extension TwoColumnStaticTextRendererTests {
     func makeState(
@@ -246,7 +245,6 @@ private extension TwoColumnStaticTextRendererTests {
         return .init(startIndex: startIndex, endIndex: endIndex, listStartRow: listStartRow, visibleRowCount: visibleRowCount)
     }
 }
-
 
 // MARK: - SUT
 private extension TwoColumnStaticTextRendererTests {

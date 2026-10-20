@@ -32,7 +32,6 @@ struct SwiftPickerDemo: ParsableCommand {
     )
 }
 
-
 // MARK: - Shared Helpers
 
 extension SwiftPickerDemo {

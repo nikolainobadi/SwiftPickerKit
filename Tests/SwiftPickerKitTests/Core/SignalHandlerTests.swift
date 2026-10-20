@@ -88,7 +88,6 @@ struct SignalHandlerTests {
     }
 }
 
-
 // MARK: - Forwarding Decision
 extension SignalHandlerTests {
     @Test
@@ -119,7 +118,6 @@ extension SignalHandlerTests {
         #expect(SignalHandler.forwarding(for: action) == .chainToHandler)
     }
 }
-
 
 // MARK: - Signal Response
 /// These call `SignalHandler.handle` directly instead of sending real signals: a debugger
@@ -162,7 +160,6 @@ extension SignalHandlerTests {
         }
     }
 }
-
 
 // MARK: - Helpers
 private extension SignalHandlerTests {
@@ -216,7 +213,6 @@ private extension SignalHandlerTests {
         return unsafeBitCast(handler, to: Int.self)
     }
 }
-
 
 // MARK: - Host Handlers
 /// Records the order in which the picker's cleanup and the chained host handler run.

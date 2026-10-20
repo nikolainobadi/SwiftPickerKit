@@ -103,7 +103,6 @@ struct SelectionStateTests {
     }
 }
 
-
 // MARK: - SUT
 private extension SelectionStateTests {
     func makeSUT(optionCount: Int = 1, isSingleSelection: Bool = true, selectedIndices: Set<Int> = [], prompt: String = "Prompt", activeIndex: Int = 0) -> (SelectionState<TestItem>, [Option<TestItem>]) {

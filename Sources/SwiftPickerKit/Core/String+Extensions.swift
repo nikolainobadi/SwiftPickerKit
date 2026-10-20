@@ -54,7 +54,6 @@ extension String {
     }
 }
 
-
 // MARK: - Private Helpers
 private extension Substring {
     /// Wraps a single line (without newlines) into multiple lines at word boundaries.

@@ -61,7 +61,6 @@ public protocol CommandLineSelection {
     func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool) -> [Item]
 }
 
-
 // MARK: - CommandLineSelection Convenience
 public extension CommandLineSelection {
     /// Convenience overload with default parameter values.

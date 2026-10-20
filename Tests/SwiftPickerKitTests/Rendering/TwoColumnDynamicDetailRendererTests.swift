@@ -217,7 +217,6 @@ struct TwoColumnDynamicDetailRendererTests {
     }
 }
 
-
 // MARK: - Helpers
 private extension TwoColumnDynamicDetailRendererTests {
     func makeState(
@@ -243,7 +242,6 @@ private extension TwoColumnDynamicDetailRendererTests {
         return .init(startIndex: startIndex, endIndex: endIndex, listStartRow: listStartRow, visibleRowCount: visibleRowCount)
     }
 }
-
 
 // MARK: - SUT
 private extension TwoColumnDynamicDetailRendererTests {

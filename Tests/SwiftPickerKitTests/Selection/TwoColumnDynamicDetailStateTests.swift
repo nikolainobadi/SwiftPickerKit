@@ -80,7 +80,6 @@ struct TwoColumnDynamicDetailStateTests {
     }
 }
 
-
 // MARK: - Helpers
 private extension TwoColumnDynamicDetailStateTests {
     func makeDetailRecorder(text: String) -> (closure: (TestItem) -> String, calls: () -> [TestItem]) {
@@ -92,7 +91,6 @@ private extension TwoColumnDynamicDetailStateTests {
         return (closure, { captured })
     }
 }
-
 
 // MARK: - SUT
 private extension TwoColumnDynamicDetailStateTests {

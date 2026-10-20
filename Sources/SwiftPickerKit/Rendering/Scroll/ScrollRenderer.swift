@@ -13,7 +13,6 @@ struct ScrollRenderer {
     }
 }
 
-
 // MARK: - Render
 extension ScrollRenderer {
     func renderUpArrow(at row: Int) {

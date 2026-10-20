@@ -139,7 +139,6 @@ final class SelectionHandler<
     }
 }
 
-
 // MARK: - Input Loop
 extension SelectionHandler {
     /// Main input loop that captures user interactions and returns the selection outcome.
@@ -253,7 +252,6 @@ extension SelectionHandler {
         renderFrame()
     }
 }
-
 
 // MARK: - Rendering
 private extension SelectionHandler {
@@ -398,7 +396,6 @@ private extension SelectionHandler {
         )
     }
 }
-
 
 // MARK: - Dependencies
 /// The outcome of a picker input loop iteration.

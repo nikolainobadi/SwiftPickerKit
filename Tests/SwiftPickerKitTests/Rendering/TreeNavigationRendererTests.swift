@@ -387,7 +387,6 @@ struct TreeNavigationRendererTests {
     }
 }
 
-
 // MARK: - Helpers
 private extension TreeNavigationRendererTests {
     func makeState(rootItems: [TestTreeNode]) -> TreeNavigationState<TestTreeNode> {
@@ -398,7 +397,6 @@ private extension TreeNavigationRendererTests {
         ScrollRenderContext(startIndex: startIndex, endIndex: endIndex, listStartRow: listStartRow, visibleRowCount: visibleRowCount)
     }
 }
-
 
 // MARK: - Test Items
 private struct TestTreeNode: TreeNodePickerItem {
@@ -423,7 +421,6 @@ private struct TestTreeNode: TreeNodePickerItem {
         children
     }
 }
-
 
 // MARK: - SUT
 private extension TreeNavigationRendererTests {

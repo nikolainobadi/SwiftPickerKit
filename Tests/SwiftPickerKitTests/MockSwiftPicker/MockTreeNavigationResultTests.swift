@@ -55,7 +55,6 @@ struct MockTreeNavigationResultTests {
     }
 }
 
-
 // MARK: - Sequential Access
 extension MockTreeNavigationResultTests {
     @Test
@@ -81,7 +80,6 @@ extension MockTreeNavigationResultTests {
     }
 }
 
-
 // MARK: - Dictionary Access
 extension MockTreeNavigationResultTests {
     @Test
@@ -101,7 +99,6 @@ extension MockTreeNavigationResultTests {
         #expect(sut.nextOutcome(for: "unknown") == defaultOutcome)
     }
 }
-
 
 // MARK: - SUT
 private extension MockTreeNavigationResultTests {

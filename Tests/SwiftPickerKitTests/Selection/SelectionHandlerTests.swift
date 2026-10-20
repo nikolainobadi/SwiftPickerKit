@@ -98,7 +98,6 @@ struct SelectionHandlerTests {
     }
 }
 
-
 // MARK: - Required Prompts
 extension SelectionHandlerTests {
     @Test
@@ -239,7 +238,6 @@ extension SelectionHandlerTests {
     }
 }
 
-
 // MARK: - Wait For Termination
 /// In production the wait never returns; these record the call and let it return, so the loop
 /// then finishes as cancelled.
@@ -363,7 +361,6 @@ extension SelectionHandlerTests {
     }
 }
 
-
 // MARK: - SUT
 private extension SelectionHandlerTests {
     func makeSUT(waitForTermination: @escaping () -> Void) -> (SwiftPicker, MockPickerInput) {
@@ -385,7 +382,6 @@ private extension SelectionHandlerTests {
         return TreeNavigationRoot(displayName: "Root", children: [item])
     }
 }
-
 
 // MARK: - Helpers
 private extension SelectionHandlerTests {

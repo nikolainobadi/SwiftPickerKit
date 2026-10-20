@@ -75,7 +75,6 @@ struct PickerFooterRenderer {
     }
 }
 
-
 // MARK: - Methods for Rendering
 extension PickerFooterRenderer {
     /// Returns the fixed number of rows consumed by the footer.

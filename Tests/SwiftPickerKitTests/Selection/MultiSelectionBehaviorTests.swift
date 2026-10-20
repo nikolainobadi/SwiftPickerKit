@@ -75,7 +75,6 @@ struct MultiSelectionBehaviorTests {
     }
 }
 
-
 // MARK: - SUT
 private extension MultiSelectionBehaviorTests {
     func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0, selectedIndices: Set<Int> = []) -> (MultiSelectionBehavior<TestItem>, SelectionState<TestItem>) {

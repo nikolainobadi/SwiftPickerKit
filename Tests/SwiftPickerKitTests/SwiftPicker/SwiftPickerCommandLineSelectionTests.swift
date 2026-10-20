@@ -123,7 +123,6 @@ struct SwiftPickerCommandLineSelectionTests {
     }
 }
 
-
 // MARK: - SUT
 private extension SwiftPickerCommandLineSelectionTests {
     func makeSUT() -> (SwiftPicker, MockPickerInput) {

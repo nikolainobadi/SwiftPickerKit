@@ -9,7 +9,6 @@ final class TreeNavigationBehavior<Item: TreeNodePickerItem> {
     typealias State = TreeNavigationState<Item>
 }
 
-
 // MARK: - SelectionBehavior
 extension TreeNavigationBehavior: SelectionBehavior {
     func handleArrow(direction: Direction, state: inout State) {

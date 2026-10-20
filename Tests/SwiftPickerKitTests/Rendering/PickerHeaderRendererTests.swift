@@ -126,7 +126,6 @@ struct PickerHeaderRendererTests {
     }
 }
 
-
 // MARK: - SUT
 private extension PickerHeaderRendererTests {
     func makeSUT(dividerStyle: PickerDividerStyle = .single) -> (PickerHeaderRenderer, MockPickerInput) {

@@ -173,7 +173,6 @@ struct ScrollEngineTests {
     }
 }
 
-
 // MARK: - SUT
 private extension ScrollEngineTests {
     func makeSUT(totalItems: Int, visibleRows: Int) -> ScrollEngine {

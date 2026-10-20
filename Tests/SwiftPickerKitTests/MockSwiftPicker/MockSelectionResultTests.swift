@@ -88,7 +88,6 @@ struct MockSelectionResultTests {
     }
 }
 
-
 // MARK: - Sequential Access Tests
 extension MockSelectionResultTests {
     @Test
@@ -132,7 +131,6 @@ extension MockSelectionResultTests {
     }
 }
 
-
 // MARK: - Dictionary Access Tests
 extension MockSelectionResultTests {
     @Test
@@ -174,7 +172,6 @@ extension MockSelectionResultTests {
         #expect(sut.nextMultiOutcome(for: "unknown") == defaultMulti)
     }
 }
-
 
 // MARK: - SUT
 private extension MockSelectionResultTests {

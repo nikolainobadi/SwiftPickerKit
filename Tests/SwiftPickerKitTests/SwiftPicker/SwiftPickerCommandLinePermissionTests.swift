@@ -47,7 +47,6 @@ struct SwiftPickerCommandLinePermissionTests {
     }
 }
 
-
 // MARK: - SUT
 private extension SwiftPickerCommandLinePermissionTests {
     func makeSUT(permissionResponses: [Bool]) -> (SwiftPicker, MockTextInput) {

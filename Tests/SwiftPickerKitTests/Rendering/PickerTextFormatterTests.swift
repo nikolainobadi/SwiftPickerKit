@@ -48,7 +48,6 @@ struct PickerTextFormatterTests {
     }
 }
 
-
 // MARK: - Truncation
 extension PickerTextFormatterTests {
     @Test
@@ -102,7 +101,6 @@ extension PickerTextFormatterTests {
         #expect(sut.truncate("Hello", maxWidth: 2) == "H…")
     }
 }
-
 
 // MARK: - SUT
 private extension PickerTextFormatterTests {

@@ -15,7 +15,6 @@ struct DefaultTextInput: TextInput {
     }
 }
 
-
 // MARK: - Private Methods
 private extension DefaultTextInput {
     func getInput(_ prompt: String, retryCount: Int) -> String {

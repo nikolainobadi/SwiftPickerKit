@@ -21,7 +21,6 @@ final class TwoColumnStaticTextState<Item: DisplayablePickerItem> {
     }
 }
 
-
 // MARK: - BaseSelectionState
 extension TwoColumnStaticTextState: BaseSelectionState {
     var activeIndex: Int {

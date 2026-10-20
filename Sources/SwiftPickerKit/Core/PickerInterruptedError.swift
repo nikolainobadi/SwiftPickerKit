@@ -37,7 +37,6 @@ public struct PickerInterruptedError: Error, Equatable, LocalizedError {
     }
 }
 
-
 // MARK: - Interruption
 extension PickerInterruptedError {
     /// An error when `picker` is a `SwiftPicker` whose most recent selection prompt was ended by

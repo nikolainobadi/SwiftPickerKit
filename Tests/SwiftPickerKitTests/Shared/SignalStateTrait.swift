@@ -38,7 +38,6 @@ extension Trait where Self == SignalStateTrait {
     }
 }
 
-
 // MARK: - Lock
 private actor SignalStateLock {
     static let shared = SignalStateLock()

@@ -15,7 +15,6 @@ final class TwoColumnDynamicDetailState<Item: DisplayablePickerItem> {
     }
 }
 
-
 // MARK: - BaseSelectionState
 extension TwoColumnDynamicDetailState: BaseSelectionState {
     var activeIndex: Int {

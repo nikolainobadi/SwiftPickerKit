@@ -25,7 +25,6 @@ public struct MockSelectionResult {
     }
 }
 
-
 // MARK: - Response Types
 public enum MockSingleSelectionType {
     case ordered([MockSingleSelectionOutcome])
@@ -36,7 +35,6 @@ public enum MockMultiSelectionType {
     case ordered([MockMultiSelectionOutcome])
     case dictionary([String: MockMultiSelectionOutcome])
 }
-
 
 // MARK: - Responses
 public struct MockSingleSelectionOutcome: Equatable, Sendable {
@@ -66,7 +64,6 @@ public struct MockMultiSelectionOutcome: Equatable, Sendable {
         return .init(selectedIndices: indices)
     }
 }
-
 
 // MARK: - Internal Helpers
 extension MockSelectionResult {

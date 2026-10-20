@@ -73,7 +73,6 @@ struct TwoColumnDynamicDetailMultiBehaviorTests {
     }
 }
 
-
 // MARK: - SUT
 private extension TwoColumnDynamicDetailMultiBehaviorTests {
     func makeSUT(items: [TestItem] = [TestFactory.makeItem(name: "Item")], activeIndex: Int = 0, selectedIndices: Set<Int> = []) -> (TwoColumnDynamicDetailMultiBehavior<TestItem>, TwoColumnDynamicDetailState<TestItem>) {

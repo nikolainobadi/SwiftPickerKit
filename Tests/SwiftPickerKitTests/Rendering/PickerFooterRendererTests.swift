@@ -56,7 +56,6 @@ struct PickerFooterRendererTests {
     }
 }
 
-
 // MARK: - SUT
 private extension PickerFooterRendererTests {
     func makeSUT(

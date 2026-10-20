@@ -52,7 +52,6 @@ struct ScrollEngine {
     }
 }
 
-
 // MARK: - Scroll Calculation
 extension ScrollEngine {
     /// Calculates the visible item range based on the active index.

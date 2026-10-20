@@ -39,7 +39,6 @@ struct ScriptedPickerTests {
     }
 }
 
-
 // MARK: - Exhaustion Tests
 extension ScriptedPickerTests {
     @Test
@@ -79,7 +78,6 @@ extension ScriptedPickerTests {
     }
 }
 
-
 // MARK: - Tree Navigation Tests
 extension ScriptedPickerTests {
     @Test
@@ -110,7 +108,6 @@ extension ScriptedPickerTests {
     }
 }
 
-
 // MARK: - Silent Tests
 extension ScriptedPickerTests {
     @Test
@@ -138,7 +135,6 @@ extension ScriptedPickerTests {
     }
 }
 
-
 // MARK: - Default Agreement Tests
 extension ScriptedPickerTests {
     // ScriptedPicker.make passes the fallbacks as literals rather than letting the Mock*Result
@@ -161,7 +157,6 @@ extension ScriptedPickerTests {
     }
 }
 
-
 // MARK: - Prompt Capture Tests
 extension ScriptedPickerTests {
     @Test
@@ -180,7 +175,6 @@ extension ScriptedPickerTests {
         #expect(sut.capturedMultiSelectionPrompts == ["Pick many"])
     }
 }
-
 
 // MARK: - Helpers
 private extension ScriptedPickerTests {

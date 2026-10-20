@@ -16,13 +16,11 @@ public struct MockPermissionResult {
     }
 }
 
-
 // MARK: - Response Type
 public enum MockPermissionType {
     case ordered([Bool])
     case dictionary([String: Bool])
 }
-
 
 // MARK: - Internal Helpers
 extension MockPermissionResult {

@@ -55,14 +55,12 @@ extension PickerRequirementErrorTests {
     }
 }
 
-
 // MARK: - Helpers
 private extension PickerRequirementErrorTests {
     enum Requirement {
         case input, selection, confirmation
     }
 }
-
 
 // MARK: - SUT
 private extension PickerRequirementErrorTests {
