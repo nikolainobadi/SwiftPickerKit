@@ -1,4 +1,5 @@
 {
+  "version": "0.13.1",
   "name": "SwiftPickerKit",
   "description": "SwiftPickerKit Swift API reference for terminal-based interactive pickers",
   "author": {
