@@ -54,6 +54,7 @@ enum SpecialChar {
 
 protocol TextInput {
     func getInput(_ prompt: String) -> String
+    func getSecretInput(_ prompt: String) -> String
     func getPermission(_ prompt: String) -> Bool
 }
 

@@ -42,6 +42,36 @@ struct MockSwiftPickerTests {
     }
 }
 
+// MARK: - Secret Input Tests
+extension MockSwiftPickerTests {
+    @Test
+    func `Answers secret prompts from the secret input configuration`() {
+        let sut = MockSwiftPicker(secretInputResult: makeInputResult(type: .ordered(["token"])))
+
+        #expect(sut.getSecretInput(prompt: "API token") == "token")
+    }
+
+    @Test
+    func `Records secret prompts apart from text prompts`() {
+        let sut = makeSUT()
+
+        _ = sut.getSecretInput(prompt: "Password")
+        _ = sut.getInput(prompt: "Name")
+
+        #expect(sut.capturedSecretPrompts == ["Password"])
+        #expect(sut.capturedPrompts == ["Name"])
+    }
+
+    @Test
+    func `Throws input required when a required secret has no scripted answer`() {
+        let sut = makeSUT()
+
+        #expect(throws: SwiftPickerError.inputRequired) {
+            try sut.getRequiredSecretInput(prompt: "Password")
+        }
+    }
+}
+
 // MARK: - Prompt Capture Tests
 extension MockSwiftPickerTests {
     @Test

@@ -36,6 +36,19 @@ public protocol CommandLineInput {
     /// - Parameter prompt: The prompt text to display
     /// - Returns: The user's input (may be empty)
     func getInput(prompt: String) -> String
+
+    /// Prompts the user for text input without showing what they type.
+    ///
+    /// Use this for passwords, tokens, and other secrets. Behaves like `getInput(prompt:)`,
+    /// except the typed characters are never echoed to the terminal. When standard input is
+    /// not a terminal (piped input, CI), the line is read as is.
+    ///
+    /// Returns an empty string if the user presses Enter without typing anything, or if the
+    /// prompt is ended by Ctrl+C or SIGTERM while the host keeps running.
+    ///
+    /// - Parameter prompt: The prompt text to display
+    /// - Returns: The user's input (may be empty)
+    func getSecretInput(prompt: String) -> String
 }
 
 // MARK: - CommandLineInput Convenience
@@ -68,5 +81,37 @@ public extension CommandLineInput {
     /// - Returns: The user's input (guaranteed non-empty)
     func getRequiredInput(_ prompt: String) throws -> String {
         return try getRequiredInput(prompt: prompt)
+    }
+
+    /// Convenience overload with unlabeled prompt parameter.
+    func getSecretInput(_ prompt: String) -> String {
+        return getSecretInput(prompt: prompt)
+    }
+
+    /// Required variant of `getSecretInput(prompt:)` that throws if the user provides empty input.
+    ///
+    /// - Parameter prompt: The prompt text to display
+    /// - Throws: `SwiftPickerError.inputRequired` if input is empty, or
+    ///   `PickerInterruptedError` if the prompt is interrupted
+    /// - Returns: The user's input (guaranteed non-empty)
+    func getRequiredSecretInput(prompt: String) throws -> String {
+        let input = getSecretInput(prompt: prompt)
+        if input.isEmpty {
+            if let interruption = PickerInterruptedError.interruption(for: self) {
+                throw interruption
+            }
+
+            throw SwiftPickerError.inputRequired
+        }
+        return input
+    }
+
+    /// Required secret input variant with unlabeled prompt parameter.
+    ///
+    /// - Throws: `SwiftPickerError.inputRequired` if input is empty, or
+    ///   `PickerInterruptedError` if the prompt is interrupted
+    /// - Returns: The user's input (guaranteed non-empty)
+    func getRequiredSecretInput(_ prompt: String) throws -> String {
+        return try getRequiredSecretInput(prompt: prompt)
     }
 }
