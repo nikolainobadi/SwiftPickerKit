@@ -7,8 +7,8 @@
 
 import SwiftPickerKit
 
-/// Lightweight mock that mirrors the `CommandLineInput` surface so clients can unit test
-/// flows that expect a picker-like dependency without touching STDIN.
+/// A `CommandLinePicker` that answers from configured results and records every prompt, for
+/// testing consumers without terminal I/O. `open` so tests can subclass it.
 open class MockSwiftPicker {
     private var inputResult: MockInputResult
     private var secretInputResult: MockInputResult
@@ -16,18 +16,17 @@ open class MockSwiftPicker {
     private var selectionResult: MockSelectionResult
     private var treeNavigationResult: MockTreeNavigationResult
 
-    /// Captured prompts provide a simple way for tests to assert which strings were displayed.
+    /// Prompts passed to `getInput`, in call order.
     public private(set) var capturedPrompts: [String] = []
-    /// Captured secret input prompts, kept apart from `capturedPrompts` so tests can tell which
-    /// questions hid the user's answer.
+    /// Prompts passed to `getSecretInput`, kept apart from `capturedPrompts`.
     public private(set) var capturedSecretPrompts: [String] = []
-    /// Captured permission prompts mirror the text shown for yes/no questions.
+    /// Prompts passed to `getPermission`, in call order.
     public private(set) var capturedPermissionPrompts: [String] = []
-    /// Captured single selection prompts mirror the picker request text.
+    /// Prompts passed to `singleSelection`, in call order.
     public private(set) var capturedSingleSelectionPrompts: [String] = []
-    /// Captured multi selection prompts mirror the picker request text.
+    /// Prompts passed to `multiSelection`, in call order.
     public private(set) var capturedMultiSelectionPrompts: [String] = []
-    /// Captured tree navigation prompts mirror the hierarchical picker requests.
+    /// Prompts passed to `treeNavigation`, in call order.
     public private(set) var capturedTreeNavigationPrompts: [String] = []
 
     public init(

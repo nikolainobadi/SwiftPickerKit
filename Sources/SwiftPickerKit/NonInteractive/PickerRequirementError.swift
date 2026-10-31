@@ -7,18 +7,12 @@
 
 import Foundation
 
-/// Errors thrown by the `flagHint:` variants of the `required*` picker methods.
+/// Errors thrown by the `flagHint:` variants of the `required*` methods, naming the command line
+/// flag to pass instead.
 ///
-/// These variants exist so a failed prompt can tell the user which command line flag to pass
-/// instead. The messages are deliberately **mode-neutral**: the same overloads fire when a live
-/// `SwiftPicker` receives empty input or a cancelled selection, so the text has to read correctly
-/// whether or not the run was interactive.
-///
-/// This is a separate type from `SwiftPickerError` on purpose. `SwiftPickerError` is a public
-/// enum in a package without library evolution, so adding a case to it would break any client
-/// that switches over it exhaustively.
-///
-/// ## Usage
+/// Messages are mode-neutral, since the same overloads fail on a live `SwiftPicker` too. A
+/// separate type because adding cases to the public `SwiftPickerError` enum would break
+/// downstream exhaustive `switch`es.
 ///
 /// ```swift
 /// do {
@@ -30,13 +24,13 @@ import Foundation
 /// }
 /// ```
 public enum PickerRequirementError: Error, LocalizedError {
-    /// Thrown when a required text prompt produced empty input.
+    /// A required text prompt produced empty input.
     case missingInput(prompt: String, flagHint: String?)
 
-    /// Thrown when a required selection or tree navigation produced no result.
+    /// A required selection or tree navigation produced no result.
     case missingSelection(prompt: String, flagHint: String?)
 
-    /// Thrown when a required permission prompt was denied.
+    /// A required permission prompt was denied; the message suggests `--yes` if `flagHint` is `nil`.
     case confirmationRequired(prompt: String, flagHint: String?)
 
     public var errorDescription: String? {
@@ -53,7 +47,7 @@ public enum PickerRequirementError: Error, LocalizedError {
 
 // MARK: - Private Helpers
 private extension PickerRequirementError {
-    /// Renders the "here's how to fix it" half of the message.
+    /// The "how to fix it" half of the message.
     static func remedy(_ flagHint: String?) -> String {
         guard let flagHint else {
             return "Provide it as an argument."

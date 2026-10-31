@@ -7,57 +7,21 @@
 
 import Foundation
 
-/// Internal utility for handling termination signals to ensure proper terminal cleanup.
+/// Restores the terminal on SIGINT/SIGTERM, then forwards the signal to the host's saved handler
+/// (see `SignalForwarding`); the picker never decides on its own that the process should exit.
 ///
-/// When SwiftPicker uses the alternate screen buffer, it's critical to restore the terminal
-/// to its normal state if the user interrupts the program (Ctrl+C) or the process is terminated.
-/// Without signal handling, interrupted pickers can leave the terminal in an unusable state.
-///
-/// ## How It Works
-///
-/// This handler registers callbacks for SIGINT (Ctrl+C) and SIGTERM (process termination).
-/// When these signals are received, it executes the cleanup closure to restore terminal state,
-/// then forwards the signal to whatever the host application had installed (see
-/// `SignalForwarding`). The picker never decides on its own that the process should exit.
-///
-/// ## Usage
-///
-/// SwiftPickerKit uses this automatically in `SelectionHandler`. Users of the library don't
-/// need to interact with this type directly.
-///
-/// ```swift
-/// // Internal usage pattern:
-/// SignalHandler.setupSignalHandlers {
-///     pickerInput.exitAlternativeScreen()
-///     pickerInput.enableNormalInput()
-/// }
-///
-/// // ... run picker ...
-///
-/// SignalHandler.removeSignalHandlers()
-/// ```
-///
-/// ## Implementation Notes
-///
-/// The handler uses a global variable to store the cleanup closure because C signal handlers
-/// cannot capture Swift context. Only one signal handler can be active at a time across the
-/// entire process. The host application's own handlers are saved on setup and restored on
-/// removal, so the picker never permanently replaces them.
+/// Only one registration can be active per process. The host's handlers are saved on setup and
+/// restored on removal, so the picker never permanently replaces them.
 enum SignalHandler {
-    /// Marked `nonisolated(unsafe)` because it guards process-global C signal handler
-    /// registration, which has no actor to belong to. Access is confined to picker
-    /// setup/teardown on a single thread.
+    /// `nonisolated(unsafe)`: guards process-global signal registration, which has no actor.
+    /// Access is confined to picker setup/teardown on a single thread.
     nonisolated(unsafe) private static var isHandlerSet = false
 
-    /// Registers signal handlers for SIGINT (Control+C) and SIGTERM.
+    /// Installs SIGINT/SIGTERM handlers, saving the host's handlers for `removeSignalHandlers()`.
     ///
-    /// The handlers the host application had installed are saved so `removeSignalHandlers()`
-    /// can put them back. This method is idempotent — calling it multiple times has no effect
-    /// if handlers are already registered, so the saved host handlers are never overwritten
-    /// with the picker's own. The cleanup closure will be executed when a termination signal
-    /// is received, before the signal is forwarded to the host's saved handler.
+    /// Idempotent, so the saved host handlers are never overwritten with the picker's own.
     ///
-    /// - Parameter cleanup: The cleanup closure to execute on signal receipt
+    /// - Parameter cleanup: Runs on signal receipt, before the signal is forwarded to the host.
     static func setupSignalHandlers(cleanup: @escaping () -> Void) {
         guard !isHandlerSet else { return }
 
@@ -72,18 +36,13 @@ enum SignalHandler {
         sigemptyset(&action.sa_mask)
         action.sa_flags = SA_SIGINFO
 
-        // Register handlers for both SIGINT (Ctrl+C) and SIGTERM (kill command),
-        // saving whatever the host had installed
+        // Install ours, saving whatever the host had installed
         sigaction(SIGINT, &action, &previousInterruptAction)
         sigaction(SIGTERM, &action, &previousTerminateAction)
     }
 
-    /// Removes the signal handlers and cleanup closure.
-    ///
-    /// Restores the handlers the host application had installed before `setupSignalHandlers`
-    /// ran — `SIG_DFL`, `SIG_IGN`, or a custom handler — rather than resetting to the system
-    /// default, so a host's own interrupt handling keeps working after the picker closes.
-    /// Does nothing if no handlers are registered.
+    /// Restores the host's saved handlers (`SIG_DFL`, `SIG_IGN`, or custom) rather than the system
+    /// default, so the host's own interrupt handling keeps working. No-op if nothing is registered.
     static func removeSignalHandlers() {
         guard isHandlerSet else { return }
 
@@ -93,19 +52,15 @@ enum SignalHandler {
         isHandlerSet = false
     }
 
-    /// Responds to a received SIGINT or SIGTERM. Called by the installed C signal handler;
-    /// separate from it so tests can drive the response without sending real signals, which
-    /// a debugger attached to the test runner would intercept.
+    /// Runs cleanup, marks `wasInterrupted`, then forwards the signal per the host's saved action.
     ///
-    /// When a termination signal is received, this function:
-    /// 1. Executes the registered cleanup closure (if any)
-    /// 2. Marks the picker as interrupted (see `wasInterrupted`)
-    /// 3. Forwards the signal according to the host's saved action (see `SignalForwarding`)
+    /// Separate from the C handler so tests can drive it without real signals, which an attached
+    /// debugger would intercept.
     ///
     /// - Parameters:
-    ///   - signal: The signal number
-    ///   - info: Signal details, passed through to a chained `SA_SIGINFO` host handler
-    ///   - context: Thread context, passed through to a chained `SA_SIGINFO` host handler
+    ///   - signal: The signal number.
+    ///   - info: Passed through to a chained `SA_SIGINFO` host handler.
+    ///   - context: Passed through to a chained `SA_SIGINFO` host handler.
     static func handle(signal: Int32, info: UnsafeMutablePointer<__siginfo>?, context: UnsafeMutableRawPointer?) {
         globalCleanupHandler?()
         interruptReceived = 1
@@ -131,10 +86,8 @@ enum SignalHandler {
         }
     }
 
-    /// Whether SIGINT or SIGTERM arrived since the handlers were last set up.
-    ///
-    /// When the host handles the signal itself, the process keeps running after the
-    /// terminal is restored, so the input loop checks this to stop drawing and finish.
+    /// Whether SIGINT or SIGTERM arrived since the last setup. When the host handles the signal
+    /// itself the process keeps running, so the input loop checks this to stop drawing and finish.
     static var wasInterrupted: Bool {
         return interruptReceived != 0
     }
@@ -150,9 +103,6 @@ enum SignalHandler {
     }
 
     /// Decides how a received signal is passed on, based on the host's saved action.
-    ///
-    /// - Parameter previousAction: The action the host had installed before the picker
-    /// - Returns: How the picker's handler forwards the signal after restoring the terminal
     static func forwarding(for previousAction: sigaction) -> SignalForwarding {
         switch handlerAddress(of: previousAction) {
         case handlerAddress(of: SIG_DFL):
@@ -182,11 +132,8 @@ enum SignalForwarding: Equatable {
 }
 
 // MARK: - Private Implementation
-/// Global cleanup handler storage.
-///
-/// Required because C signal handlers (`signal()`) cannot capture Swift closures or context.
-/// This must be at file scope to be accessible from the C signal handler function, which
-/// is why it is `nonisolated(unsafe)` — a C function pointer cannot carry actor isolation.
+/// File scope and `nonisolated(unsafe)` because a C signal handler cannot capture Swift context
+/// or carry actor isolation.
 nonisolated(unsafe) private var globalCleanupHandler: (() -> Void)?
 
 /// The host's SIGINT and SIGTERM actions, saved by `setupSignalHandlers` and restored by
@@ -199,7 +146,7 @@ nonisolated(unsafe) private var previousTerminateAction = sigaction()
 /// written from signal context; file scope and `nonisolated(unsafe)` like the storage above.
 nonisolated(unsafe) private var interruptReceived: sig_atomic_t = 0
 
-/// C signal handler function for SIGINT and SIGTERM. Delegates to `SignalHandler.handle`.
+/// The installed C handler; delegates to `SignalHandler.handle`.
 private func signalHandler(_ signal: Int32, _ info: UnsafeMutablePointer<__siginfo>?, _ context: UnsafeMutableRawPointer?) {
     SignalHandler.handle(signal: signal, info: info, context: context)
 }

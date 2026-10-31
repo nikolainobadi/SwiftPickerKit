@@ -5,12 +5,7 @@
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-/// Errors that can be thrown by SwiftPicker operations.
-///
-/// These errors are primarily thrown by "required" variants of picker methods
-/// when mandatory input or selections are not provided.
-///
-/// ## Usage Example
+/// Errors thrown by the `required*` picker methods when no input, selection, or permission is given.
 ///
 /// ```swift
 /// do {
@@ -24,20 +19,10 @@
 /// }
 /// ```
 public enum SwiftPickerError: Error {
-    /// Thrown when `getRequiredInput` receives empty input.
-    ///
-    /// Use this error to enforce that users provide non-empty text input.
-    /// The standard `getInput` method returns empty strings without throwing.
+    /// `getRequiredInput` or `getRequiredSecretInput` received empty input.
     case inputRequired
 
-    /// Thrown when a required selection or permission is cancelled by the user.
-    ///
-    /// This occurs when:
-    /// - `requiredSingleSelection` is cancelled (user presses 'q')
-    /// - `requiredTreeNavigation` is cancelled
-    /// - `requiredPermission` is denied (user selects 'no')
-    ///
-    /// The optional variants (`singleSelection`, `treeNavigation`, `getPermission`)
-    /// return nil or false instead of throwing.
+    /// `requiredSingleSelection` or `requiredTreeNavigation` was cancelled, or `requiredPermission`
+    /// was denied.
     case selectionCancelled
 }

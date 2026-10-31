@@ -5,44 +5,29 @@
 //  Created by Nikolai Nobadi on 11/17/25.
 //
 
-/// State for hierarchical tree navigation with breadcrumb tracking and a two-column view.
-///
-/// Manages a stack of levels (current and parent columns), index clamping, empty-folder
-/// indicators/messages, breadcrumb construction (including optional named roots), and
-/// optional auto-descend when the root has a single child. Used by
-/// `TreeNavigationBehavior` for navigation and `TwoColumnTreeRenderer` for display.
+/// State for two-column tree navigation: a stack of levels from root to the current depth,
+/// with the parent level shown in the left column and the current level in the right.
 final class TreeNavigationState<Item: TreeNodePickerItem> {
-    /// Stack of navigation levels, from root to current depth.
-    /// Each level contains items at that depth and the active index within those items.
     private(set) var levels: [Level]
 
-    /// Message displayed when navigating into an empty folder.
     private var emptyFolderMessage: String?
 
-    /// Tracks which parent item led to an empty folder (level index + item index).
+    /// Level and index of the item last found to have no children; drives the empty-folder highlight.
     private var emptyFolderIndicator: (level: Int, index: Int)?
 
-    /// Which column currently has focus (.current = right, .parent = left).
     private(set) var activeColumn: ActiveColumn = .current
 
-    /// Whether the root level is hidden (auto-descend into single root item).
+    /// Set when a lone root was auto-descended; its level stays in `levels` and the breadcrumb but is never shown as a column or navigated to.
     private var hideRootLevel = false
 
-    /// Optional display name for root level shown in breadcrumb path.
+    /// Prefixes the breadcrumb and makes the root contents the upper navigation bound.
     private let rootDisplayName: String?
 
     let prompt: String
     private let showPromptTextValue: Bool
     private let showSelectedItemTextValue: Bool
 
-    /// Creates a tree navigation state starting at the given root items.
-    ///
-    /// - Parameters:
-    ///   - rootItems: Top-level items to display (e.g., root directory nodes)
-    ///   - rootDisplayName: Optional name for root shown in breadcrumb (e.g., "Home")
-    ///   - prompt: Main instruction text
-    ///   - showPromptText: Whether to show prompt in header (default: true)
-    ///   - showSelectedItemText: Whether to show selected item in header (default: true)
+    /// - Parameter rootDisplayName: Breadcrumb prefix (e.g. "Home"); also disables auto-descend and stops ascending at the root contents.
     init(
         rootItems: [Item],
         rootDisplayName: String? = nil,
@@ -60,22 +45,17 @@ final class TreeNavigationState<Item: TreeNodePickerItem> {
 
 // MARK: - Methods for Tree Navigation
 extension TreeNavigationState {
-    /// Whether the current column (right) has focus.
     var isCurrentColumnActive: Bool {
         return activeColumn == .current
     }
 
-    /// Whether the parent column (left) has focus.
     var isParentColumnActive: Bool {
         return activeColumn == .parent
     }
 
-    /// Whether left arrow navigation is allowed (ascend or switch to parent column).
+    /// Whether left arrow can ascend or focus the parent column.
     ///
-    /// Left navigation is blocked when:
-    /// - At root level with no parent
-    /// - Using hidden root and only one level above it exists
-    /// - Using named root wrapper and at the root contents level
+    /// False at the root, at the contents of a hidden root, and at the root contents under a named root.
     var canNavigateLeft: Bool {
         if hideRootLevel && levels.count == 2 {
             return false
@@ -93,11 +73,7 @@ extension TreeNavigationState {
         return true
     }
 
-    /// Whether right arrow navigation is allowed (descend into child).
-    ///
-    /// Right navigation is blocked when:
-    /// - Current column focused and selected item has no children
-    /// - Parent column focused and current level is empty
+    /// Whether right arrow can act: descend from the current column, or refocus it from the parent column when it isn't empty.
     var canNavigateRight: Bool {
         if isParentColumnActive {
             return !currentItems.isEmpty
@@ -110,18 +86,11 @@ extension TreeNavigationState {
         return selected.hasChildren
     }
 
-    /// Items at the current (deepest) level in the navigation stack.
     var currentItems: [Item] {
         return levels.last?.items ?? []
     }
 
-    /// Information about the parent level (one level up from current).
-    ///
-    /// Returns `nil` if:
-    /// - Only one level exists (at root)
-    /// - Root level is hidden and parent would be the hidden root
-    ///
-    /// - Returns: Tuple of (level index, level data) or `nil` if no accessible parent
+    /// The level above the current one, or `nil` at the root or when that level is the hidden root.
     var parentLevelInfo: (index: Int, level: Level)? {
         guard levels.count > 1 else {
             return nil
@@ -137,11 +106,7 @@ extension TreeNavigationState {
         return (candidateIndex, levels[candidateIndex])
     }
 
-    /// Information about the current level (deepest level in the stack).
-    ///
-    /// Returns empty level if stack is empty (should never happen in normal usage).
-    ///
-    /// - Returns: Tuple of (level index, level data)
+    /// The deepest level; an empty level if the stack is somehow empty.
     var currentLevelInfo: (index: Int, level: Level) {
         guard !levels.isEmpty else {
             return (0, Level(items: [], activeIndex: 0))
@@ -152,20 +117,10 @@ extension TreeNavigationState {
         return (index, levels[index])
     }
 
-    /// Auto-descends into root item if it's the only item with children.
+    /// Starts at a lone root's children and hides the redundant root level.
     ///
-    /// Hides the redundant single-item root level and starts at its children. Breadcrumbs
-    /// still include the root's display name when present.
-    ///
-    /// ## Empty Root Handling
-    ///
-    /// If the root item has no children, sets an empty folder indicator and message.
-    ///
-    /// ## When Not Applied
-    ///
-    /// - Using a named root wrapper (`rootDisplayName != nil`)
-    /// - Root level has multiple items
-    /// - Root item has no children
+    /// Skipped with a named root, multiple roots, or a root without children. If the root's
+    /// children load empty, the root stays visible and is marked as an empty folder.
     func startAtRootContentsIfNeeded() {
         guard rootDisplayName == nil else {
             return
@@ -195,9 +150,6 @@ extension TreeNavigationState {
         clearEmptyFolderHint()
     }
 
-    /// Switches focus to parent column if a parent level exists.
-    ///
-    /// Used by `TreeNavigationBehavior` when left arrow is pressed from current column.
     func focusParentColumnIfAvailable() {
         guard parentLevelInfo != nil else {
             return
@@ -206,43 +158,24 @@ extension TreeNavigationState {
         activeColumn = .parent
     }
 
-    /// Switches focus back to current column.
-    ///
-    /// Used by `TreeNavigationBehavior` when right arrow is pressed from parent column.
     func focusCurrentColumn() {
         activeColumn = .current
     }
 
-    /// Moves selection up by one item in the active column.
     func moveSelectionUp() {
         moveSelection(by: -1)
     }
 
-    /// Moves selection down by one item in the active column.
     func moveSelectionDown() {
         moveSelection(by: 1)
     }
 
-    /// Updates the current level's children based on the parent's active selection.
+    /// Reloads the child level from a parent level's active item.
     ///
-    /// Called when:
-    /// - Parent column selection changes (user navigates up/down in parent)
-    /// - Explicitly refreshing children for a specific parent level
+    /// The child level becomes empty when the parent's active index is out of range or the item
+    /// has no children; only the latter marks it as an empty folder.
     ///
-    /// ## Behavior
-    ///
-    /// 1. Gets parent level info (uses `parentLevelInfo` by default or explicit `parentIndex`)
-    /// 2. Loads children from parent's active item using `loadChildren()`
-    /// 3. Truncates level stack to parent level
-    /// 4. Adds new child level or sets empty folder indicator
-    ///
-    /// ## Empty/Invalid Handling
-    ///
-    /// If the parent's active index is invalid, or if the active item has no children, the
-    /// current level is reset to an empty array (with indicator/message only when children
-    /// are missing).
-    ///
-    /// - Parameter parentIndex: Optional explicit parent level index (defaults to current parent)
+    /// - Parameter parentIndex: Level to treat as the parent; `nil` uses `parentLevelInfo`.
     func updateChildrenForActiveParent(at parentIndex: Int? = nil) {
         let parentDetails: (index: Int, level: Level)?
         if let parentIndex {
@@ -276,31 +209,14 @@ extension TreeNavigationState {
         resetCurrentLevel(to: children)
     }
 
-    /// Clamps the current level's active index to valid range.
-    ///
-    /// Called after navigation to ensure `activeIndex` doesn't exceed item count.
     func clampIndex() {
         clampCurrentLevel()
     }
 
-    /// Descends into the selected item's children, adding a new navigation level.
+    /// Pushes the selected item's children as a new level and focuses the current column.
     ///
-    /// This is the core **right arrow navigation** action. When the current selection
-    /// has children, this method:
-    /// 1. Loads children using `loadChildren()`
-    /// 2. Appends a new level to the stack with those children
-    /// 3. Focuses the current column
-    ///
-    /// ## Empty Folder Handling
-    ///
-    /// If the selected item has `hasChildren = true` but `loadChildren()` returns empty,
-    /// sets an empty folder indicator and displays a warning message instead of descending.
-    ///
-    /// ## When Blocked
-    ///
-    /// Does nothing if:
-    /// - No item is selected
-    /// - Selected item has `hasChildren = false`
+    /// If `hasChildren` is true but the children load empty, marks the item as an empty folder
+    /// instead of descending.
     func descendIntoChildIfPossible() {
         guard let selected = currentSelectedItem, selected.hasChildren else {
             return
@@ -320,20 +236,9 @@ extension TreeNavigationState {
         activeColumn = .current
     }
 
-    /// Ascends to the parent level, removing the current level from the stack.
+    /// Pops the current level, keeping parent-column focus while a visible parent remains.
     ///
-    /// This is the core **left arrow navigation** action when parent column is focused.
-    /// When ascending:
-    /// 1. Removes the current (deepest) level from the stack
-    /// 2. Focuses parent column if a parent still exists
-    /// 3. Clears any empty folder indicators
-    ///
-    /// ## When Blocked
-    ///
-    /// Does nothing if:
-    /// - Only one level exists (at root)
-    /// - Root level is hidden and only one level above it exists
-    /// - Using named root wrapper and at the root contents level
+    /// Does nothing at the root, at the contents of a hidden root, or at the root contents under a named root.
     func ascendToParent() {
         guard levels.count > 1 else {
             return
@@ -359,31 +264,8 @@ extension TreeNavigationState {
         }
     }
 
-    /// Generates a breadcrumb path string showing the navigation hierarchy.
-    ///
-    /// Returns a string like: `"Users ▸ Documents ▸ Projects ▸ SwiftPickerKit"`
-    ///
-    /// ## Path Construction
-    ///
-    /// - Iterates through all levels in the stack
-    /// - Takes the `displayName` of the active item at each level
-    /// - Joins names with the `▸` separator
-    /// - Prepends `rootDisplayName` if provided
-    ///
-    /// ## Example
-    ///
-    /// ```swift
-    /// // Without named root
-    /// state.breadcrumbPath()  // "Users ▸ you ▸ Projects"
-    ///
-    /// // With named root
-    /// let state = TreeNavigationState(rootItems: [node], rootDisplayName: "Home", ...)
-    /// state.breadcrumbPath()  // "Home ▸ Projects ▸ SwiftPickerKit"
-    /// ```
-    ///
-    /// Displayed in the header by `PickerHeaderRenderer` to show current location.
-    ///
-    /// - Returns: Breadcrumb path string with ▸ separators
+    /// The active item's name at every level (hidden root included), joined with ` ▸ ` and
+    /// prefixed by `rootDisplayName` when set, e.g. `"Home ▸ Projects ▸ SwiftPickerKit"`.
     func breadcrumbPath() -> String {
         let names: [String] = levels.compactMap { level in
             guard level.items.indices.contains(level.activeIndex) else {
@@ -400,15 +282,7 @@ extension TreeNavigationState {
         return names.joined(separator: " ▸ ")
     }
 
-    /// Checks if a specific item is marked with an empty folder indicator.
-    ///
-    /// Used by `TwoColumnTreeRenderer` to show visual hints (e.g., orange highlight)
-    /// for items that were found to have no children.
-    ///
-    /// - Parameters:
-    ///   - levelIndex: The level index of the item
-    ///   - index: The item index within that level
-    /// - Returns: `true` if this item is marked as having an empty folder
+    /// Whether the item at `levelIndex`/`index` is marked as an empty folder.
     func isEmptyHint(level levelIndex: Int, index: Int) -> Bool {
         guard let hint = emptyFolderIndicator else {
             return false
@@ -420,18 +294,12 @@ extension TreeNavigationState {
 
 // MARK: - BaseSelectionState Conformance
 extension TreeNavigationState: BaseSelectionState {
-    /// Returns options from the current (deepest) level wrapped in `Option` objects.
-    ///
-    /// Unlike simple pickers that show all options, tree navigation only shows
-    /// the current level's items. The renderer shows parent items separately.
+    /// Only the current level; the renderer draws the parent column separately.
     var options: [Option<Item>] {
         return currentItems.map { Option(item: $0) }
     }
 
-    /// Active index within the current level.
-    ///
-    /// Setting this updates the last level's `activeIndex` and clamps it to valid range.
-    /// Also clears empty folder hints when the selection changes.
+    /// Active index within the current level; setting clamps it and clears the empty-folder hint if it changed.
     var activeIndex: Int {
         get { currentLevel.activeIndex }
         set {
@@ -464,13 +332,7 @@ extension TreeNavigationState: BaseSelectionState {
         showSelectedItemTextValue
     }
 
-    /// Detail lines shown below the selected item in the header.
-    ///
-    /// Combines:
-    /// - Item metadata (subtitle and detail lines) in gray colors
-    /// - Empty folder message (if any) in orange
-    ///
-    /// This provides contextual information about the currently focused item.
+    /// The focused item's metadata in gray, followed by any empty-folder message in orange.
     var selectedDetailLines: [String] {
         var lines: [String] = []
 
@@ -489,17 +351,8 @@ extension TreeNavigationState: BaseSelectionState {
     }
 }
 
-/// Conforms to `FocusAwareSelectionState` to provide focused item for header display.
-///
-/// Tree navigation needs this because the "focused" item may be in the parent column
-/// (left), not the current column (right). The header shows details for whichever
-/// column has focus.
+/// Focus can sit in the parent column, so the header asks for the focused item rather than using `activeIndex`.
 extension TreeNavigationState: FocusAwareSelectionState {
-    /// The currently focused item (may be from parent or current column).
-    ///
-    /// Returns:
-    /// - Item from current column if `.current` is active
-    /// - Item from parent column if `.parent` is active
     var focusedItem: Item? {
         activeSelectedItem
     }
@@ -623,21 +476,17 @@ private extension TreeNavigationState {
 
 // MARK: - Dependencies
 extension TreeNavigationState {
-    /// Tracks which column currently has focus in the two-column tree display.
     enum ActiveColumn {
-        /// Current (right) column has focus - arrow keys navigate current level
+        /// Right column
         case current
 
-        /// Parent (left) column has focus - arrow keys navigate parent level
+        /// Left column
         case parent
     }
 
-    /// Represents one level in the tree navigation hierarchy.
     struct Level {
-        /// Items at this level in the tree hierarchy
         var items: [Item]
 
-        /// Index of the currently active/selected item at this level
         var activeIndex: Int
     }
 }

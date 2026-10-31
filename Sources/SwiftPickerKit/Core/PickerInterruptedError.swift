@@ -7,20 +7,16 @@
 
 import Foundation
 
-/// Thrown when a required selection is ended by SIGINT (Ctrl+C) or SIGTERM rather than by the
-/// user cancelling.
+/// Thrown when a required prompt on a `SwiftPicker` is ended by SIGINT (Ctrl+C) or SIGTERM, rather
+/// than cancelled by the user, while the host handles the signal and keeps running.
 ///
-/// Only reached when the host application handles the signal itself and the process keeps
-/// running; with no handler of its own, the process ends by the signal instead. Lets a caller
-/// stop its workflow rather than treat the prompt as answered with nothing.
+/// Thrown by `requiredSingleSelection`, `requiredTreeNavigation`, `getRequiredSecretInput`, and the
+/// `flagHint:` variants of `requiredSingleSelection`, `requiredMultiSelection`, and
+/// `requiredTreeNavigation`. Types that wrap a `SwiftPicker` throw their usual cancellation error
+/// instead, and optional variants still return `nil`, an empty array, or `""`.
 ///
-/// Thrown by `requiredSingleSelection`, `requiredTreeNavigation`, and the `flagHint:` variants of
-/// `requiredSingleSelection`, `requiredMultiSelection`, and `requiredTreeNavigation`, when called
-/// on a `SwiftPicker`. A custom type that wraps a `SwiftPicker` throws its usual cancellation
-/// error instead. The optional variants still return `nil` or an empty array.
-///
-/// A separate type rather than a `SwiftPickerError` case: adding a case to that public enum would
-/// break downstream exhaustive `switch`es.
+/// A separate type because adding a case to the public `SwiftPickerError` enum would break
+/// downstream exhaustive `switch`es.
 ///
 /// ```swift
 /// do {
@@ -39,11 +35,8 @@ public struct PickerInterruptedError: Error, Equatable, LocalizedError {
 
 // MARK: - Interruption
 extension PickerInterruptedError {
-    /// An error when `picker` is a `SwiftPicker` whose most recent selection prompt was ended by
-    /// SIGINT or SIGTERM; `nil` otherwise.
-    ///
-    /// Only `SwiftPicker` runs prompts under the signal handler, so other conformers — mocks,
-    /// `NonInteractivePicker` — never report an interrupt, even after one elsewhere in the process.
+    /// An error when `picker` is a `SwiftPicker` whose most recent prompt was ended by SIGINT or
+    /// SIGTERM; `nil` otherwise, so mocks and `NonInteractivePicker` never report an interrupt.
     static func interruption(for picker: Any) -> PickerInterruptedError? {
         guard picker is SwiftPicker, SignalHandler.wasInterrupted else {
             return nil

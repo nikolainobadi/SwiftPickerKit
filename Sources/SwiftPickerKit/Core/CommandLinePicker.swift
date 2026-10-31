@@ -5,18 +5,10 @@
 //  Created by Nikolai Nobadi on 11/18/25.
 //
 
-/// Unified protocol combining all SwiftPicker command-line interaction APIs.
+/// All four picker protocols in one: `CommandLineInput`, `CommandLinePermission`,
+/// `CommandLineSelection`, and `CommandLineTreeNavigation`.
 ///
-/// `CommandLinePicker` is a typealias that combines all four core SwiftPicker protocols:
-/// - `CommandLineInput` — Text input prompts
-/// - `CommandLinePermission` — Yes/no confirmation prompts
-/// - `CommandLineSelection` — Single and multi-selection pickers
-/// - `CommandLineTreeNavigation` — Hierarchical tree navigation
-///
-/// ## Usage
-///
-/// When you want to accept any type that provides all SwiftPicker functionality,
-/// use `CommandLinePicker` as a constraint:
+/// Conformers include `SwiftPicker`, `NonInteractivePicker`, and `MockSwiftPicker`.
 ///
 /// ```swift
 /// func setupWizard(picker: any CommandLinePicker) {
@@ -30,8 +22,6 @@
 ///     }
 /// }
 /// ```
-///
-/// `SwiftPicker` is the standard implementation that conforms to `CommandLinePicker`.
 public typealias CommandLinePicker = CommandLineInput
     & CommandLinePermission
     & CommandLineSelection

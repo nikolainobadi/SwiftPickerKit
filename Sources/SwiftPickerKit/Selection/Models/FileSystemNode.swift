@@ -37,7 +37,6 @@ public struct FileSystemNode: TreeNodePickerItem {
     public init(url: URL) {
         self.url = url
         
-        // Metadata support
         let attrs = try? FileManager.default.attributesOfItem(atPath: url.path)
         let size = attrs?[.size] as? Int ?? 0
         let modified = attrs?[.modificationDate] as? Date
@@ -71,7 +70,6 @@ public extension FileSystemNode {
                 return true
             }
 
-            // Ignore hidden files (dot-prefix)
             return !url.lastPathComponent.hasPrefix(".")
         }
 
@@ -89,11 +87,8 @@ public extension FileSystemNode {
 
 // MARK: - Extension Dependencies
 public extension FileSystemNode {
-    /// Process-wide browsing configuration.
-    ///
-    /// Marked `nonisolated(unsafe)` to keep the existing call sites unchanged under the
-    /// Swift 6 language mode. These are expected to be set once before browsing begins,
-    /// not mutated concurrently.
+    /// Process-wide browsing configuration, set once before browsing begins and never mutated
+    /// concurrently; `nonisolated(unsafe)` keeps existing call sites unchanged under Swift 6.
     nonisolated(unsafe) static var showHiddenFiles = false
     nonisolated(unsafe) static var selectionType: SelectionType = .filesAndFolders
 }

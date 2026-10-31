@@ -7,18 +7,15 @@
 
 import Foundation
 
-// Additive overloads of the `required*` methods that name the command line flag a caller can
-// pass instead of answering the prompt. They sit alongside the existing methods rather than
-// replacing them, so call sites opt in one at a time.
+// Overloads of the `required*` methods that name the command line flag a caller can pass instead
+// of answering the prompt, throwing `PickerRequirementError` rather than `SwiftPickerError`.
 //
-// `flagHint` deliberately has no default value on any of these. With a default, the new overload
-// and the existing one are both viable for a call that omits it, and Swift's overload ranking
-// prefers the candidate applying fewer default arguments — the existing method would win and
-// these would be unreachable. Requiring the argument makes the opt-in explicit.
+// `flagHint` deliberately has no default: with one, Swift's overload ranking would prefer the
+// existing method (fewer defaulted arguments) and these would be unreachable.
 
 // MARK: - CommandLineInput
 public extension CommandLineInput {
-    /// Required input variant that names the flag a caller can pass instead.
+    /// Prompts for a line of text and throws, naming `flagHint`, if it is empty.
     ///
     /// - Parameters:
     ///   - prompt: The prompt text to display
@@ -38,7 +35,7 @@ public extension CommandLineInput {
 
 // MARK: - CommandLinePermission
 public extension CommandLinePermission {
-    /// Required permission variant that names the flag a caller can pass instead.
+    /// Asks a yes/no question and throws, naming `flagHint`, unless the user answers yes.
     ///
     /// - Parameters:
     ///   - prompt: The question to ask the user
@@ -53,18 +50,18 @@ public extension CommandLinePermission {
 
 // MARK: - CommandLineSelection
 public extension CommandLineSelection {
-    /// Required single selection variant that names the flag a caller can pass instead.
+    /// Displays a single-selection picker and throws, naming `flagHint`, if nothing is selected.
     ///
     /// - Parameters:
     ///   - prompt: Text displayed at the top of the picker
-    ///   - items: Array of items conforming to `DisplayablePickerItem`
+    ///   - items: The items to choose from
     ///   - flagHint: The command line flag that supplies this selection, e.g. `"--project"`
-    ///   - layout: The picker layout (single column or two-column)
-    ///   - newScreen: If `true`, uses alternate screen buffer
+    ///   - layout: Single-column or two-column layout
+    ///   - newScreen: If `true`, uses the alternate screen buffer
     ///   - showSelectedItemText: If `true`, shows selected item text in the header
-    /// - Throws: `PickerRequirementError.missingSelection` if nothing was selected
-    ///   or `PickerInterruptedError` if the prompt was ended by Ctrl+C or SIGTERM
-    /// - Returns: The selected item (guaranteed non-nil)
+    /// - Throws: `PickerInterruptedError` if a `SwiftPicker` prompt is ended by Ctrl+C or SIGTERM
+    ///   while the host keeps running; otherwise `PickerRequirementError.missingSelection`
+    /// - Returns: The selected item
     func requiredSingleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], flagHint: String, layout: PickerLayout<Item> = .singleColumn, newScreen: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
         guard let selection = singleSelection(prompt: prompt, items: items, layout: layout, newScreen: newScreen, showSelectedItemText: showSelectedItemText) else {
             if let interruption = PickerInterruptedError.interruption(for: self) {
@@ -77,22 +74,20 @@ public extension CommandLineSelection {
         return selection
     }
 
-    /// Required multi selection variant that throws when nothing was selected.
+    /// Displays a multi-selection picker and throws, naming `flagHint`, if nothing is selected.
     ///
-    /// `multiSelection` cannot distinguish "the user chose nothing" from "nothing could be
-    /// prompted for" — both return an empty array. This variant treats empty as a failure so a
-    /// scripted run reports an error instead of silently proceeding with zero items. Callers
-    /// that want to allow an empty result should use `multiSelection` directly.
+    /// An empty result is treated as failure because `multiSelection` cannot distinguish "chose
+    /// nothing" from "could not prompt"; use `multiSelection` directly to allow an empty result.
     ///
     /// - Parameters:
     ///   - prompt: Text displayed at the top of the picker
-    ///   - items: Array of items conforming to `DisplayablePickerItem`
+    ///   - items: The items to choose from
     ///   - flagHint: The command line flag that supplies these selections, e.g. `"--target"`
-    ///   - layout: The picker layout (single column or two-column)
-    ///   - newScreen: If `true`, uses alternate screen buffer
+    ///   - layout: Single-column or two-column layout
+    ///   - newScreen: If `true`, uses the alternate screen buffer
     ///   - showSelectedItemText: If `true`, shows selected item text in the header
-    /// - Throws: `PickerRequirementError.missingSelection` if no items were selected
-    ///   or `PickerInterruptedError` if the prompt was ended by Ctrl+C or SIGTERM
+    /// - Throws: `PickerInterruptedError` if a `SwiftPicker` prompt is ended by Ctrl+C or SIGTERM
+    ///   while the host keeps running; otherwise `PickerRequirementError.missingSelection`
     /// - Returns: The selected items (guaranteed non-empty)
     func requiredMultiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], flagHint: String, layout: PickerLayout<Item> = .singleColumn, newScreen: Bool = true, showSelectedItemText: Bool = true) throws -> [Item] {
         let selections = multiSelection(prompt: prompt, items: items, layout: layout, newScreen: newScreen, showSelectedItemText: showSelectedItemText)
@@ -111,7 +106,7 @@ public extension CommandLineSelection {
 
 // MARK: - CommandLineTreeNavigation
 public extension CommandLineTreeNavigation {
-    /// Required tree navigation variant that names the flag a caller can pass instead.
+    /// Displays a tree navigation picker and throws, naming `flagHint`, if nothing is selected.
     ///
     /// - Parameters:
     ///   - prompt: Text displayed at the top of the picker
@@ -119,8 +114,8 @@ public extension CommandLineTreeNavigation {
     ///   - flagHint: The command line flag that supplies this selection, e.g. `"--path"`
     ///   - showPromptText: If `true`, displays the prompt text
     ///   - showSelectedItemText: If `true`, shows selected item text in the header
-    /// - Throws: `PickerRequirementError.missingSelection` if nothing was selected
-    ///   or `PickerInterruptedError` if the prompt was ended by Ctrl+C or SIGTERM
+    /// - Throws: `PickerInterruptedError` if a `SwiftPicker` prompt is ended by Ctrl+C or SIGTERM
+    ///   while the host keeps running; otherwise `PickerRequirementError.missingSelection`
     /// - Returns: The selected item
     func requiredTreeNavigation<Item: TreeNodePickerItem>(prompt: String, root: TreeNavigationRoot<Item>, flagHint: String, showPromptText: Bool = true, showSelectedItemText: Bool = true) throws -> Item {
         guard let selection = treeNavigation(prompt: prompt, root: root, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText) else {

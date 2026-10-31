@@ -7,13 +7,11 @@
 
 import Foundation
 
-/// A `CommandLinePicker` that never prompts.
+/// A `CommandLinePicker` for scripted, piped, or CI runs that never prompts.
 ///
-/// Every interactive primitive returns its "nothing was provided" value, which means the
-/// existing `required*` extensions throw exactly as they would when a user cancels. Use this
-/// in scripted, piped, or CI contexts where there is no one available to answer a prompt.
-///
-/// ## Usage
+/// Every primitive returns its "nothing provided" value, so the `required*` methods throw as they
+/// would on a user cancel. No terminal I/O, signal handlers, or alternate screen; every method
+/// returns immediately.
 ///
 /// ```swift
 /// let picker: any CommandLinePicker = isInteractive
@@ -24,31 +22,18 @@ import Foundation
 /// let name = try picker.getRequiredInput(prompt: "Project name", flagHint: "--name")
 /// ```
 ///
-/// ## Guarantees
-///
-/// Never blocks and never waits on a human: no terminal I/O, no signal handlers, and no
-/// alternate screen buffer. Every method returns immediately.
-///
-/// These guarantees cover terminal interaction only — see the `browseDirectories` caveat below
-/// for the one path that touches the file system and process-global state.
-///
-/// - Important: `browseDirectories` always returns `nil`, but reaching it through
-///   `any CommandLinePicker` or a generic `some CommandLinePicker` with the trailing arguments
-///   omitted binds to the convenience overload in `CommandLineTreeNavigation` rather than to the
-///   member below. That overload reads one directory listing from disk and assigns
-///   `FileSystemNode.selectionType` before delegating here, so the call is neither free of I/O
-///   nor free of side effects on that path. Only the return value is unaffected.
-///
-///   This cannot be prevented from outside `CommandLineTreeNavigation`: default arguments on a
-///   protocol extension member bind statically, and the protocol requirement declares none.
-///   Passing every argument explicitly, or holding a concrete `NonInteractivePicker`, avoids it.
+/// - Important: `browseDirectories` always returns `nil`, but calling it through
+///   `any CommandLinePicker` or a generic `some CommandLinePicker` with trailing arguments omitted
+///   binds statically to the `CommandLineTreeNavigation` convenience overload, which reads one
+///   directory listing and sets `FileSystemNode.selectionType` before delegating here. Pass every
+///   argument, or hold a concrete `NonInteractivePicker`, to avoid that I/O and side effect.
 public struct NonInteractivePicker: CommandLinePicker, Sendable {
     private let assumeYes: Bool
 
     /// Creates a picker that declines every prompt.
     ///
-    /// - Parameter assumeYes: When `true`, permission prompts resolve to `true` instead of
-    ///   `false`. This is the `--yes` / `--assume-yes` behavior common to scripted tools.
+    /// - Parameter assumeYes: When `true`, permission prompts return `true` (the usual `--yes`
+    ///   behavior) instead of `false`.
     public init(assumeYes: Bool = false) {
         self.assumeYes = assumeYes
     }
@@ -82,8 +67,8 @@ public extension NonInteractivePicker {
         return nil
     }
 
-    /// Returns an empty array. Use `requiredMultiSelection(prompt:items:flagHint:)` when an
-    /// empty result should be treated as a failure rather than a deliberate empty selection.
+    /// Returns an empty array; use `requiredMultiSelection(prompt:items:flagHint:)` to treat that
+    /// as a failure.
     func multiSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool) -> [Item] {
         return []
     }
@@ -98,9 +83,8 @@ public extension NonInteractivePicker {
 
     /// Returns `nil` without touching the file system.
     ///
-    /// The defaults mirror the convenience overload in `CommandLineTreeNavigation` so that
-    /// call sites holding a concrete `NonInteractivePicker` bind here and skip the directory
-    /// read that overload performs.
+    /// The defaults mirror the `CommandLineTreeNavigation` convenience overload so calls on a
+    /// concrete `NonInteractivePicker` bind here and skip its directory read.
     func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool = true, showSelectedItemText: Bool = true, selectionType: FileSystemNode.SelectionType = .filesAndFolders) -> FileSystemNode? {
         return nil
     }

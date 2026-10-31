@@ -7,21 +7,16 @@
 
 /// Builds a `MockSwiftPicker` from ordered queues, one per kind of question.
 ///
-/// A test names only the queues it exercises; the rest stay empty and answer their fallback. That
-/// omission is the point — a call that names `inputs` alone says the flow under test asks for text
-/// and nothing else, which naming five queues would bury.
-///
-/// The queues fall back rather than trap when they run dry: input answers `""`, permission answers
-/// `false`, and the selections answer "nothing chosen". Those fallbacks belong to the `Mock*Result`
-/// types, not to this one — a flow that asks permission inside a `while` loop terminates because
-/// `MockPermissionResult` defaults to `false`, whether or not the picker was built here.
+/// A test names only the queues its flow uses; omitting the rest signals that the flow asks
+/// nothing else. A drained queue falls back rather than traps: text and secret input answer `""`,
+/// permission `false`, and selections "nothing chosen". Those fallbacks come from the `Mock*Result`
+/// defaults, so a permission prompt in a `while` loop terminates with any `MockSwiftPicker`.
 public enum ScriptedPicker {
     /// Creates a picker that answers each kind of prompt from its own ordered queue.
     ///
-    /// Queues are consumed independently and in call order: the third `getInput` takes the third
-    /// element of `inputs` regardless of how many permission prompts came between. A queue that
-    /// runs out answers its fallback from then on, so a scripted flow that asks more questions than
-    /// expected degrades to "no" and "nothing chosen" instead of repeating its last answer.
+    /// Queues advance independently: the third `getInput` takes the third element of `inputs`
+    /// however many other prompts came between. Once drained, a queue answers its fallback rather
+    /// than repeating its last answer.
     ///
     /// - Parameters:
     ///   - permissions: Answers for `getPermission`, in call order. Falls back to `false`.
@@ -53,10 +48,8 @@ public enum ScriptedPicker {
         )
     }
 
-    /// Creates a picker with every queue empty, so each prompt answers its fallback.
-    ///
-    /// For tests that need a picker in the dependency graph but expect nothing to be asked, or that
-    /// assert only on the `captured*Prompts` arrays. Prompts are still recorded.
+    /// Creates a picker with every queue empty, for tests that expect no prompts or assert only on
+    /// the `captured*Prompts` arrays.
     ///
     /// - Returns: A picker that answers `""`, `false`, and "nothing chosen".
     public static func silent() -> MockSwiftPicker {

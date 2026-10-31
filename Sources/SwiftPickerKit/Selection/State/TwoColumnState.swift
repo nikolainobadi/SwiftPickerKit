@@ -5,13 +5,11 @@
 //  Created by Nikolai Nobadi on 11/16/25.
 //
 
-/// State for two-column layout with independent left/right columns.
-/// The left column acts as the primary selection target.
+/// State for a two-column layout where only the left column takes selection.
 final class TwoColumnState<Item: DisplayablePickerItem> {
-    /// Primary selection column (left side)
     var leftState: SelectionState<Item>
 
-    /// Secondary display items (right side)
+    /// Display-only items for the right column.
     var rightItems: [Item]
 
     init(leftState: SelectionState<Item>, rightItems: [Item]) {
