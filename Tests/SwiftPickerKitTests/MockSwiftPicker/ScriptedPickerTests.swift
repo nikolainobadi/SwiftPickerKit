@@ -30,6 +30,32 @@ struct ScriptedPickerTests {
     }
 
     @Test
+    func `Answers secret prompts from the queue in order`() {
+        let secretInputs = ["token", "password"]
+        let sut = makeSUT(secretInputs: secretInputs)
+
+        #expect(sut.getSecretInput(prompt: "any") == secretInputs[0])
+        #expect(sut.getSecretInput(prompt: "any") == secretInputs[1])
+    }
+
+    @Test
+    func `Advances the secret queue independently of the input queue`() {
+        let sut = makeSUT(inputs: ["visible"], secretInputs: ["hidden"])
+
+        #expect(sut.getSecretInput(prompt: "secret first") == "hidden")
+        #expect(sut.getInput(prompt: "input second") == "visible")
+    }
+
+    @Test
+    func `Falls back to an empty string once the secret queue is drained`() {
+        let sut = makeSUT(secretInputs: ["only"])
+
+        _ = sut.getSecretInput(prompt: "first")
+
+        #expect(sut.getSecretInput(prompt: "second") == "")
+    }
+
+    @Test
     func `Advances each queue independently of the others`() {
         let sut = makeSUT(permissions: [true], inputs: ["only"])
 
@@ -221,6 +247,7 @@ private extension ScriptedPickerTests {
         singles: [MockSingleSelectionOutcome] = [],
         multis: [MockMultiSelectionOutcome] = [],
         inputs: [String] = [],
+        secretInputs: [String] = [],
         treeNavigations: [MockTreeSelectionOutcome] = []
     ) -> MockSwiftPicker {
         return ScriptedPicker.make(
@@ -228,6 +255,7 @@ private extension ScriptedPickerTests {
             singles: singles,
             multis: multis,
             inputs: inputs,
+            secretInputs: secretInputs,
             treeNavigations: treeNavigations
         )
     }

@@ -11,12 +11,16 @@ import SwiftPickerKit
 /// flows that expect a picker-like dependency without touching STDIN.
 open class MockSwiftPicker {
     private var inputResult: MockInputResult
+    private var secretInputResult: MockInputResult
     private var permissionResult: MockPermissionResult
     private var selectionResult: MockSelectionResult
     private var treeNavigationResult: MockTreeNavigationResult
 
     /// Captured prompts provide a simple way for tests to assert which strings were displayed.
     public private(set) var capturedPrompts: [String] = []
+    /// Captured secret input prompts, kept apart from `capturedPrompts` so tests can tell which
+    /// questions hid the user's answer.
+    public private(set) var capturedSecretPrompts: [String] = []
     /// Captured permission prompts mirror the text shown for yes/no questions.
     public private(set) var capturedPermissionPrompts: [String] = []
     /// Captured single selection prompts mirror the picker request text.
@@ -28,11 +32,13 @@ open class MockSwiftPicker {
 
     public init(
         inputResult: MockInputResult = .init(),
+        secretInputResult: MockInputResult = .init(),
         permissionResult: MockPermissionResult = .init(),
         selectionResult: MockSelectionResult = .init(),
         treeNavigationResult: MockTreeNavigationResult = .init()
     ) {
         self.inputResult = inputResult
+        self.secretInputResult = secretInputResult
         self.permissionResult = permissionResult
         self.selectionResult = selectionResult
         self.treeNavigationResult = treeNavigationResult
@@ -45,6 +51,12 @@ extension MockSwiftPicker: CommandLineInput {
         capturedPrompts.append(prompt)
 
         return inputResult.nextResponse(for: prompt)
+    }
+
+    public func getSecretInput(prompt: String) -> String {
+        capturedSecretPrompts.append(prompt)
+
+        return secretInputResult.nextResponse(for: prompt)
     }
 }
 

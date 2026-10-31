@@ -18,6 +18,22 @@ struct NonInteractivePickerTests {
     }
 
     @Test
+    func `Secret prompts resolve to an empty value`() {
+        let sut = makeSUT()
+
+        #expect(sut.getSecretInput(prompt: "API token").isEmpty)
+    }
+
+    @Test
+    func `Required secret prompts throw input required`() {
+        let sut = makeSUT()
+
+        #expect(throws: SwiftPickerError.inputRequired) {
+            try sut.getRequiredSecretInput(prompt: "API token")
+        }
+    }
+
+    @Test
     func `Permission is denied when consent is not assumed`() {
         let sut = makeSUT()
 

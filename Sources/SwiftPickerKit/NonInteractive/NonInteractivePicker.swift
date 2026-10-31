@@ -60,6 +60,11 @@ public extension NonInteractivePicker {
     func getInput(prompt: String) -> String {
         return ""
     }
+
+    /// Returns an empty string, so `getRequiredSecretInput` throws `SwiftPickerError.inputRequired`.
+    func getSecretInput(prompt: String) -> String {
+        return ""
+    }
 }
 
 // MARK: - CommandLinePermission

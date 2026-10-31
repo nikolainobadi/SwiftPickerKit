@@ -28,6 +28,7 @@ public enum ScriptedPicker {
     ///   - singles: Outcomes for `singleSelection`, in call order. Falls back to `.none`.
     ///   - multis: Outcomes for `multiSelection`, in call order. Falls back to `.none`.
     ///   - inputs: Answers for `getInput`, in call order. Falls back to `""`.
+    ///   - secretInputs: Answers for `getSecretInput`, in call order. Falls back to `""`.
     ///   - treeNavigations: Outcomes for `treeNavigation`, in call order. Falls back to `.none`.
     /// - Returns: A picker scripted with the given queues.
     public static func make(
@@ -35,10 +36,12 @@ public enum ScriptedPicker {
         singles: [MockSingleSelectionOutcome] = [],
         multis: [MockMultiSelectionOutcome] = [],
         inputs: [String] = [],
+        secretInputs: [String] = [],
         treeNavigations: [MockTreeSelectionOutcome] = []
     ) -> MockSwiftPicker {
         return .init(
             inputResult: .init(defaultValue: "", type: .ordered(inputs)),
+            secretInputResult: .init(defaultValue: "", type: .ordered(secretInputs)),
             permissionResult: .init(defaultValue: false, type: .ordered(permissions)),
             selectionResult: .init(
                 defaultSingle: .none,
