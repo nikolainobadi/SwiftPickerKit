@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-31
+
+### Added
+- `SwiftPicker.getSecretInput(prompt:)` reads passwords and tokens without echoing typed characters, restores terminal echo after completion or interruption, and accepts piped input
+- `getRequiredSecretInput(prompt:)` throws `SwiftPickerError.inputRequired` for empty input or `PickerInterruptedError` when a `SwiftPicker` secret prompt is interrupted; both secret input methods also have unlabeled prompt overloads
+- `MockSwiftPicker(secretInputResult:)`, `capturedSecretPrompts`, and `ScriptedPicker.make(secretInputs:)` support configuring secret responses and capturing secret prompts independently of ordinary text input
+- `NonInteractivePicker` returns an empty string for secret input without prompting, so required secret input throws `SwiftPickerError.inputRequired`
+
+### Changed
+- **BREAKING**: `CommandLineInput` now requires `getSecretInput(prompt:) -> String`; implement this method in custom conformers
+
 ## [0.12.1] - 2026-10-20
 
 ### Changed

@@ -22,31 +22,16 @@ lived elsewhere and drifted out of date for months.
 ### Releasing
 
 The skill is consumed through the `nn-swift-skills` marketplace, pinned to a **tag** rather
-than tracking `main`. A release is therefore two steps in two repos — but the second is now
-automated:
-
-1. Tag this repo (no `v` prefix — matches the last four tags) and push the tag.
-2. `.github/workflows/skill-ref-bump.yml` fires on that push, rewrites `ref` in
-   `nn-swift-skills/.claude-plugin/marketplace.json`, and opens a PR there. **Merge it.**
-
-Until that PR merges, consumers stay on the previous tag's docs. Nothing breaks and nothing warns —
-they just silently keep reading the old reference, which is why step 2 is automated rather than
-written on a checklist.
-
-The workflow authenticates with the repo secret **`MARKETPLACE_TOKEN`**: a fine-grained PAT named
-`nn-swift-skills-ref-bump`, scoped to `nn-swift-skills` only (Contents + Pull requests, read and
-write), **expiring 2027-08-15**. It is **shared with every other package repo** publishing to that
-marketplace, so rotating it means re-setting the secret in each of them, not just here.
-
-When it expires the workflow fails loudly on tag push — a red X, not silence. Treat that as "rotate
-the shared token", not "this repo's workflow is broken."
+than tracking `main`. Tag this repo with no `v` prefix and push the tag. Consumers stay on the
+previous tag's docs until the `ref` in `nn-swift-skills/.claude-plugin/marketplace.json` is updated.
+This repository has no workflow to automate that marketplace update.
 
 ## Build & Test
 - `swift build` — compile and resolve dependencies
 - `swift test` — run the Swift Testing suite in `Tests/SwiftPickerKitTests`
 - `swift test --enable-code-coverage` — coverage report
 - `cd SwiftPickerDemo && swift run SwiftPickerDemo <subcommand>` — interactive demo
-  - Subcommands: `single`, `multi`, `dynamic`, `choose`, `browse` (use `--help` for flags)
+  - Subcommands: `single`, `multi`, `dynamic`, `choose`, `browse`, `secret` (use `--help` for flags)
 
 ## Architecture
 
@@ -61,7 +46,7 @@ Each picker mode is assembled from three pieces, wired together by `SelectionHan
 ### Directory map
 - `Core/` — public protocols (`CommandLineInput`, `CommandLinePermission`, `CommandLineSelection`, `CommandLineTreeNavigation`, and the `CommandLinePicker` typealias combining them), `DisplayablePickerItem`, `SwiftPickerError`, `SignalHandler`
 - `Picker/` — the `SwiftPicker` struct plus one `SwiftPicker+CommandLine*.swift` extension per protocol. `TextInput` and `PickerInput` are declared in `SwiftPicker.swift`
-- `Input/` — `DefaultTextInput`, `DefaultPickerInput` (the ANSITerminal wrappers)
+- `Input/` — `DefaultPickerInput` wraps ANSITerminal; `DefaultTextInput` handles line prompts and uses `HiddenLineReader` with `StandardInputEcho` for secret input
 - `Selection/` — `State/`, `Behavior/`, `Engine/`, and `Models/` (`PickerLayout`, `TreeNode`, `TreeNodePickerItem`, `FileSystemNode`, `TreeNavigationRoot`)
 - `Rendering/` — `Columns/` (the content renderers), `HeaderFooter/`, `Scroll/`, `Common/`
 
@@ -74,10 +59,12 @@ Each picker mode is assembled from three pieces, wired together by `SelectionHan
 Add a State, a Behavior, and a Renderer in the directories above, then construct a `SelectionHandler(state:pickerInput:behavior:renderer:waitForTermination:)` from a public extension in `Picker/`. Forward the picker's `waitForTermination` closure; follow `SwiftPicker+CommandLineSelection.swift` for the wiring.
 
 ## Terminal
-- All terminal I/O goes through `PickerInput`; only `Input/DefaultPickerInput` talks to ANSITerminal for I/O. Renderers may import ANSITerminal for text styling only
+- Selection terminal I/O goes through `PickerInput`; only `Input/DefaultPickerInput` talks to ANSITerminal for I/O. Renderers may import ANSITerminal for text styling only
+- Secret input goes through `TextInput.getSecretInput(_:)`. `HiddenLineReader` installs signal cleanup before disabling echo; `StandardInputEcho` restores the saved terminal settings on completion or interruption and leaves non-terminal input unchanged. `TerminalEcho.restore()` must remain async-signal-safe
 - Always `exitAlternativeScreen()` and `enableNormalInput()` on every exit path, including throws
 - `SignalHandler` saves the host's SIGINT/SIGTERM handlers, restores terminal state before forwarding signals according to the saved disposition, and restores those handlers when the picker finishes
 - `SwiftPicker()` defaults to `PickerInterruptBehavior.finishAsCancelled`: if the host keeps running after an interrupt, optional selections return `nil` or an empty array, while required selections on `SwiftPicker` throw `PickerInterruptedError`. Wrapping conformers retain their usual cancellation errors
+- Interrupted secret prompts on `SwiftPicker` return `""`; `getRequiredSecretInput(prompt:)` throws `PickerInterruptedError` when the host keeps running. Empty required secrets otherwise throw `SwiftPickerError.inputRequired`. Secret prompts also honor `interruptBehavior`
 - `.waitForTermination` restores the terminal and blocks until the host ends the process; use it only for hosts that terminate on every interrupt
 - Avoid blocking calls that stall cursor handling or arrow key reads
 
@@ -92,8 +79,9 @@ Add a State, a Behavior, and a Renderer in the directories above, then construct
 ## Testing
 - Swift Testing (`@Test func ...`), tests mirror production structure under `Tests/SwiftPickerKitTests/`
 - Use the `makeSUT` pattern; memory leak tracking is NOT required in this project
-- Suites that run selection input loops or touch signal state use `@Suite(.signalState)` from `Shared/SignalStateTrait.swift` to share a process-wide lock; `.serialized` alone only orders tests within one suite
+- Suites that run selection input loops, read secrets through `MockTextInput`, or touch signal state use `@Suite(.signalState)` from `Shared/SignalStateTrait.swift` to share a process-wide lock; `.serialized` alone only orders tests within one suite
 - Signal-response tests call `SignalHandler.handle(signal:info:context:)` directly and preserve/restore host handlers; real signals can stop an attached debugger. Inject `waitForTermination: nil` in ordinary `SwiftPicker` test setup, or a recording closure when testing the wait behavior
-- `SwiftPickerTesting.MockSwiftPicker` is `open` — subclass it to test consumers without terminal I/O
-- Prefer `ScriptedPicker.make` for flows that need ordered answers across multiple prompt kinds. Each queue advances independently and falls back to `""`, `false`, or no selection when exhausted; use `ScriptedPicker.silent()` when only prompt capture or empty fallbacks are needed
+- `SwiftPickerTesting.MockSwiftPicker` is `open` — subclass it to test consumers without terminal I/O. Configure secret answers with `secretInputResult`; secret prompts are recorded in `capturedSecretPrompts`, separately from `capturedPrompts`
+- Prefer `ScriptedPicker.make` for flows that need ordered answers across multiple prompt kinds. The `secretInputs` queue is separate from `inputs`. Each queue advances independently and falls back to `""`, `false`, or no selection when exhausted; use `ScriptedPicker.silent()` when only prompt capture or empty fallbacks are needed
+- `Shared/SignalTestHelpers.swift` provides `withPreservedSignalHandlers` and `installIgnoringHostHandler(for:)` for signal tests inside `.signalState` suites
 - Behavior-driven test names; prioritize coverage on selection flows and renderer trimming

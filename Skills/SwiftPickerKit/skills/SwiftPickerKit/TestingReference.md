@@ -32,6 +32,7 @@ Open mock class conforming to `CommandLinePicker`. No terminal I/O. Captures pro
 open class MockSwiftPicker {
     public init(
         inputResult: MockInputResult = .init(),
+        secretInputResult: MockInputResult = .init(),
         permissionResult: MockPermissionResult = .init(),
         selectionResult: MockSelectionResult = .init(),
         treeNavigationResult: MockTreeNavigationResult = .init()
@@ -43,13 +44,14 @@ open class MockSwiftPicker {
 
 | Initializer | Description |
 |-------------|-------------|
-| `init(inputResult:permissionResult:selectionResult:treeNavigationResult:)` | Configure mock responses for each interaction type |
+| `init(inputResult:secretInputResult:permissionResult:selectionResult:treeNavigationResult:)` | Configure mock responses for each interaction type |
 
 ### Captured Prompts
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `capturedPrompts` | `[String]` | All prompts passed to `getInput` |
+| `capturedSecretPrompts` | `[String]` | Prompts passed to `getSecretInput`, recorded separately from ordinary input |
 | `capturedPermissionPrompts` | `[String]` | All prompts passed to `getPermission` |
 | `capturedSingleSelectionPrompts` | `[String]` | All prompts passed to `singleSelection` |
 | `capturedMultiSelectionPrompts` | `[String]` | All prompts passed to `multiSelection` |
@@ -61,6 +63,7 @@ open class MockSwiftPicker {
 
 ### Behavioral Notes
 
+- **Secret responses are independent** — Configure `secretInputResult` separately from `inputResult`. An empty secret response makes `getRequiredSecretInput` throw `SwiftPickerError.inputRequired`; mocks do not simulate secret-read interruption.
 - **Ignores layout, newScreen, showSelectedItemText** — All display parameters are ignored; only prompt and items matter
 - **Tree navigation depth limit** — Resolves at most one level of children (root → child). Subclass `MockSwiftPicker` for deeper trees.
 - **Multi-selection order** — Returns items in the order of `selectedIndices`, not item array order. Out-of-bounds indices are silently dropped.
@@ -81,6 +84,7 @@ public enum ScriptedPicker {
         singles: [MockSingleSelectionOutcome] = [],
         multis: [MockMultiSelectionOutcome] = [],
         inputs: [String] = [],
+        secretInputs: [String] = [],
         treeNavigations: [MockTreeSelectionOutcome] = []
     ) -> MockSwiftPicker
 
@@ -99,6 +103,7 @@ here because they are what makes a scripted flow terminate rather than repeat:
 | Question | Method | Fallback |
 |----------|--------|----------|
 | Text input | `getInput` | `""` |
+| Secret input | `getSecretInput` | `""` |
 | Permission | `getPermission` | `false` |
 | Single selection | `singleSelection` | `.none` (returns `nil`) |
 | Multi selection | `multiSelection` | `.none` (returns `[]`) |
@@ -115,9 +120,11 @@ here because they are what makes a scripted flow terminate rather than repeat:
 let picker = ScriptedPicker.make(
     permissions: [true],
     singles: [.index(1)],
-    inputs: ["MyProject"]
+    inputs: ["MyProject"],
+    secretInputs: ["test-token"]
 )
 
+let token = picker.getSecretInput(prompt: "API token:") // "test-token"
 let name = picker.getInput(prompt: "Project name:")   // "MyProject"
 let confirmed = picker.getPermission(prompt: "Create?") // true
 let again = picker.getPermission(prompt: "Another?")    // false (drained)
@@ -127,7 +134,8 @@ let again = picker.getPermission(prompt: "Another?")    // false (drained)
 
 ## Struct: MockInputResult
 
-Configures text input responses.
+Configures ordinary or secret input responses. Pass separate values as `inputResult:` and
+`secretInputResult:` when constructing `MockSwiftPicker`. Each has its own response state.
 
 ```swift
 public struct MockInputResult {

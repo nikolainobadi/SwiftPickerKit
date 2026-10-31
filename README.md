@@ -41,7 +41,7 @@ SwiftPickerKit is a Swift Package Manager library for building interactive termi
 - **Two-Column Layouts** — Display items with static or dynamic detail panels
 - **Tree Navigation** — Browse hierarchical structures with breadcrumb paths and parent/child columns
 - **Directory Browsing** — Navigate the file system with configurable file/folder selection filtering
-- **Text Input & Permissions** — Prompt users for text input or yes/no confirmations
+- **Text Input & Permissions** — Prompt users for text input, hidden passwords or tokens, or yes/no confirmations
 - **Customizable Layouts** — Configure single-column, static two-column, or dynamic two-column rendering
 - **Scroll Support** — Automatic scrolling with visual indicators for large lists
 - **Terminal Control** — Built on ANSITerminal for full terminal manipulation
@@ -104,6 +104,9 @@ swift run SwiftPickerDemo <subcommand>
 - **`browse`** — Filesystem browser with tree navigation
   - `-p, --path <path>` — Starting path (defaults to home directory)
   - `-H, --show-hidden` — Show hidden files and folders
+
+- **`secret`** — Text input without echoing typed characters
+  - `-r, --required` — Require a secret (throws if none entered)
 
 ### Quick Start
 
@@ -306,11 +309,21 @@ let name = picker.getInput(prompt: "Enter your name:")
 // Get required input (throws if empty)
 let email = try picker.getRequiredInput(prompt: "Enter email:")
 
+// Get secret input without echoing typed characters
+let token = picker.getSecretInput(prompt: "Enter API token:")
+
+// Get required secret input (throws if empty or interrupted)
+let password = try picker.getRequiredSecretInput(prompt: "Enter password:")
+
 // Get permission
 if picker.getPermission(prompt: "Continue?") {
     print("User confirmed")
 }
 ```
+
+Secret prompts restore terminal echo after reading or interruption. Piped input is read as a normal line. With the default interrupt behavior, an interrupted secret prompt returns `""` if the host keeps running; `getRequiredSecretInput` throws `PickerInterruptedError`. Empty required secret input throws `SwiftPickerError.inputRequired`.
+
+Custom `CommandLineInput` conformers must implement `getSecretInput(prompt:)`.
 
 ### Custom Types
 
@@ -423,14 +436,17 @@ import SwiftPickerTesting
 For flows that ask several kinds of questions, use `ScriptedPicker` to provide independent ordered response queues:
 
 ```swift
-let picker = ScriptedPicker.make(permissions: [true], singles: [.index(1)], inputs: ["MyProject"])
+let picker = ScriptedPicker.make(permissions: [true], singles: [.index(1)], inputs: ["MyProject"], secretInputs: ["test-token"])
 
 let name = picker.getInput(prompt: "Project name:")
+let token = picker.getSecretInput(prompt: "API token:")
 let confirmed = picker.getPermission(prompt: "Create?")
 let selection = picker.singleSelection(prompt: "Choose a template", items: ["Library", "Executable"], layout: .singleColumn)
 ```
 
-Each queue falls back safely when exhausted: text input returns `""`, permission prompts return `false`, single and tree selections return `nil`, and multi-selection returns an empty array. Use `ScriptedPicker.silent()` when every prompt should use these fallback values while still being captured for assertions.
+Each queue falls back safely when exhausted: text and secret input return `""`, permission prompts return `false`, single and tree selections return `nil`, and multi-selection returns an empty array. Use `ScriptedPicker.silent()` when every prompt should use these fallback values while still being captured for assertions.
+
+`MockSwiftPicker` accepts `secretInputResult` independently of `inputResult` and records secret prompts in `capturedSecretPrompts`.
 
 ## Dependencies
 

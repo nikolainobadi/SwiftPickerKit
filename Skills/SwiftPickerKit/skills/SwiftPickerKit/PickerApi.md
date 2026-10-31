@@ -40,6 +40,7 @@ Text input from the terminal.
 ```swift
 public protocol CommandLineInput {
     func getInput(prompt: String) -> String
+    func getSecretInput(prompt: String) -> String
 }
 ```
 
@@ -52,10 +53,31 @@ public protocol CommandLineInput {
 | `getRequiredInput(prompt:) throws` | `String` | Throws `SwiftPickerError.inputRequired` if input is empty |
 | `getRequiredInput(_:) throws` | `String` | Convenience overload with unlabeled prompt |
 | `getRequiredInput(prompt:flagHint:) throws` | `String` | Throws `PickerRequirementError.missingInput` naming the CLI flag that supplies the value |
+| `getSecretInput(prompt:)` | `String` | Reads input without terminal echo; returns empty string when no input is provided or the read is interrupted |
+| `getSecretInput(_:)` | `String` | Convenience overload with unlabeled prompt |
+| `getRequiredSecretInput(prompt:) throws` | `String` | Throws `SwiftPickerError.inputRequired` if empty, or `PickerInterruptedError` for an interrupted `SwiftPicker` read |
+| `getRequiredSecretInput(_:) throws` | `String` | Convenience overload with unlabeled prompt |
 
 ### Input Behavior
 
-`getRequiredInput` checks `input.isEmpty` — whitespace-only strings pass validation. No terminal screen manipulation occurs; uses standard readline.
+Both required input variants check `input.isEmpty` — whitespace-only strings pass validation.
+`SwiftPicker` uses standard line input without an alternate screen. Empty ordinary or secret input
+can offer up to two retries through a yes/no prompt; an interrupted secret read finishes without
+asking to retry.
+
+Use secret input for passwords and tokens. On a terminal, `SwiftPicker` disables echo while
+reading and restores the saved settings afterward, including before forwarding SIGINT or SIGTERM
+to the host. Piped input is read as is. Unlike `NonInteractivePicker`, a live `SwiftPicker` still
+reads standard input in piped or CI contexts.
+
+With `.finishAsCancelled`, an interrupted secret read returns `""` when the host keeps running;
+its required variant throws `PickerInterruptedError`. With `.waitForTermination`, it waits for
+the host to end the process after restoring echo. Interruption detection requires a `SwiftPicker`
+receiver, including one held through `CommandLineInput`; a custom wrapper receives the usual
+empty-input error instead.
+
+Custom `CommandLineInput` conformers must implement `getSecretInput(prompt:)`; there is no default
+implementation. Secret input has labeled and unlabeled required forms, but no `flagHint:` overload.
 
 ### Usage Example
 
@@ -63,6 +85,7 @@ public protocol CommandLineInput {
 func configure(picker: some CommandLineInput) throws {
     let name = try picker.getRequiredInput(prompt: "Project name: ")
     let description = picker.getInput(prompt: "Description (optional): ")
+    let token = try picker.getRequiredSecretInput(prompt: "API token: ")
 }
 ```
 
@@ -265,7 +288,7 @@ public enum SwiftPickerError: Error {
 
 | Case | Associated Values | Description |
 |------|-------------------|-------------|
-| `inputRequired` | None | Thrown by `getRequiredInput` when input string is empty |
+| `inputRequired` | None | Thrown by `getRequiredInput` or `getRequiredSecretInput` when input string is empty |
 | `selectionCancelled` | None | Thrown by `requiredSingleSelection`, `requiredPermission`, `requiredTreeNavigation` when user quits |
 
 > `SwiftPickerError` is a public non-frozen enum in a package without library evolution, so
@@ -306,7 +329,7 @@ non-interactive mode so they read correctly in both cases.
 ### Error Types On One Call Path
 
 Adopting `flagHint:` incrementally leaves some calls throwing `SwiftPickerError` and others
-`PickerRequirementError`. Interrupted required selections on `SwiftPicker` can also throw
+`PickerRequirementError`. Interrupted required selections or secret input on `SwiftPicker` can also throw
 `PickerInterruptedError`; handle that separately when the workflow should stop. Catch the remaining
 errors by type, or catch `Error` and render `localizedDescription` —
 `PickerRequirementError` conforms to `LocalizedError` so it prints its message; `SwiftPickerError`
@@ -316,7 +339,7 @@ does not, so it prints its case name.
 
 ## Struct: PickerInterruptedError
 
-A separate error for a required selection ended by SIGINT (Ctrl+C) or SIGTERM while the host
+A separate error for a required selection or secret input ended by SIGINT (Ctrl+C) or SIGTERM while the host
 keeps running and the picker uses `.finishAsCancelled`.
 
 ```swift
@@ -328,14 +351,14 @@ public struct PickerInterruptedError: Error, Equatable, LocalizedError {
 
 The localized message is `"The prompt was interrupted."`. It is thrown by
 `requiredSingleSelection` and `requiredTreeNavigation`, including their `flagHint:` overloads,
-and by `requiredMultiSelection(prompt:items:flagHint:)`. Text input and permission methods do
-not use this interruption error. Pressing the quit key still produces the usual cancellation
+and by `requiredMultiSelection(prompt:items:flagHint:)` and both `getRequiredSecretInput` forms.
+Ordinary text input and permission methods do not use this interruption error. Pressing the quit key still produces the usual cancellation
 or missing-selection error.
 
 Detection requires the receiver to be a `SwiftPicker`, including one held through a picker
-protocol. A custom conformer that wraps a `SwiftPicker` gets its usual cancellation error from
-these protocol extensions instead. `MockSwiftPicker` and `NonInteractivePicker` do not report
-interruptions. Non-throwing selections still return `nil` or `[]`.
+protocol. A custom conformer that wraps a `SwiftPicker` gets its usual cancellation or
+empty-input error from these protocol extensions instead. `MockSwiftPicker` and `NonInteractivePicker` do not report
+interruptions. Non-throwing selections still return `nil` or `[]`; interrupted secret input returns `""`.
 
 ---
 
@@ -354,6 +377,8 @@ public struct NonInteractivePicker: CommandLinePicker, Sendable {
 | Call | Result |
 |------|--------|
 | `getInput(prompt:)` | `""` |
+| `getSecretInput(prompt:)` | `""` |
+| `getRequiredSecretInput(prompt:)` | throws `SwiftPickerError.inputRequired` |
 | `getRequiredInput(prompt:)` | throws `SwiftPickerError.inputRequired` |
 | `getPermission(prompt:)` | `assumeYes` |
 | `requiredPermission(prompt:)` | throws `SwiftPickerError.selectionCancelled` unless `assumeYes` |
@@ -364,7 +389,7 @@ public struct NonInteractivePicker: CommandLinePicker, Sendable {
 | `browseDirectories(...)` | `nil` |
 
 The throwing behavior is inherited, not reimplemented: the `required*` methods are protocol
-extensions that call the primitives, so returning "nothing" from the six primitives produces all of
+extensions that call the primitives, so returning "nothing" from the seven primitives produces all of
 it.
 
 ### Guarantees
@@ -448,7 +473,7 @@ public struct SwiftPicker {
 | Initializer | Description |
 |-------------|-------------|
 | `init()` | Creates a picker with default terminal input handling and `.finishAsCancelled` interrupt behavior |
-| `init(interruptBehavior:)` | Chooses how interrupted selection prompts finish when the host keeps running |
+| `init(interruptBehavior:)` | Chooses how interrupted selection and secret input prompts finish when the host keeps running |
 
 ### Conformances
 
@@ -456,7 +481,7 @@ public struct SwiftPicker {
 
 ### Terminal Side Effects
 
-- Registers SIGINT/SIGTERM signal handlers during selection display and restores the host’s saved handlers when the prompt returns
+- Registers SIGINT/SIGTERM signal handlers during selection display and secret reads and restores the host’s saved handlers when the prompt returns
 - Each keypress triggers a full screen clear and redraw cycle
 - On SIGINT or SIGTERM, restores terminal state before forwarding to the host’s saved signal action
 - With the default signal action, re-raises the signal so the process terminates by SIGINT or SIGTERM (shell status 130 or 143)
@@ -471,13 +496,13 @@ public enum PickerInterruptBehavior: Sendable {
 }
 ```
 
-This choice applies to single/multi-selection, tree navigation, and directory browsing when the
+This choice applies to single/multi-selection, tree navigation, directory browsing, and secret input when the
 host handles the signal and keeps the process running. The terminal is restored first in both
-cases; text input and yes/no permission prompts are not governed by this setting.
+cases; ordinary text input and yes/no permission prompts are not governed by this setting.
 
 | Case | Behavior |
 |------|----------|
-| `finishAsCancelled` | Default. Non-throwing selections return `nil` or `[]`; required selections throw `PickerInterruptedError` |
+| `finishAsCancelled` | Default. Non-throwing selections return `nil` or `[]`; required selections throw `PickerInterruptedError`. Secret input returns `""`; required secret input throws `PickerInterruptedError` |
 | `waitForTermination` | Blocks the calling thread until the host ends the process; further signals still reach the host’s handler |
 
 Use `SwiftPicker(interruptBehavior: .waitForTermination)` only when the host ends the process on
