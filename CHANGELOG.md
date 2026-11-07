@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `SwiftPicker(interruptBehavior:assumeYes:)` treats every permission prompt as approved when `assumeYes` is `true`: `getPermission` returns `true` without asking, so `requiredPermission` and its `flagHint:` overload never throw. Text input, secret input, selection, and tree navigation still prompt. Pass a CLI's `--yes` flag here so it also applies to interactive runs, not only `NonInteractivePicker(assumeYes:)`
+
 ## [0.13.1] - 2026-10-31
 
 No user-facing changes.

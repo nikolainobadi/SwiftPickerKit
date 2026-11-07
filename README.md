@@ -325,6 +325,13 @@ Secret prompts restore terminal echo after reading or interruption. Piped input 
 
 Custom `CommandLineInput` conformers must implement `getSecretInput(prompt:)`.
 
+To honor a `--yes` flag in a terminal, pass it as `assumeYes`. Permission prompts then return `true` without asking; every other prompt still asks:
+
+```swift
+let picker = SwiftPicker(interruptBehavior: .finishAsCancelled, assumeYes: assumeYes)
+try picker.requiredPermission(prompt: "Delete all builds?") // never asks when assumeYes is true
+```
+
 ### Custom Types
 
 Conform your types to `DisplayablePickerItem`:
