@@ -27,6 +27,7 @@ Interactive terminal-based picker library for macOS with single-selection, multi
 ### Production
 - **Entry point:** `SwiftPicker()` — conforms to `CommandLinePicker` (typealias of all four protocols)
 - **Interrupts:** `SwiftPicker()` uses `.finishAsCancelled`; choose `SwiftPicker(interruptBehavior: .waitForTermination)` only when the host ends the process on every interrupt. See `PickerApi.md` for signal handling and wrapper constraints.
+- **`--yes` flag:** `SwiftPicker(interruptBehavior:assumeYes:)` — with `assumeYes: true`, permission prompts return `true` without asking; every other prompt still asks. Pass the same flag to both pickers at the composition root.
 - **Scripted/CI:** `NonInteractivePicker(assumeYes:)` — same protocols, never prompts; every primitive returns its "nothing provided" value so the `required*` variants throw instead of hanging
 - **Depend on protocols:** Use `CommandLinePicker`, `CommandLineSelection`, `CommandLineInput`, `CommandLinePermission`, or `CommandLineTreeNavigation` as dependency types
 - **Secret input:** `getSecretInput(prompt:)` hides terminal echo; `getRequiredSecretInput(prompt:)` rejects empty input. Custom `CommandLineInput` conformers must implement the secret primitive. See `PickerApi.md` for retries and interrupts.

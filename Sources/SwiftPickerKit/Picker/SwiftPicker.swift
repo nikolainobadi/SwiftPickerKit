@@ -13,10 +13,15 @@ public struct SwiftPicker {
     /// straight away. See `PickerInterruptBehavior`.
     internal let waitForTermination: (() -> Void)?
 
-    internal init(textInput: TextInput, pickerInput: PickerInput, waitForTermination: (() -> Void)?) {
+    /// When `true`, permission prompts return `true` without asking. See
+    /// `init(interruptBehavior:assumeYes:)`.
+    internal let assumeYes: Bool
+
+    internal init(textInput: TextInput, pickerInput: PickerInput, waitForTermination: (() -> Void)?, assumeYes: Bool) {
         self.textInput = textInput
         self.pickerInput = pickerInput
         self.waitForTermination = waitForTermination
+        self.assumeYes = assumeYes
     }
 }
 
@@ -31,15 +36,33 @@ public extension SwiftPicker {
     /// Creates a picker with the given response to a prompt interrupted by Ctrl+C or SIGTERM
     /// while the host keeps running.
     ///
+    /// Permission prompts are always asked; use `init(interruptBehavior:assumeYes:)` to approve
+    /// them automatically.
+    ///
     /// - Parameter interruptBehavior: Whether interrupted prompts finish as cancelled or wait for
     ///   the host to end the process
     init(interruptBehavior: PickerInterruptBehavior) {
-        switch interruptBehavior {
-        case .finishAsCancelled:
-            self.init(textInput: DefaultTextInput(), pickerInput: DefaultPickerInput(), waitForTermination: nil)
-        case .waitForTermination:
-            self.init(textInput: DefaultTextInput(), pickerInput: DefaultPickerInput(), waitForTermination: { SignalHandler.parkUntilTermination() })
+        self.init(interruptBehavior: interruptBehavior, assumeYes: false)
+    }
+
+    /// Creates a picker with the given interrupt response that can treat every permission prompt
+    /// as approved, as a `--yes` command line flag usually promises.
+    ///
+    /// When `assumeYes` is `true`, `getPermission(prompt:)` returns `true` without printing or
+    /// reading anything, so `requiredPermission` never throws. Text input, secret input,
+    /// selection, and tree navigation still prompt as usual.
+    ///
+    /// - Parameters:
+    ///   - interruptBehavior: Whether interrupted prompts finish as cancelled or wait for the host
+    ///     to end the process
+    ///   - assumeYes: Whether permission prompts are approved without asking
+    init(interruptBehavior: PickerInterruptBehavior, assumeYes: Bool) {
+        let waitForTermination: (() -> Void)? = switch interruptBehavior {
+        case .finishAsCancelled: nil
+        case .waitForTermination: { SignalHandler.parkUntilTermination() }
         }
+
+        self.init(textInput: DefaultTextInput(), pickerInput: DefaultPickerInput(), waitForTermination: waitForTermination, assumeYes: assumeYes)
     }
 }
 

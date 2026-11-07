@@ -126,7 +126,7 @@ private extension SwiftPickerCommandLineTreeNavigationTests {
 func makeSUT() -> (any CommandLineTreeNavigation, MockPickerInput) {
         let pickerInput = MockPickerInput()
         let textInput = MockTextInput()
-        let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput, waitForTermination: nil)
+        let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput, waitForTermination: nil, assumeYes: false)
         
         return (sut, pickerInput)
     }

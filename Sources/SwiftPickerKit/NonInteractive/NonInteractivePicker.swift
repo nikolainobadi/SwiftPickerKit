@@ -15,7 +15,7 @@ import Foundation
 ///
 /// ```swift
 /// let picker: any CommandLinePicker = isInteractive
-///     ? SwiftPicker()
+///     ? SwiftPicker(interruptBehavior: .finishAsCancelled, assumeYes: assumeYes)
 ///     : NonInteractivePicker(assumeYes: assumeYes)
 ///
 /// // Throws instead of hanging when nothing can be prompted for.

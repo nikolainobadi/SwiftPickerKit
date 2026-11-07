@@ -366,14 +366,14 @@ private extension SelectionHandlerTests {
     func makeSUT(waitForTermination: @escaping () -> Void) -> (SwiftPicker, MockPickerInput) {
         let pickerInput = MockPickerInput()
         let textInput = MockTextInput()
-        let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput, waitForTermination: waitForTermination)
+        let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput, waitForTermination: waitForTermination, assumeYes: false)
         return (sut, pickerInput)
     }
 
     func makeSUT() -> (SwiftPicker, MockPickerInput) {
         let pickerInput = MockPickerInput()
         let textInput = MockTextInput()
-        let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput, waitForTermination: nil)
+        let sut = SwiftPicker(textInput: textInput, pickerInput: pickerInput, waitForTermination: nil, assumeYes: false)
         return (sut, pickerInput)
     }
 

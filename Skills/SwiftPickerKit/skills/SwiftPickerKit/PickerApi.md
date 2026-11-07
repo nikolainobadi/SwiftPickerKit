@@ -413,7 +413,7 @@ explicitly, or hold a concrete `NonInteractivePicker`, to avoid it.
 
 ```swift
 let picker: any CommandLinePicker = isInteractive
-    ? SwiftPicker()
+    ? SwiftPicker(interruptBehavior: .finishAsCancelled, assumeYes: assumeYes)
     : NonInteractivePicker(assumeYes: assumeYes)
 
 let name = try picker.getRequiredInput(prompt: "Project name", flagHint: "--name")
@@ -465,6 +465,7 @@ The concrete entry point conforming to `CommandLinePicker`.
 public struct SwiftPicker {
     public init()
     public init(interruptBehavior: PickerInterruptBehavior)
+    public init(interruptBehavior: PickerInterruptBehavior, assumeYes: Bool)
 }
 ```
 
@@ -473,7 +474,15 @@ public struct SwiftPicker {
 | Initializer | Description |
 |-------------|-------------|
 | `init()` | Creates a picker with default terminal input handling and `.finishAsCancelled` interrupt behavior |
-| `init(interruptBehavior:)` | Chooses how interrupted selection and secret input prompts finish when the host keeps running |
+| `init(interruptBehavior:)` | Chooses how interrupted selection and secret input prompts finish when the host keeps running; permission prompts always ask |
+| `init(interruptBehavior:assumeYes:)` | Same as above; when `assumeYes` is `true`, permission prompts are approved without asking |
+
+### Assume Yes
+
+With `assumeYes: true`, `getPermission(prompt:)` returns `true` silently — nothing is printed or read —
+so `requiredPermission(prompt:)` and `requiredPermission(prompt:flagHint:)` never throw. Text input,
+secret input, selection, and tree navigation still prompt. Use it to honor a `--yes` flag in a
+terminal; `NonInteractivePicker(assumeYes:)` covers scripted runs.
 
 ### Conformances
 
@@ -529,6 +538,6 @@ let name = picker.getInput(prompt: "Enter name: ")
 - **`newScreen: false` still calls exit cleanup** — Even when `newScreen` is false (no alternative screen entered), `exitAlternativeScreen()` and `enableNormalInput()` are called on exit. This is safe but worth knowing.
 - **`String` works directly** — `String` conforms to `DisplayablePickerItem` out of the box, so `["A", "B", "C"]` is valid for quick prototyping.
 - **Multi-selection quit discards everything** — When the user presses quit in multi-selection mode, all toggled selections are lost and an empty array is returned. There is no "confirm partial" behavior.
-- **Swap the picker, not the call sites** — To support a `--non-interactive` flag, keep depending on `CommandLinePicker` and choose `SwiftPicker()` or `NonInteractivePicker(assumeYes:)` at the composition root. No call site needs to branch on mode.
+- **Swap the picker, not the call sites** — To support a `--non-interactive` flag, keep depending on `CommandLinePicker` and choose `SwiftPicker(interruptBehavior:assumeYes:)` or `NonInteractivePicker(assumeYes:)` at the composition root, passing the same `--yes` value to both. No call site needs to branch on mode.
 - **Name the flag when one exists** — Prefer `getRequiredInput(prompt:flagHint: "--name")` over the plain variant in CLI tools. The message tells the user how to avoid the prompt entirely, and reads correctly interactively too.
 - **Guard empty multi-selections** — `multiSelection` returning `[]` is indistinguishable from a deliberate empty choice. Use `requiredMultiSelection(prompt:items:flagHint:)` whenever zero items should be an error.
