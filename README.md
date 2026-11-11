@@ -41,7 +41,7 @@ SwiftPickerKit is a Swift Package Manager library for building interactive termi
 - **Two-Column Layouts** — Display items with static or dynamic detail panels
 - **Tree Navigation** — Browse hierarchical structures with breadcrumb paths and parent/child columns
 - **Directory Browsing** — Navigate the file system with configurable file/folder selection filtering
-- **Text Input & Permissions** — Prompt users for text input, hidden passwords or tokens, or yes/no confirmations; automatically approve permission prompts with `assumeYes`
+- **Text Input & Permissions** — Prompt users for text input, hidden passwords or tokens, or yes/no confirmations with optional instant answers; automatically approve permission prompts with `assumeYes`
 - **Customizable Layouts** — Configure single-column, static two-column, or dynamic two-column rendering
 - **Scroll Support** — Automatic scrolling with visual indicators for large lists
 - **Terminal Control** — Built on ANSITerminal for full terminal manipulation
@@ -325,6 +325,15 @@ Secret prompts restore terminal echo after reading or interruption. Piped input 
 
 Custom `CommandLineInput` conformers must implement `getSecretInput(prompt:)`.
 
+Permission prompts require Enter by default (`.requireEnter`). To accept `y`/`Y` or `n`/`N` immediately in a terminal, set `permissionSubmitMode` to `.immediate`. Other keys are ignored. When standard input is not a terminal, such as piped input, this mode falls back to requiring Enter.
+
+```swift
+let picker = SwiftPicker(interruptBehavior: .finishAsCancelled, assumeYes: false, permissionSubmitMode: .immediate)
+if picker.getPermission(prompt: "Continue?") {
+    print("User confirmed")
+}
+```
+
 To honor a `--yes` flag in a terminal, pass it as `assumeYes`. Permission prompts then return `true` without asking; every other prompt still asks:
 
 ```swift
@@ -332,6 +341,8 @@ let assumeYes = true // Use the value of your parsed --yes flag.
 let picker = SwiftPicker(interruptBehavior: .finishAsCancelled, assumeYes: assumeYes)
 try picker.requiredPermission(prompt: "Delete all builds?") // never asks when assumeYes is true
 ```
+
+When `assumeYes` is `true`, `permissionSubmitMode` has no effect because permission prompts are skipped.
 
 ### Custom Types
 

@@ -111,6 +111,21 @@ public protocol CommandLinePermission {
 | `requiredPermission(_:) throws` | `Void` | Convenience overload with unlabeled prompt |
 | `requiredPermission(prompt:flagHint:) throws` | `Void` | Throws `PickerRequirementError.confirmationRequired` naming the CLI flag that grants consent |
 
+### Permission Submission
+
+`SwiftPicker()` requires Enter after an answer. To accept a terminal keypress immediately,
+configure the concrete picker at the composition root:
+
+```swift
+import SwiftPickerKit
+
+let picker = SwiftPicker(interruptBehavior: .finishAsCancelled, assumeYes: false, permissionSubmitMode: .immediate)
+let confirmed = picker.getPermission(prompt: "Continue?")
+```
+
+The protocol methods stay the same. See `PermissionSubmitMode` below for accepted keys,
+piped-input fallback, and interruption behavior.
+
 ### Usage Example
 
 ```swift
@@ -466,6 +481,7 @@ public struct SwiftPicker {
     public init()
     public init(interruptBehavior: PickerInterruptBehavior)
     public init(interruptBehavior: PickerInterruptBehavior, assumeYes: Bool)
+    public init(interruptBehavior: PickerInterruptBehavior, assumeYes: Bool, permissionSubmitMode: PermissionSubmitMode)
 }
 ```
 
@@ -476,13 +492,17 @@ public struct SwiftPicker {
 | `init()` | Creates a picker with default terminal input handling and `.finishAsCancelled` interrupt behavior |
 | `init(interruptBehavior:)` | Chooses how interrupted selection and secret input prompts finish when the host keeps running; permission prompts always ask |
 | `init(interruptBehavior:assumeYes:)` | Same as above; when `assumeYes` is `true`, permission prompts are approved without asking |
+| `init(interruptBehavior:assumeYes:permissionSubmitMode:)` | Also chooses whether permission answers require Enter or are accepted immediately; all three arguments are required |
+
+All initializers without `permissionSubmitMode:` use `.requireEnter`.
 
 ### Assume Yes
 
 With `assumeYes: true`, `getPermission(prompt:)` returns `true` silently — nothing is printed or read —
 so `requiredPermission(prompt:)` and `requiredPermission(prompt:flagHint:)` never throw. Text input,
 secret input, selection, and tree navigation still prompt. Use it to honor a `--yes` flag in a
-terminal; `NonInteractivePicker(assumeYes:)` covers scripted runs.
+terminal; `NonInteractivePicker(assumeYes:)` covers scripted runs. `permissionSubmitMode` has no
+effect when `assumeYes` is `true`.
 
 ### Conformances
 
@@ -490,11 +510,37 @@ terminal; `NonInteractivePicker(assumeYes:)` covers scripted runs.
 
 ### Terminal Side Effects
 
-- Registers SIGINT/SIGTERM signal handlers during selection display and secret reads and restores the host’s saved handlers when the prompt returns
+- Registers SIGINT/SIGTERM signal handlers during selection display, secret reads, and immediate permission reads and restores the host’s saved handlers when the prompt returns
 - Each keypress triggers a full screen clear and redraw cycle
 - On SIGINT or SIGTERM, restores terminal state before forwarding to the host’s saved signal action
 - With the default signal action, re-raises the signal so the process terminates by SIGINT or SIGTERM (shell status 130 or 143)
 - Calls a saved custom handler; preserves ignored signals without re-raising them (including hosts observing signals through a `DispatchSource`)
+
+### Enum: PermissionSubmitMode
+
+Controls how a live `SwiftPicker` accepts permission answers. It does not change ordinary or
+secret text input, selection, or tree navigation.
+
+```swift
+public enum PermissionSubmitMode: Sendable {
+    case requireEnter
+    case immediate
+}
+```
+
+| Case | Behavior |
+|------|----------|
+| `requireEnter` | Default. Reads a line after Enter; only exactly `y` or `Y` means yes. Empty input offers up to two retries, then means no; other nonempty answers mean no. |
+| `immediate` | On a terminal, accepts the first `y`/`Y` or `n`/`N` keypress without Enter. Ignores other keys, including Enter. Falls back to `requireEnter` when standard input is not a terminal. |
+
+Immediate reads temporarily disable echo and line buffering, then print the normalized answer
+(`y` or `n`). Saved terminal settings are restored before forwarding SIGINT or SIGTERM to the
+host. If the read ends without an answer, including interruption while the host keeps running,
+permission is denied. `PickerInterruptBehavior` does not make permission prompts wait for
+termination, and required permission methods throw their usual denial error rather than
+`PickerInterruptedError`.
+
+---
 
 ### Enum: PickerInterruptBehavior
 

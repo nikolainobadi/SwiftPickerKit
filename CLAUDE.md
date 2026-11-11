@@ -46,7 +46,7 @@ Each picker mode is assembled from three pieces, wired together by `SelectionHan
 ### Directory map
 - `Core/` — public protocols (`CommandLineInput`, `CommandLinePermission`, `CommandLineSelection`, `CommandLineTreeNavigation`, and the `CommandLinePicker` typealias combining them), `DisplayablePickerItem`, `SwiftPickerError`, `SignalHandler`
 - `Picker/` — the `SwiftPicker` struct plus one `SwiftPicker+CommandLine*.swift` extension per protocol. `TextInput` and `PickerInput` are declared in `SwiftPicker.swift`
-- `Input/` — `DefaultPickerInput` wraps ANSITerminal; `DefaultTextInput` handles line prompts and uses `HiddenLineReader` with `StandardInputEcho` for secret input
+- `Input/` — `DefaultPickerInput` wraps ANSITerminal; `DefaultTextInput` handles line prompts and uses `HiddenLineReader` with `StandardInputEcho` for secret input and immediate permission answers
 - `Selection/` — `State/`, `Behavior/`, `Engine/`, and `Models/` (`PickerLayout`, `TreeNode`, `TreeNodePickerItem`, `FileSystemNode`, `TreeNavigationRoot`)
 - `Rendering/` — `Columns/` (the content renderers), `HeaderFooter/`, `Scroll/`, `Common/`
 
@@ -61,6 +61,8 @@ Add a State, a Behavior, and a Renderer in the directories above, then construct
 ## Terminal
 - Selection terminal I/O goes through `PickerInput`; only `Input/DefaultPickerInput` talks to ANSITerminal for I/O. Renderers may import ANSITerminal for text styling only
 - Secret input goes through `TextInput.getSecretInput(_:)`. `HiddenLineReader` installs signal cleanup before disabling echo; `StandardInputEcho` restores the saved terminal settings on completion or interruption and leaves non-terminal input unchanged. `TerminalEcho.restore()` must remain async-signal-safe
+- Permission prompts default to `PermissionSubmitMode.requireEnter`. Configure `.immediate` through `SwiftPicker(interruptBehavior:assumeYes:permissionSubmitMode:)` to accept the first `y`/`Y` or `n`/`N` without Enter, ignoring other keys. Non-terminal input falls back to line input; `assumeYes: true` bypasses permission prompts regardless of mode
+- Immediate permission reads use `HiddenLineReader` with `StandardInputEcho(disablesLineBuffering: true)` to restore echo and line buffering before forwarding interrupts; an interrupted read returns no. Secret reads use `disablesLineBuffering: false`
 - Always `exitAlternativeScreen()` and `enableNormalInput()` on every exit path, including throws
 - `SignalHandler` saves the host's SIGINT/SIGTERM handlers, restores terminal state before forwarding signals according to the saved disposition, and restores those handlers when the picker finishes
 - `SwiftPicker()` defaults to `PickerInterruptBehavior.finishAsCancelled`: if the host keeps running after an interrupt, optional selections return `nil` or an empty array, while required selections on `SwiftPicker` throw `PickerInterruptedError`. Wrapping conformers retain their usual cancellation errors

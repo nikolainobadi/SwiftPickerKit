@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-11-11
+
+### Added
+- `SwiftPicker(interruptBehavior:assumeYes:permissionSubmitMode:)` accepts `PermissionSubmitMode.immediate` to answer permission prompts with `y`/`Y` or `n`/`N` without pressing Enter; other keys are ignored. Non-terminal input falls back to line-based answers, and existing initializers keep requiring Enter. When `assumeYes` is `true`, permission prompts remain automatically approved
+
 ## [0.14.0] - 2026-11-07
 
 ### Added
