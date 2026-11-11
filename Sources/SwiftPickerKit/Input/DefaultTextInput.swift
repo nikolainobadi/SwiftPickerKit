@@ -8,6 +8,8 @@
 import Foundation
 
 struct DefaultTextInput: TextInput {
+    let permissionSubmitMode: PermissionSubmitMode
+
     func getInput(_ prompt: String) -> String {
         return getInput(prompt, retryCount: 0)
     }
@@ -61,7 +63,7 @@ private extension DefaultTextInput {
     }
 
     func makeHiddenLineReader() -> HiddenLineReader {
-        return HiddenLineReader(echo: StandardInputEcho(), lineSource: {
+        return HiddenLineReader(echo: StandardInputEcho(disablesLineBuffering: false), lineSource: {
             let line = readLine()
 
             // An interrupted read leaves stdin's error flag set; clear it so later reads work
@@ -75,6 +77,12 @@ private extension DefaultTextInput {
 
     func getPermission(_ prompt: String, retryCount: Int) -> Bool {
         print("\n\(prompt)", terminator: " (\("y".green)/\("n".red)) ")
+
+        // A pipe has no keypresses to take, so non-terminal input always reads a line
+        if permissionSubmitMode == .immediate, isatty(STDIN_FILENO) == 1 {
+            return getImmediatePermission()
+        }
+
         guard let answer = readLine(), !answer.isEmpty else {
             if retryCount > 1 {
                 print("Fine, I'll take that as a no!".red)
@@ -86,5 +94,50 @@ private extension DefaultTextInput {
         }
 
         return answer == "y" || answer == "Y"
+    }
+
+    /// Takes the answer from the first `y` or `n` keypress, without waiting for Enter.
+    ///
+    /// The read runs through `HiddenLineReader`, so its signal cleanup restores line buffering
+    /// and echo before an interrupt reaches the host. The prompt prints the answer itself,
+    /// because the terminal doesn't echo it.
+    func getImmediatePermission() -> Bool {
+        // The prompt ends without a newline, so it may still be sitting in the buffer
+        fflush(stdout)
+
+        let reader = HiddenLineReader(echo: StandardInputEcho(disablesLineBuffering: true), lineSource: {
+            return DefaultTextInput.readPermissionKey(readByte: {
+                var byte: UInt8 = 0
+
+                // 0 at end of input, -1 when an interrupt the host handles ends the read
+                return read(STDIN_FILENO, &byte, 1) == 1 ? byte : nil
+            })
+        })
+        let answer = reader.readLine()
+
+        print(answer ?? "")
+        return answer == "y"
+    }
+}
+
+// MARK: - Key Reading
+extension DefaultTextInput {
+    /// Reads bytes until one answers a permission prompt.
+    ///
+    /// - Parameter readByte: Reads the next byte; `nil` at end of input or when interrupted
+    /// - Returns: `"y"` for `y`/`Y`, `"n"` for `n`/`N`, or `nil` if input ended before either
+    static func readPermissionKey(readByte: () -> UInt8?) -> String? {
+        while let byte = readByte() {
+            switch byte {
+            case UInt8(ascii: "y"), UInt8(ascii: "Y"):
+                return "y"
+            case UInt8(ascii: "n"), UInt8(ascii: "N"):
+                return "n"
+            default:
+                continue
+            }
+        }
+
+        return nil
     }
 }
