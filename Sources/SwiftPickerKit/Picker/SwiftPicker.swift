@@ -57,12 +57,28 @@ public extension SwiftPicker {
     ///     to end the process
     ///   - assumeYes: Whether permission prompts are approved without asking
     init(interruptBehavior: PickerInterruptBehavior, assumeYes: Bool) {
+        self.init(interruptBehavior: interruptBehavior, assumeYes: assumeYes, permissionSubmitMode: .requireEnter)
+    }
+
+    /// Creates a picker with the given interrupt response, `assumeYes` setting, and way of
+    /// accepting answers to permission prompts.
+    ///
+    /// Pass `.immediate` to take a permission answer as soon as `y` or `n` is pressed, instead of
+    /// waiting for Enter. When `assumeYes` is `true`, permission prompts are never shown, so
+    /// `permissionSubmitMode` has no effect.
+    ///
+    /// - Parameters:
+    ///   - interruptBehavior: Whether interrupted prompts finish as cancelled or wait for the host
+    ///     to end the process
+    ///   - assumeYes: Whether permission prompts are approved without asking
+    ///   - permissionSubmitMode: Whether a permission answer needs Enter or is taken on the keypress
+    init(interruptBehavior: PickerInterruptBehavior, assumeYes: Bool, permissionSubmitMode: PermissionSubmitMode) {
         let waitForTermination: (() -> Void)? = switch interruptBehavior {
         case .finishAsCancelled: nil
         case .waitForTermination: { SignalHandler.parkUntilTermination() }
         }
 
-        self.init(textInput: DefaultTextInput(), pickerInput: DefaultPickerInput(), waitForTermination: waitForTermination, assumeYes: assumeYes)
+        self.init(textInput: DefaultTextInput(permissionSubmitMode: permissionSubmitMode), pickerInput: DefaultPickerInput(), waitForTermination: waitForTermination, assumeYes: assumeYes)
     }
 }
 

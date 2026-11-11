@@ -12,8 +12,15 @@ import Foundation
 /// `getpass(3)` would do the same in one call, but it's marked obsolete and caps input at
 /// 128 characters on macOS.
 final class StandardInputEcho: TerminalEcho {
+    private let disablesLineBuffering: Bool
     private var savedSettings = termios()
     private var isDisabled = false
+
+    /// - Parameter disablesLineBuffering: Whether `disable()` also turns off line buffering, so
+    ///   each byte can be read as soon as its key is pressed, without waiting for Enter
+    init(disablesLineBuffering: Bool) {
+        self.disablesLineBuffering = disablesLineBuffering
+    }
 
     func disable() {
         guard isatty(STDIN_FILENO) == 1, tcgetattr(STDIN_FILENO, &savedSettings) == 0 else {
@@ -22,6 +29,17 @@ final class StandardInputEcho: TerminalEcho {
 
         var hiddenSettings = savedSettings
         hiddenSettings.c_lflag &= ~tcflag_t(ECHO)
+
+        // ISIG stays on, so Ctrl+C still raises SIGINT rather than arriving as a byte
+        if disablesLineBuffering {
+            hiddenSettings.c_lflag &= ~tcflag_t(ICANON)
+
+            // Each read waits for one byte, with no timeout
+            withUnsafeMutableBytes(of: &hiddenSettings.c_cc) { controlChars in
+                controlChars[Int(VMIN)] = 1
+                controlChars[Int(VTIME)] = 0
+            }
+        }
 
         // TCSAFLUSH drops anything typed ahead before the prompt, as password prompts do
         if tcsetattr(STDIN_FILENO, TCSAFLUSH, &hiddenSettings) == 0 {
