@@ -53,7 +53,7 @@ Each picker mode is assembled from three pieces, wired together by `SelectionHan
 ### Key types
 - `DisplayablePickerItem` — everything shown in a picker conforms to it (`displayName`, `description`)
 - `PickerLayout<Item>` — chooses the renderer: `.singleColumn`, `.twoColumnStatic(detailText:)`, `.twoColumnDynamic(detailForItem:)`
-- `TreeNodePickerItem` — adds `hasChildren` / `fetchChildren()`; `TreeNavigationBehavior` maps left/right arrows to ascend/descend. `FileSystemNode` is the filesystem implementation, and `browseDirectories` wraps it with a `SelectionType` of `.onlyFiles` / `.onlyFolders` / `.filesAndFolders`
+- `TreeNodePickerItem` — adds `hasChildren` / `fetchChildren()`; `TreeNavigationBehavior` maps left/right arrows to ascend/descend. `FileSystemNode` is the filesystem implementation, and `browseDirectories` wraps it with a `SelectionType` of `.onlyFiles` / `.onlyFolders` / `.filesAndFolders`. `.onlyFolders` hides files from every listing, including the initial level; `.onlyFiles` keeps folders visible for navigation but only allows selecting files
 
 ### Adding a picker mode
 Add a State, a Behavior, and a Renderer in the directories above, then construct a `SelectionHandler(state:pickerInput:behavior:renderer:waitForTermination:)` from a public extension in `Picker/`. Forward the picker's `waitForTermination` closure; follow `SwiftPicker+CommandLineSelection.swift` for the wiring.
@@ -81,9 +81,10 @@ Add a State, a Behavior, and a Renderer in the directories above, then construct
 ## Testing
 - Swift Testing (`@Test func ...`), tests mirror production structure under `Tests/SwiftPickerKitTests/`
 - Use the `makeSUT` pattern; memory leak tracking is NOT required in this project
-- Suites that run selection input loops, read secrets through `MockTextInput`, or touch signal state use `@Suite(.signalState)` from `Shared/SignalStateTrait.swift` to share a process-wide lock; `.serialized` alone only orders tests within one suite
+- Suites that run selection input loops, read secrets through `MockTextInput`, change `FileSystemNode.selectionType`, or touch signal state use `@Suite(.signalState)` from `Shared/SignalStateTrait.swift` to share a process-wide lock; `.serialized` alone only orders tests within one suite
 - Signal-response tests call `SignalHandler.handle(signal:info:context:)` directly and preserve/restore host handlers; real signals can stop an attached debugger. Pass `assumeYes: false` to the internal `SwiftPicker` initializer in ordinary test setup; use `true` when testing automatic permission approval. Inject `waitForTermination: nil`, or a recording closure when testing the wait behavior
 - `SwiftPickerTesting.MockSwiftPicker` is `open` — subclass it to test consumers without terminal I/O. Configure secret answers with `secretInputResult`; secret prompts are recorded in `capturedSecretPrompts`, separately from `capturedPrompts`
 - Prefer `ScriptedPicker.make` for flows that need ordered answers across multiple prompt kinds. The `secretInputs` queue is separate from `inputs`. Each queue advances independently and falls back to `""`, `false`, or no selection when exhausted; use `ScriptedPicker.silent()` when only prompt capture or empty fallbacks are needed
 - `Shared/SignalTestHelpers.swift` provides `withPreservedSignalHandlers` and `installIgnoringHostHandler(for:)` for signal tests inside `.signalState` suites
+- `Shared/FileSystemFixture.swift` creates mixed temporary directories and provides `withSelectionType` to restore the previous process-wide setting; use it inside `.signalState` suites and remove temporary directories with `defer`
 - Behavior-driven test names; prioritize coverage on selection flows and renderer trimming

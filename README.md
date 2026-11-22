@@ -264,6 +264,8 @@ if let selected = picker.treeNavigation(
 
 Browse the file system with built-in support for file and folder selection filtering:
 
+Use `.onlyFolders` to list and select only folders at every level, including the starting directory's contents. With `.onlyFiles`, folders remain visible for navigation, but only files can be selected.
+
 ```swift
 import SwiftPickerKit
 import Foundation
@@ -283,16 +285,16 @@ if let selected = picker.browseDirectories(
 if let file = picker.browseDirectories(
     prompt: "Select a file",
     startURL: startPath,
-    selectionType: .filesOnly
+    selectionType: .onlyFiles
 ) {
     print("Selected file: \(file.url.path)")
 }
 
-// Only allow folder selection
+// Only show and allow selection of folders
 if let folder = picker.browseDirectories(
     prompt: "Select a folder",
     startURL: startPath,
-    selectionType: .foldersOnly
+    selectionType: .onlyFolders
 ) {
     print("Selected folder: \(folder.url.path)")
 }
