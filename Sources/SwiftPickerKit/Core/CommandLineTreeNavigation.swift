@@ -39,7 +39,8 @@ public protocol CommandLineTreeNavigation {
     ///   - startURL: Directory to use as the initial navigation root
     ///   - showPromptText: If `true`, displays the prompt text
     ///   - showSelectedItemText: If `true`, shows selected item text in the header
-    ///   - selectionType: Controls whether files, folders, or both can be selected
+    ///   - selectionType: Controls whether files, folders, or both can be selected;
+    ///     `.onlyFolders` also hides files from the listing
     /// - Returns: The selected node, or `nil` if cancelled
     func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool, showSelectedItemText: Bool, selectionType: FileSystemNode.SelectionType) -> FileSystemNode?
 }
@@ -71,14 +72,14 @@ public extension CommandLineTreeNavigation {
     /// Convenience overload of `browseDirectories` with default parameter values; builds the root
     /// from `startURL`'s contents and passes it to `treeNavigation`.
     ///
-    /// - Note: Reads the directory listing and sets the process-global
-    ///   `FileSystemNode.selectionType` before delegating.
+    /// - Note: Sets the process-global `FileSystemNode.selectionType`, then reads the directory
+    ///   listing with it applied, before delegating.
     func browseDirectories(prompt: String, startURL: URL, showPromptText: Bool = true, showSelectedItemText: Bool = true, selectionType: FileSystemNode.SelectionType = .filesAndFolders) -> FileSystemNode? {
+        FileSystemNode.selectionType = selectionType
+
         let rootNode = FileSystemNode(url: startURL)
         let root = TreeNavigationRoot(displayName: startURL.lastPathComponent, children: rootNode.loadChildren())
-        
-        FileSystemNode.selectionType = selectionType
-        
+
         return treeNavigation(prompt: prompt, root: root, showPromptText: showPromptText, showSelectedItemText: showSelectedItemText)
     }
 }

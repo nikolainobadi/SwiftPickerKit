@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `browseDirectories(..., selectionType: .onlyFolders)` and `FileSystemNode.loadChildren()` under `.onlyFolders` no longer list files; previously files appeared as rows that could not be selected. `.onlyFiles` and `.filesAndFolders` still list both files and folders
+
 ## [0.15.0] - 2026-11-11
 
 ### Added
