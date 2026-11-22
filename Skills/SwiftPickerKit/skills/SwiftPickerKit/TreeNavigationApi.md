@@ -286,24 +286,24 @@ public struct FileSystemNode: TreeNodePickerItem {
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `selectionType` | `SelectionType` | `.filesAndFolders` | Controls which nodes are selectable |
+| `selectionType` | `SelectionType` | `.filesAndFolders` | Controls which nodes are selectable; `.onlyFolders` also hides files from `loadChildren()` |
 | `showHiddenFiles` | `Bool` | `false` | Whether dot-prefix files appear in `loadChildren()` |
 
 ### Enum: FileSystemNode.SelectionType
 
 | Case | Description |
 |------|-------------|
-| `onlyFiles` | Only files (non-directories) can be selected |
-| `onlyFolders` | Only directories can be selected |
-| `filesAndFolders` | Everything is selectable |
+| `onlyFiles` | Files and folders are listed; only files (non-directories) can be selected |
+| `onlyFolders` | Only directories are listed, and they can be selected; files are hidden |
+| `filesAndFolders` | Files and folders are listed; everything is selectable |
 
 ### loadChildren() Behavior
 
-Returns directory contents sorted case-insensitively by name. Hidden files (dot-prefix) are excluded unless `showHiddenFiles` is `true`. Returns empty array for non-directory nodes.
+Returns directory contents sorted case-insensitively by name. Hidden files (dot-prefix) are excluded unless `showHiddenFiles` is `true`. When `selectionType` is `.onlyFolders`, files are excluded too; `.onlyFiles` keeps folders so the files inside them stay reachable. Returns empty array for non-directory nodes.
 
 ### Global State Warning
 
-`FileSystemNode.selectionType` and `FileSystemNode.showHiddenFiles` are **static variables** — setting them affects all `FileSystemNode` instances process-wide. `browseDirectories` sets `selectionType` before navigation and does not reset it afterward.
+`FileSystemNode.selectionType` and `FileSystemNode.showHiddenFiles` are **static variables** — setting them affects all `FileSystemNode` instances process-wide. `browseDirectories` sets `selectionType` before loading the first level and does not reset it afterward.
 
 ### Usage Example
 

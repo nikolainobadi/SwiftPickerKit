@@ -6,6 +6,7 @@
 //
 
 import Testing
+import Foundation
 @testable import SwiftPickerKit
 
 @Suite(.signalState)
@@ -108,6 +109,30 @@ struct SwiftPickerCommandLineTreeNavigationTests {
                 showSelectedItemText: true
             )
         }
+    }
+
+    @Test
+    func `Browsing only folders starts on the first folder, not a file`() throws {
+        let directory = try FileSystemFixture.makeMixedDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let (sut, pickerInput) = makeSUT()
+
+        pickerInput.pressKey = true
+        pickerInput.enqueueSpecialChar(.enter)
+        pickerInput.enqueueSpecialChar(.quit)
+
+        // Start from a stale value so the test catches a first level loaded before selectionType is applied.
+        let result = FileSystemFixture.withSelectionType(.filesAndFolders) {
+            sut.browseDirectories(
+                prompt: "Pick folder",
+                startURL: directory,
+                showPromptText: true,
+                showSelectedItemText: true,
+                selectionType: .onlyFolders
+            )
+        }
+
+        #expect(result?.displayName == "b-folder")
     }
 }
 

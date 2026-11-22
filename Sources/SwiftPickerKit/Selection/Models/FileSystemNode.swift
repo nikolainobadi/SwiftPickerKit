@@ -59,18 +59,29 @@ public struct FileSystemNode: TreeNodePickerItem {
 
 // MARK: - Helpers
 public extension FileSystemNode {
+    /// Returns this directory's contents sorted case-insensitively by name, or an empty array
+    /// for a file.
+    ///
+    /// Hidden items are excluded unless `showHiddenFiles` is `true`. When `selectionType` is
+    /// `.onlyFolders`, files are excluded too; `.onlyFiles` keeps folders so the files inside
+    /// them stay reachable.
     func loadChildren() -> [FileSystemNode] {
         guard isDirectory else { return [] }
 
         let fm = FileManager.default
 
-        let contents = (try? fm.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)) ?? []
+        let onlyFolders = FileSystemNode.selectionType == .onlyFolders
+        let contents = (try? fm.contentsOfDirectory(at: url, includingPropertiesForKeys: [.isDirectoryKey])) ?? []
         let filtered = contents.filter { url in
-            if FileSystemNode.showHiddenFiles {
-                return true
+            if !FileSystemNode.showHiddenFiles && url.lastPathComponent.hasPrefix(".") {
+                return false
             }
 
-            return !url.lastPathComponent.hasPrefix(".")
+            if onlyFolders {
+                return (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
+            }
+
+            return true
         }
 
         return filtered.map { FileSystemNode(url: $0) }
@@ -80,6 +91,11 @@ public extension FileSystemNode {
 
 // MARK: - Dependencies
 public extension FileSystemNode {
+    /// Which nodes a directory browser lists and lets the user select.
+    ///
+    /// - `onlyFiles`: lists files and folders; only files can be selected.
+    /// - `onlyFolders`: lists only folders, and any of them can be selected.
+    /// - `filesAndFolders`: lists files and folders; anything can be selected.
     enum SelectionType {
         case onlyFiles, onlyFolders, filesAndFolders
     }
