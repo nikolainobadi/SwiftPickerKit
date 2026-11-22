@@ -1,10 +1,3 @@
-//
-//  SingleColumnRenderer.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 struct SingleColumnRenderer<Item: DisplayablePickerItem>: ContentRenderer {
     func render(items: [Item], state: SelectionState<Item>, context: ScrollRenderContext, input: PickerInput, screenWidth: Int) {
         var row = context.listStartRow

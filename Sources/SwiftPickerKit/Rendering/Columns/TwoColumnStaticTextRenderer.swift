@@ -1,10 +1,3 @@
-//
-//  TwoColumnStaticTextRenderer.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/17/25.
-//
-
 struct TwoColumnStaticTextRenderer<Item: DisplayablePickerItem>: ContentRenderer {
     func render(items: [Item], state: TwoColumnStaticTextState<Item>, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int) {
         let leftWidth = max(18, screenWidth / 3)

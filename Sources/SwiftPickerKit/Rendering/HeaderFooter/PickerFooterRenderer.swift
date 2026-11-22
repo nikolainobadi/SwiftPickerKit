@@ -1,10 +1,3 @@
-//
-//  PickerFooterRenderer.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 import ANSITerminal
 
 /// Draws the fixed 3-row footer (spacer, divider, instruction text) anchored to the bottom

@@ -1,10 +1,3 @@
-//
-//  HiddenLineReader.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 10/31/26.
-//
-
 /// Reads one line of input with terminal echo turned off, so what the user types never appears.
 ///
 /// The read runs under `SignalHandler`: if Ctrl+C or SIGTERM arrives while echo is off, the

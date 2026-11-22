@@ -1,10 +1,3 @@
-//
-//  TwoColumnStaticTextMultiBehavior.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/17/25.
-//
-
 struct TwoColumnStaticTextMultiBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
     func handleSpecialChar(char: SpecialChar, state: TwoColumnStaticTextState<Item>) -> SelectionOutcome<Item> {
         switch char {

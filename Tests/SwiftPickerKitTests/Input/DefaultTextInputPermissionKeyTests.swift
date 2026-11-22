@@ -1,10 +1,3 @@
-//
-//  DefaultTextInputPermissionKeyTests.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/11/26.
-//
-
 import Testing
 @testable import SwiftPickerKit
 

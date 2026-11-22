@@ -1,10 +1,3 @@
-//
-//  DefaultTextInput.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 import Foundation
 
 struct DefaultTextInput: TextInput {

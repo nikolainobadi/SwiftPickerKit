@@ -1,10 +1,3 @@
-//
-//  SwiftPickerCommandLineTreeNavigationTests.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 04/09/24.
-//
-
 import Testing
 import Foundation
 @testable import SwiftPickerKit

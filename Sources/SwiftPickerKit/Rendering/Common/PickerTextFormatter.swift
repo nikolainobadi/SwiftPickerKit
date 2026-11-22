@@ -1,10 +1,3 @@
-//
-//  PickerTextFormatter.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 /// Centering and truncation helpers shared by the renderers. Widths are measured in
 /// `Character` count, so ANSI escape codes in the input are counted as visible width.
 enum PickerTextFormatter {

@@ -1,10 +1,3 @@
-//
-//  FileSystemFixture.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/21/26.
-//
-
 import Foundation
 @testable import SwiftPickerKit
 

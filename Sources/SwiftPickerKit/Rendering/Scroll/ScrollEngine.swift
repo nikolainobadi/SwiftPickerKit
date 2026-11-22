@@ -1,10 +1,3 @@
-//
-//  ScrollEngine.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 /// Computes the visible slice of a list and whether scroll arrows are needed.
 ///
 /// Keeps the active item centered where possible, pinning to the top or bottom near the ends.

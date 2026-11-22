@@ -1,10 +1,3 @@
-//
-//  MockPermissionResult.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 /// Configures how `MockSwiftPicker` responds to permission prompts.
 public struct MockPermissionResult {
     public var type: MockPermissionType

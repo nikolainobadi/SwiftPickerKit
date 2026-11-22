@@ -1,10 +1,3 @@
-//
-//  CommandLinePicker+FlagHint.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 08/09/26.
-//
-
 import Foundation
 
 // Overloads of the `required*` methods that name the command line flag a caller can pass instead

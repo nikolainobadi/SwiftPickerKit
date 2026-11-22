@@ -1,10 +1,3 @@
-//
-//  CommandLineSelection.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 /// Interactive single- and multi-selection pickers.
 ///
 /// Arrow keys move, Enter confirms, and `q` cancels; in multi-selection, Space toggles an item.

@@ -1,10 +1,3 @@
-//
-//  PermissionSubmitMode.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/11/26.
-//
-
 /// How a `SwiftPicker` permission prompt accepts the user's `y`/`n` answer.
 public enum PermissionSubmitMode: Sendable {
     /// The user types an answer and presses Enter. Only `y` or `Y` counts as yes. An empty

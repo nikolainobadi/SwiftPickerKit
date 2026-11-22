@@ -1,10 +1,3 @@
-//
-//  TreeNavigationRenderer.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/17/25.
-//
-
 struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
     func renderScrollIndicators(showUp: Bool, showDown: Bool, state: TreeNavigationState<Item>, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int, headerHeight: Int, totalRows: Int) {
         let footerRenderer = PickerFooterRenderer(pickerInput: input)

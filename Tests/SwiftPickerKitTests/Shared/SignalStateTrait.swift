@@ -1,10 +1,3 @@
-//
-//  SignalStateTrait.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 10/16/26.
-//
-
 import Testing
 
 /// Runs each test case in a suite one at a time with every other suite carrying this trait.

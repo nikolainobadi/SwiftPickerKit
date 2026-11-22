@@ -1,10 +1,3 @@
-//
-//  SwiftPickerCommandLineInputTests.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 import Testing
 import Foundation
 @testable import SwiftPickerKit

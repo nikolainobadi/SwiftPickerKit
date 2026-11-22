@@ -1,10 +1,3 @@
-//
-//  TreeNavigationBehaviorTests.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 04/09/24.
-//
-
 import Testing
 @testable import SwiftPickerKit
 

@@ -1,10 +1,3 @@
-//
-//  SwiftPickerDemo.swift
-//  SwiftPickerDemo
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 import Foundation
 import ArgumentParser
 import SwiftPickerKit

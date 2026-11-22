@@ -1,10 +1,3 @@
-//
-//  MockSwiftPicker.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 import SwiftPickerKit
 
 /// A `CommandLinePicker` that answers from configured results and records every prompt, for

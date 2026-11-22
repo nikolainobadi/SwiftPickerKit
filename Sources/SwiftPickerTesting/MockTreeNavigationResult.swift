@@ -1,10 +1,3 @@
-//
-//  MockTreeNavigationResult.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 /// Configures how `MockSwiftPicker` responds to tree navigation prompts.
 public struct MockTreeNavigationResult {
     public var defaultOutcome: MockTreeSelectionOutcome

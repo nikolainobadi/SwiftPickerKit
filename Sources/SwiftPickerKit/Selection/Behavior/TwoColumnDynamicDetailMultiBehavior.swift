@@ -1,10 +1,3 @@
-//
-//  TwoColumnDynamicDetailMultiBehavior.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/17/25.
-//
-
 struct TwoColumnDynamicDetailMultiBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
     func handleSpecialChar(char: SpecialChar, state: TwoColumnDynamicDetailState<Item>) -> SelectionOutcome<Item> {
         switch char {

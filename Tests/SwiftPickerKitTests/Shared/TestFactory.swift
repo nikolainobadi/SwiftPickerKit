@@ -1,10 +1,3 @@
-//
-//  TestFactory.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/19/25.
-//
-
 @testable import SwiftPickerKit
 
 enum TestFactory {

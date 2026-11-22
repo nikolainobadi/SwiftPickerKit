@@ -1,10 +1,3 @@
-//
-//  StandardInputEcho.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 10/31/26.
-//
-
 import Foundation
 
 /// Controls echo on standard input's terminal through `termios`.

@@ -1,10 +1,3 @@
-//
-//  TreeTestItem.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 04/09/24.
-//
-
 @testable import SwiftPickerKit
 
 struct TreeTestItem: TreeNodePickerItem {

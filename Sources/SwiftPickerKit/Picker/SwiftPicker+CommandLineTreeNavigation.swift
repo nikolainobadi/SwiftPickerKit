@@ -1,10 +1,3 @@
-//
-//  SwiftPicker+CommandLineTreeNavigation.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 extension SwiftPicker: CommandLineTreeNavigation {
     public func treeNavigation<Item: TreeNodePickerItem>(
         prompt: String,

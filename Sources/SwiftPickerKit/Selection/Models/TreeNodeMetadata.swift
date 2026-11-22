@@ -1,10 +1,3 @@
-//
-//  TreeNodeMetadata.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/17/25.
-//
-
 public struct TreeNodeMetadata {
     public var subtitle: String?         // e.g. "21 files", "Updated yesterday"
     public var detailLines: [String]     // Additional info to show

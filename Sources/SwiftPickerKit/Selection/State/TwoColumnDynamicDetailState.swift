@@ -1,10 +1,3 @@
-//
-//  TwoColumnDynamicDetailState.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/17/25.
-//
-
 final class TwoColumnDynamicDetailState<Item: DisplayablePickerItem> {
     var leftState: SelectionState<Item>
     let detailForItem: (Item) -> String

@@ -1,10 +1,3 @@
-//
-//  PickerHeaderRenderer.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 import ANSITerminal
 
 /// Draws the header: centered top line, optional prompt, and optional selected-item section

@@ -1,10 +1,3 @@
-//
-//  TreeNode.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/17/25.
-//
-
 public struct TreeNode<T>: TreeNodePickerItem {
     public let displayName: String
     public let value: T

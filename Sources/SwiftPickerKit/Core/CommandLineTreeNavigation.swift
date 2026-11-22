@@ -1,10 +1,3 @@
-//
-//  CommandLineTreeNavigation.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 import Foundation
 
 /// Pickers that browse a hierarchy of `TreeNodePickerItem`s, such as a file system.

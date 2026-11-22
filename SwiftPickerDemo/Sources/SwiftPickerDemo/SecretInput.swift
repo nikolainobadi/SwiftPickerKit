@@ -1,10 +1,3 @@
-//
-//  SecretInput.swift
-//  SwiftPickerDemo
-//
-//  Created by Nikolai Nobadi on 10/31/26.
-//
-
 import ArgumentParser
 import SwiftPickerKit
 

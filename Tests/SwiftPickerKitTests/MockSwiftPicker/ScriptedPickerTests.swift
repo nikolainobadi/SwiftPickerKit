@@ -1,10 +1,3 @@
-//
-//  ScriptedPickerTests.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 9/6/26.
-//
-
 import Testing
 @testable import SwiftPickerKit
 @testable import SwiftPickerTesting

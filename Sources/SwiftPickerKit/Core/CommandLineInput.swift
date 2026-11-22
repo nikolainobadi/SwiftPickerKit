@@ -1,10 +1,3 @@
-//
-//  CommandLineInput.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 /// Line-based text prompts: the user types freely and presses Enter to submit.
 ///
 /// ```swift

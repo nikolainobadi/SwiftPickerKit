@@ -1,10 +1,3 @@
-//
-//  BaseSelectionState.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 /// Data a picker exposes to its behavior and renderer; holds no input or drawing logic.
 protocol BaseSelectionState<Item> {
     associatedtype Item: DisplayablePickerItem

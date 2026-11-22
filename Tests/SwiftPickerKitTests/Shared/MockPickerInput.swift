@@ -1,10 +1,3 @@
-//
-//  MockPickerInput.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 @testable import SwiftPickerKit
 
 final class MockPickerInput: PickerInput {

@@ -1,10 +1,3 @@
-//
-//  MockInputResult.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 /// Configures how `MockSwiftPicker` responds to text prompts.
 public struct MockInputResult {
     public var type: MockInputType

@@ -1,10 +1,3 @@
-//
-//  CommandLinePermission.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 /// Yes/no confirmation prompts.
 ///
 /// ```swift

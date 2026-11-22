@@ -1,10 +1,3 @@
-//
-//  TwoColumnDynamicDetailRenderer.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/17/25.
-//
-
 struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRenderer {
     func render(items: [Item], state: TwoColumnDynamicDetailState<Item>, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int) {
         let leftWidth = max(18, screenWidth / 3)

@@ -1,10 +1,3 @@
-//
-//  String+Extensions.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/17/25.
-//
-
 extension String {
     /// Word-wraps each line to `maxWidth`, keeping existing line breaks and blank lines
     /// (whitespace-only lines become `""`).

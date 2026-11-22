@@ -1,10 +1,3 @@
-//
-//  ScriptedPicker.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 9/6/26.
-//
-
 /// Builds a `MockSwiftPicker` from ordered queues, one per kind of question.
 ///
 /// A test names only the queues its flow uses; omitting the rest signals that the flow asks

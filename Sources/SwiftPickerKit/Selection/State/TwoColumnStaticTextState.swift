@@ -1,10 +1,3 @@
-//
-//  TwoColumnStaticTextState.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/17/25.
-//
-
 final class TwoColumnStaticTextState<Item: DisplayablePickerItem> {
     private let rawRightText: String
 

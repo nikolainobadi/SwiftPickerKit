@@ -1,10 +1,3 @@
-//
-//  SelectionHandler.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 /// Runs the input loop shared by every picker mode, wiring a State, Behavior, and Renderer together.
 ///
 /// Owns rendering, scrolling, signal handling, and terminal restore; the components decide

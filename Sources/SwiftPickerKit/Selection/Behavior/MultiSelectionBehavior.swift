@@ -1,10 +1,3 @@
-//
-//  MultiSelectionBehavior.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 struct MultiSelectionBehavior<Item: DisplayablePickerItem>: SelectionBehavior {
     func handleSpecialChar(char: SpecialChar, state: SelectionState<Item>) -> SelectionOutcome<Item> {
         switch char {

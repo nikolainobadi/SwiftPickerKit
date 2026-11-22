@@ -1,10 +1,3 @@
-//
-//  PickerRequirementError.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 08/09/26.
-//
-
 import Foundation
 
 /// Errors thrown by the `flagHint:` variants of the `required*` methods, naming the command line

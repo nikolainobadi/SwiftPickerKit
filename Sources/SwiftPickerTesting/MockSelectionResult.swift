@@ -1,10 +1,3 @@
-//
-//  MockSelectionResult.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 /// Configures how `MockSwiftPicker` responds to selection prompts.
 public struct MockSelectionResult {
     public var defaultSingle: MockSingleSelectionOutcome

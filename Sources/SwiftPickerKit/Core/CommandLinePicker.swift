@@ -1,10 +1,3 @@
-//
-//  CommandLinePicker.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 /// All four picker protocols in one: `CommandLineInput`, `CommandLinePermission`,
 /// `CommandLineSelection`, and `CommandLineTreeNavigation`.
 ///

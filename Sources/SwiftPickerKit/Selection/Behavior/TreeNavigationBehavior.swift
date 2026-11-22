@@ -1,10 +1,3 @@
-//
-//  TreeNavigationBehavior.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/17/25.
-//
-
 final class TreeNavigationBehavior<Item: TreeNodePickerItem> {
     typealias State = TreeNavigationState<Item>
 }

@@ -1,10 +1,3 @@
-//
-//  SwiftPicker.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 public struct SwiftPicker {
     internal let textInput: TextInput
     internal let pickerInput: PickerInput

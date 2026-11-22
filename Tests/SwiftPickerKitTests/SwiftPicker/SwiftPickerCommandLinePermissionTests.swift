@@ -1,10 +1,3 @@
-//
-//  SwiftPickerCommandLinePermissionTests.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 import Testing
 @testable import SwiftPickerKit
 

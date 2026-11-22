@@ -1,10 +1,3 @@
-//
-//  SwiftPicker+CommandLineSelection.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/18/25.
-//
-
 extension SwiftPicker: CommandLineSelection {
     public func singleSelection<Item: DisplayablePickerItem>(prompt: String, items: [Item], layout: PickerLayout<Item>, newScreen: Bool, showSelectedItemText: Bool) -> Item? {
         switch runSelection(prompt: prompt, items: items, layout: layout, isSingle: true, newScreen: newScreen, showSelectedItemText: showSelectedItemText) {

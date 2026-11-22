@@ -1,10 +1,3 @@
-//
-//  ScrollEngineTests.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/19/25.
-//
-
 import Testing
 @testable import SwiftPickerKit
 

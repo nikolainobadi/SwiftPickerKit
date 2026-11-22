@@ -1,10 +1,3 @@
-//
-//  PickerRequirementErrorTests.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 08/09/26.
-//
-
 import Testing
 @testable import SwiftPickerKit
 

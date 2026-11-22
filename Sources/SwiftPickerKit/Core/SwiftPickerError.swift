@@ -1,10 +1,3 @@
-//
-//  SwiftPickerError.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 /// Errors thrown by the `required*` picker methods when no input, selection, or permission is given.
 ///
 /// ```swift

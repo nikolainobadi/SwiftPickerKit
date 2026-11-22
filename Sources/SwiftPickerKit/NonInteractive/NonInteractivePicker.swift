@@ -1,10 +1,3 @@
-//
-//  NonInteractivePicker.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 08/09/26.
-//
-
 import Foundation
 
 /// A `CommandLinePicker` for scripted, piped, or CI runs that never prompts.

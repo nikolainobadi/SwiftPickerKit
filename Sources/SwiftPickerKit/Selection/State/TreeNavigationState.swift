@@ -1,10 +1,3 @@
-//
-//  TreeNavigationState.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/17/25.
-//
-
 /// State for two-column tree navigation: a stack of levels from root to the current depth,
 /// with the parent level shown in the left column and the current level in the right.
 final class TreeNavigationState<Item: TreeNodePickerItem> {

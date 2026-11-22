@@ -1,10 +1,3 @@
-//
-//  PickerInterruptedError.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 10/16/26.
-//
-
 import Foundation
 
 /// Thrown when a required prompt on a `SwiftPicker` is ended by SIGINT (Ctrl+C) or SIGTERM, rather

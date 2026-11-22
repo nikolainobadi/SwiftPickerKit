@@ -1,10 +1,3 @@
-//
-//  DisplayablePickerItem.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 /// A type that can be shown in a picker; only `displayName` is used for rendering.
 ///
 /// ```swift

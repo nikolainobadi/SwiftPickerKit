@@ -1,10 +1,3 @@
-//
-//  SignalTestHelpers.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 10/31/26.
-//
-
 import Foundation
 @testable import SwiftPickerKit
 

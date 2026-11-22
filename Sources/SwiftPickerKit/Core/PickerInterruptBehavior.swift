@@ -1,10 +1,3 @@
-//
-//  PickerInterruptBehavior.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 10/16/26.
-//
-
 /// What a `SwiftPicker` selection or secret prompt does when SIGINT (Ctrl+C) or SIGTERM ends it
 /// and the process keeps running because the host handles the signal itself.
 ///

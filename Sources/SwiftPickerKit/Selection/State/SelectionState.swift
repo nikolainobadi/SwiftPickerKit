@@ -1,10 +1,3 @@
-//
-//  SelectionState.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 final class SelectionState<Item: DisplayablePickerItem> {
     let prompt: String
     let isSingleSelection: Bool

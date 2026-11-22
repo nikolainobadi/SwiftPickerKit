@@ -1,10 +1,3 @@
-//
-//  TwoColumnState.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 /// State for a two-column layout where only the left column takes selection.
 final class TwoColumnState<Item: DisplayablePickerItem> {
     var leftState: SelectionState<Item>

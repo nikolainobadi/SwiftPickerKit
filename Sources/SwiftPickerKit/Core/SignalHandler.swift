@@ -1,10 +1,3 @@
-//
-//  SignalHandler.swift
-//  SwiftPickerKit
-//
-//  Created by Nikolai Nobadi on 11/16/25.
-//
-
 import Foundation
 
 /// Restores the terminal on SIGINT/SIGTERM, then forwards the signal to the host's saved handler
