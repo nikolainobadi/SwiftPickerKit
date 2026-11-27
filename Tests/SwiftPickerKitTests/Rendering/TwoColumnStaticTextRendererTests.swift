@@ -243,7 +243,7 @@ private extension TwoColumnStaticTextRendererTests {
 private extension TwoColumnStaticTextRendererTests {
 func makeSUT() -> (TwoColumnStaticTextRenderer<TestItem>, MockPickerInput) {
         let pickerInput = MockPickerInput()
-        let sut = TwoColumnStaticTextRenderer<TestItem>()
+        let sut = TwoColumnStaticTextRenderer<TestItem>(theme: .standard, styler: PickerStyler(colorEnabled: true))
         return (sut, pickerInput)
     }
 }

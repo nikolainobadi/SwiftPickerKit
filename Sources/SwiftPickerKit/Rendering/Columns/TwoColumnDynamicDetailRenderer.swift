@@ -1,7 +1,16 @@
 struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRenderer {
+    let theme: PickerTheme
+    let styler: PickerStyler
+
+    init(theme: PickerTheme, styler: PickerStyler) {
+        self.theme = theme
+        self.styler = styler
+    }
+
     func render(items: [Item], state: TwoColumnDynamicDetailState<Item>, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int) {
         let leftWidth = max(18, screenWidth / 3)
         let rightWidth = screenWidth - leftWidth - 3
+        let rowFormatter = OptionRowFormatter(theme: theme, styler: styler)
 
         var row = context.listStartRow
 
@@ -11,13 +20,9 @@ struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRende
 
             input.moveTo(row, 0)
             input.moveRight()
-
-            let marker = optionMarker(option: option, isActive: isActive, isSingle: state.leftState.isSingleSelection)
-            input.write(marker)
+            input.write(rowFormatter.marker(isActive: isActive, isSelected: option.isSelected, isSingleSelection: state.leftState.isSingleSelection))
             input.moveRight()
-
-            let text = PickerTextFormatter.truncate(option.title, maxWidth: leftWidth - 4)
-            input.write(isActive ? text.underline : text.foreColor(250))
+            input.write(rowFormatter.title(for: option.item, isActive: isActive, maxWidth: leftWidth - 4))
 
             row += 1
         }
@@ -29,18 +34,10 @@ struct TwoColumnDynamicDetailRenderer<Item: DisplayablePickerItem>: ContentRende
         for line in lines {
             if row >= context.listStartRow + context.visibleRowCount { break }
             input.moveTo(row, leftWidth)
-            input.write("│ ".foreColor(240))
+            input.write(styler.styled("│ ", color: theme.divider))
             let truncated = PickerTextFormatter.truncate(line, maxWidth: rightWidth)
-            input.write(truncated.foreColor(250))
+            input.write(styler.styled(truncated, color: theme.detailText))
             row += 1
         }
-    }
-}
-
-// MARK: - Private Methods
-private extension TwoColumnDynamicDetailRenderer {
-    func optionMarker(option: Option<Item>, isActive: Bool, isSingle: Bool) -> String {
-        if isSingle { return isActive ? "●".lightGreen : "○".foreColor(250) }
-        return option.isSelected ? "●".lightGreen : "○".foreColor(250)
     }
 }

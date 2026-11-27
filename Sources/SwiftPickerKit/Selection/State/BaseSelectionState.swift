@@ -16,8 +16,8 @@ protocol BaseSelectionState<Item> {
     /// Footer instructions.
     var bottomLineText: String { get }
 
-    /// Extra header lines under the selected item. Defaults to none.
-    var selectedDetailLines: [String] { get }
+    /// Extra header lines under the selected item, as plain text the header styles. Defaults to none.
+    var selectedDetailLines: [PickerDetailLine] { get }
 
     /// Whether the header shows the "Selected:" block. Defaults to `true`.
     var showSelectedItemText: Bool { get }
@@ -30,7 +30,7 @@ protocol BaseSelectionState<Item> {
 }
 
 extension BaseSelectionState {
-    var selectedDetailLines: [String] { [] }
+    var selectedDetailLines: [PickerDetailLine] { [] }
 
     var showSelectedItemText: Bool { true }
 

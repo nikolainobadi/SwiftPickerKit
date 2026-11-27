@@ -31,7 +31,7 @@ This repository has no workflow to automate that marketplace update.
 - `swift test` — run the Swift Testing suite in `Tests/SwiftPickerKitTests`
 - `swift test --enable-code-coverage` — coverage report
 - `cd SwiftPickerDemo && swift run SwiftPickerDemo <subcommand>` — interactive demo
-  - Subcommands: `single`, `multi`, `dynamic`, `choose`, `browse`, `secret` (use `--help` for flags)
+  - Subcommands: `single`, `multi`, `dynamic`, `choose`, `browse`, `secret`, `colors` (use `--help` for flags)
 
 ## Architecture
 
@@ -48,7 +48,8 @@ Each picker mode is assembled from three pieces, wired together by `SelectionHan
 - `Picker/` — the `SwiftPicker` struct plus one `SwiftPicker+CommandLine*.swift` extension per protocol. `TextInput` and `PickerInput` are declared in `SwiftPicker.swift`
 - `Input/` — `DefaultPickerInput` wraps ANSITerminal; `DefaultTextInput` handles line prompts and uses `HiddenLineReader` with `StandardInputEcho` for secret input and immediate permission answers
 - `Selection/` — `State/`, `Behavior/`, `Engine/`, and `Models/` (`PickerLayout`, `TreeNode`, `TreeNodePickerItem`, `FileSystemNode`, `TreeNavigationRoot`)
-- `Rendering/` — `Columns/` (the content renderers), `HeaderFooter/`, `Scroll/`, `Common/`
+- `Rendering/` — `Columns/` (the content renderers), `HeaderFooter/`, `Scroll/`, `Common/` (`PickerTextFormatter`, `OptionRowFormatter` shared by the list renderers)
+- `Styling/` — public `PickerColor`, `PickerTextStyle`, `StyledPickerItem`, `SegmentedPickerItem`, `PickerTextSegment`, `PickerTheme`; internal `PickerStyler` and `PickerColorSupport`
 
 ### Key types
 - `DisplayablePickerItem` — everything shown in a picker conforms to it (`displayName`, `description`)
@@ -56,10 +57,12 @@ Each picker mode is assembled from three pieces, wired together by `SelectionHan
 - `TreeNodePickerItem` — adds `hasChildren` / `fetchChildren()`; `TreeNavigationBehavior` maps left/right arrows to ascend/descend. `FileSystemNode` is the filesystem implementation, and `browseDirectories` wraps it with a `SelectionType` of `.onlyFiles` / `.onlyFolders` / `.filesAndFolders`. `.onlyFolders` hides files from every listing, including the initial level; `.onlyFiles` keeps folders visible for navigation but only allows selecting files
 
 ### Adding a picker mode
-Add a State, a Behavior, and a Renderer in the directories above, then construct a `SelectionHandler(state:pickerInput:behavior:renderer:waitForTermination:)` from a public extension in `Picker/`. Forward the picker's `waitForTermination` closure; follow `SwiftPicker+CommandLineSelection.swift` for the wiring.
+Add a State, a Behavior, and a Renderer (with stored `theme` and `styler`) in the directories above, then construct a `SelectionHandler(state:pickerInput:behavior:renderer:waitForTermination:)` from a public extension in `Picker/`. Forward the picker's `waitForTermination` closure; follow `SwiftPicker+CommandLineSelection.swift` for the wiring.
 
 ## Terminal
-- Selection terminal I/O goes through `PickerInput`; only `Input/DefaultPickerInput` talks to ANSITerminal for I/O. Renderers may import ANSITerminal for text styling only
+- Selection terminal I/O goes through `PickerInput`; only `Input/DefaultPickerInput` imports ANSITerminal
+- Renderers style text only through `PickerStyler` and colors from `PickerTheme` (`Styling/`); never call ANSITerminal styling helpers. Truncate plain text with `PickerTextFormatter` first, then style it — styles end with a full reset and don't nest. State types return plain text (e.g. `PickerDetailLine`) and leave styling to renderers
+- `PickerColorSupport` disables colors (not bold/dim/underline) when stdout isn't a TTY, `NO_COLOR` is non-empty, or `TERM=dumb`; tests construct `PickerStyler(colorEnabled:)` directly
 - Secret input goes through `TextInput.getSecretInput(_:)`. `HiddenLineReader` installs signal cleanup before disabling echo; `StandardInputEcho` restores the saved terminal settings on completion or interruption and leaves non-terminal input unchanged. `TerminalEcho.restore()` must remain async-signal-safe
 - Permission prompts default to `PermissionSubmitMode.requireEnter`. Configure `.immediate` through `SwiftPicker(interruptBehavior:assumeYes:permissionSubmitMode:)` to accept the first `y`/`Y` or `n`/`N` without Enter, ignoring other keys. Non-terminal input falls back to line input; `assumeYes: true` bypasses permission prompts regardless of mode
 - Immediate permission reads use `HiddenLineReader` with `StandardInputEcho(disablesLineBuffering: true)` to restore echo and line buffering before forwarding interrupts; an interrupted read returns no. Secret reads use `disablesLineBuffering: false`

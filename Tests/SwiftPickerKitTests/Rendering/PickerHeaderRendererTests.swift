@@ -20,6 +20,7 @@ struct PickerHeaderRendererTests {
             prompt: "Prompt",
             topLineText: "Header",
             selectedItem: nil,
+            selectedDetailLines: [],
             screenWidth: screenWidth
         )
 
@@ -39,7 +40,7 @@ struct PickerHeaderRendererTests {
     @Test
     func `Shows selected item details between dividers`() {
         let screenWidth = 12
-        let details = ["First detail", "Second detail"]
+        let details = [PickerDetailLine(text: "First detail", kind: .metadataDetail), PickerDetailLine(text: "Second detail", kind: .metadataDetail)]
         let (sut, pickerInput) = makeSUT(dividerStyle: .double)
 
         let height = sut.renderHeader(
@@ -69,7 +70,7 @@ struct PickerHeaderRendererTests {
             prompt: longPrompt,
             topLineText: "Top",
             selectedItem: "Item",
-            selectedDetailLines: [longDetail],
+            selectedDetailLines: [PickerDetailLine(text: longDetail, kind: .metadataDetail)],
             screenWidth: screenWidth
         )
 
@@ -86,6 +87,7 @@ struct PickerHeaderRendererTests {
             prompt: "Hidden prompt",
             topLineText: "Header",
             selectedItem: nil,
+            selectedDetailLines: [],
             showPromptText: false,
             screenWidth: screenWidth
         )
@@ -108,7 +110,7 @@ struct PickerHeaderRendererTests {
             prompt: "Prompt",
             topLineText: "Header",
             selectedItem: "Choice",
-            selectedDetailLines: ["Detail"],
+            selectedDetailLines: [PickerDetailLine(text: "Detail", kind: .metadataDetail)],
             showSelectedItemText: false,
             screenWidth: screenWidth
         )
@@ -117,13 +119,37 @@ struct PickerHeaderRendererTests {
         #expect(pickerInput.writtenText.contains { $0.contains("Selected:") } == false)
         #expect(pickerInput.writtenText.contains { $0.contains("Detail") } == false)
     }
+    @Test
+    func `Styles detail lines from the theme by kind`() {
+        let (sut, pickerInput) = makeSUT(dividerStyle: .single)
+        let details = [
+            PickerDetailLine(text: "Sub", kind: .subtitle),
+            PickerDetailLine(text: "Info", kind: .metadataDetail),
+            PickerDetailLine(text: "Empty", kind: .emptyFolderMessage)
+        ]
+
+        _ = sut.renderHeader(prompt: "Prompt", topLineText: "Top", selectedItem: "Item", selectedDetailLines: details, showSelectedItemText: true, showPromptText: true, screenWidth: 9)
+
+        #expect(pickerInput.writtenText.contains("   \u{1B}[38;5;240mSub\u{1B}[0m"))
+        #expect(pickerInput.writtenText.contains("  \u{1B}[38;5;244mInfo\u{1B}[0m"))
+        #expect(pickerInput.writtenText.contains("  \u{1B}[38;5;208mEmpty\u{1B}[0m"))
+    }
+
+    @Test
+    func `Centers the selected line by its visible width`() {
+        let (sut, pickerInput) = makeSUT(dividerStyle: .single)
+
+        _ = sut.renderHeader(prompt: "Prompt", topLineText: "Top", selectedItem: "A", selectedDetailLines: [], showSelectedItemText: true, showPromptText: true, screenWidth: 15)
+
+        #expect(pickerInput.writtenText.contains("  \u{1B}[38;5;51mSelected: A\u{1B}[0m"))
+    }
 }
 
 // MARK: - SUT
 private extension PickerHeaderRendererTests {
     func makeSUT(dividerStyle: PickerDividerStyle = .single) -> (PickerHeaderRenderer, MockPickerInput) {
         let pickerInput = MockPickerInput()
-        let sut = PickerHeaderRenderer(pickerInput: pickerInput, dividerStyle: dividerStyle)
+        let sut = PickerHeaderRenderer(pickerInput: pickerInput, dividerStyle: dividerStyle, theme: .standard, styler: PickerStyler(colorEnabled: true))
         return (sut, pickerInput)
     }
 }

@@ -48,7 +48,7 @@ struct TreeNavigationStateTests {
         sut.descendIntoChildIfPossible()
 
         #expect(sut.isEmptyHint(level: 0, index: 0))
-        #expect(sut.selectedDetailLines.contains { $0.contains("'Empty' is empty") })
+        #expect(sut.selectedDetailLines.contains { $0.text.contains("'Empty' is empty") && $0.kind == .emptyFolderMessage })
     }
 
     @Test
@@ -98,16 +98,18 @@ struct TreeNavigationStateTests {
     }
 
     @Test
-    func `Builds detail lines from item metadata`() {
+    func `Builds plain detail lines from item metadata`() {
         let metadata = TestFactory.makeTreeMetadata(subtitle: "Subtitle", detailLines: ["Line 1", "Line 2"])
         let roots = [TestFactory.makeTreeItem(name: "Root", metadata: metadata)]
         let (sut, _) = makeSUT(rootItems: roots)
 
         let details = sut.selectedDetailLines
 
-        #expect(details.contains(metadata.subtitle?.foreColor(240) ?? ""))
-        #expect(details.contains("Line 1".foreColor(244)))
-        #expect(details.contains("Line 2".foreColor(244)))
+        #expect(details == [
+            PickerDetailLine(text: "Subtitle", kind: .subtitle),
+            PickerDetailLine(text: "Line 1", kind: .metadataDetail),
+            PickerDetailLine(text: "Line 2", kind: .metadataDetail)
+        ])
     }
 
     @Test

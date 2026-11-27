@@ -93,6 +93,69 @@ extension PickerTextFormatterTests {
 
         #expect(sut.truncate("Hello", maxWidth: 2) == "H…")
     }
+    @Test
+    func `Ignores escape sequences when measuring visible width`() {
+        let sut = makeSUT()
+
+        #expect(sut.visibleWidth("\u{1B}[38;5;250mHello\u{1B}[0m") == 5)
+    }
+
+    @Test
+    func `Returns styled text unchanged when its visible width fits`() {
+        let sut = makeSUT()
+        let styled = "\u{1B}[31mHello\u{1B}[0m"
+
+        #expect(sut.truncate(styled, maxWidth: 5) == styled)
+    }
+
+    @Test
+    func `Keeps escape sequences whole and appends a reset when cutting styled text`() {
+        let sut = makeSUT()
+
+        #expect(sut.truncate("\u{1B}[94mHello World\u{1B}[0m", maxWidth: 6) == "\u{1B}[94mHello\u{1B}[0m…\u{1B}[0m")
+    }
+
+    @Test
+    func `Centers styled text by its visible width`() {
+        let sut = makeSUT()
+        let styled = "\u{1B}[31mHello\u{1B}[0m"
+
+        #expect(sut.centerText(styled, inWidth: 11) == "   " + styled)
+    }
+}
+
+// MARK: - Segment Truncation
+extension PickerTextFormatterTests {
+    @Test
+    func `Returns segments unchanged when they fit`() {
+        let sut = makeSUT()
+        let segments = [PickerTextSegment(text: "ab", style: nil), PickerTextSegment(text: "cd", style: .failure)]
+
+        #expect(sut.truncate(segments, maxWidth: 4) == segments)
+    }
+
+    @Test
+    func `Cuts across segments and ends the cut segment with an ellipsis in its style`() {
+        let sut = makeSUT()
+        let segments = [PickerTextSegment(text: "abc", style: nil), PickerTextSegment(text: "defgh", style: .failure), PickerTextSegment(text: "ij", style: .success)]
+
+        #expect(sut.truncate(segments, maxWidth: 6) == [PickerTextSegment(text: "abc", style: nil), PickerTextSegment(text: "de…", style: .failure)])
+    }
+
+    @Test
+    func `Puts the ellipsis on the next segment when the cut falls on a boundary`() {
+        let sut = makeSUT()
+        let segments = [PickerTextSegment(text: "abc", style: nil), PickerTextSegment(text: "def", style: .failure)]
+
+        #expect(sut.truncate(segments, maxWidth: 4) == [PickerTextSegment(text: "abc", style: nil), PickerTextSegment(text: "…", style: .failure)])
+    }
+
+    @Test
+    func `Returns no segments when truncation is needed but the width is one or less`() {
+        let sut = makeSUT()
+
+        #expect(sut.truncate([PickerTextSegment(text: "abc", style: nil)], maxWidth: 1).isEmpty)
+    }
 }
 
 // MARK: - SUT

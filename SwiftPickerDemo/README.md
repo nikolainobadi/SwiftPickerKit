@@ -143,6 +143,30 @@ swift run SwiftPickerDemo browse --path ~/Projects
 swift run SwiftPickerDemo browse --show-hidden
 ```
 
+#### `colors` — Styled Items and Themes
+
+Shows CI jobs as multi-color rows through `SegmentedPickerItem` (the name, then a status and note in their own colors) and colored by status through `StyledPickerItem`, optionally with a custom `PickerTheme` or as styled tree nodes.
+
+```bash
+swift run SwiftPickerDemo colors [--theme] [--tree]
+```
+
+**Options:**
+- `-t, --theme` — Use a custom magenta theme instead of `PickerTheme.standard`
+- `--tree` — Show styled `TreeNode`s in tree navigation
+
+**Examples:**
+```bash
+# Styled list with the standard theme
+swift run SwiftPickerDemo colors
+
+# Custom theme
+swift run SwiftPickerDemo colors --theme
+
+# Colors dropped, underline and dim kept
+NO_COLOR=1 swift run SwiftPickerDemo colors
+```
+
 ## Code Examples
 
 The demo showcases common SwiftPickerKit patterns:
@@ -227,6 +251,7 @@ SwiftPickerDemo/
         ├── DynamicDetail.swift     # Dynamic detail subcommand
         ├── Choose.swift            # Interactive chooser subcommand
         ├── Browse.swift            # Filesystem browser subcommand
+        ├── Colors.swift            # Styled items and themes subcommand
         └── TestItem.swift          # Sample data for demos
 ```
 

@@ -1,7 +1,16 @@
 struct TwoColumnStaticTextRenderer<Item: DisplayablePickerItem>: ContentRenderer {
+    let theme: PickerTheme
+    let styler: PickerStyler
+
+    init(theme: PickerTheme, styler: PickerStyler) {
+        self.theme = theme
+        self.styler = styler
+    }
+
     func render(items: [Item], state: TwoColumnStaticTextState<Item>, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int) {
         let leftWidth = max(18, screenWidth / 3)
         let rightWidth = screenWidth - leftWidth - 3
+        let rowFormatter = OptionRowFormatter(theme: theme, styler: styler)
 
         var row = context.listStartRow
 
@@ -11,19 +20,9 @@ struct TwoColumnStaticTextRenderer<Item: DisplayablePickerItem>: ContentRenderer
 
             input.moveTo(row, 0)
             input.moveRight()
-
-            let marker: String
-            if state.leftState.isSingleSelection {
-                marker = isActive ? "●".lightGreen : "○".foreColor(250)
-            } else {
-                marker = option.isSelected ? "●".lightGreen : "○".foreColor(250)
-            }
-            input.write(marker)
+            input.write(rowFormatter.marker(isActive: isActive, isSelected: option.isSelected, isSingleSelection: state.leftState.isSingleSelection))
             input.moveRight()
-
-            let maxLeftText = leftWidth - 4
-            let truncated = PickerTextFormatter.truncate(option.title, maxWidth: maxLeftText)
-            input.write(isActive ? truncated.underline : truncated.foreColor(250))
+            input.write(rowFormatter.title(for: option.item, isActive: isActive, maxWidth: leftWidth - 4))
 
             row += 1
         }
@@ -49,11 +48,11 @@ private extension TwoColumnStaticTextRenderer {
             }
 
             input.moveTo(row, leftWidth)
-            input.write("│".foreColor(240))
+            input.write(styler.styled("│", color: theme.divider))
             input.moveRight()
 
             let truncated = PickerTextFormatter.truncate(line, maxWidth: rightWidth - 2)
-            input.write(truncated.foreColor(250))
+            input.write(styler.styled(truncated, color: theme.detailText))
 
             row += 1
         }

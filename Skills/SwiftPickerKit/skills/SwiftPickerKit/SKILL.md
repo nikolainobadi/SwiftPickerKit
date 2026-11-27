@@ -18,7 +18,7 @@ Interactive terminal-based picker library for macOS with single-selection, multi
 
 | File | Purpose | Load When |
 |------|---------|-----------|
-| `PickerApi.md` | Core picker protocols, SwiftPicker entry point, layouts, errors | Writing picker selection code, configuring layouts, handling ordinary/secret input, permissions or interrupts |
+| `PickerApi.md` | Core picker protocols, SwiftPicker entry point, layouts, colors and themes, errors | Writing picker selection code, configuring layouts, styling items or themes, handling ordinary/secret input, permissions or interrupts |
 | `TreeNavigationApi.md` | Tree navigation protocol, TreeNode, FileSystemNode, directory browsing | Implementing hierarchical navigation, file browsing, custom tree items |
 | `TestingReference.md` | MockSwiftPicker, ScriptedPicker, and all mock result types | Writing tests for code that depends on CommandLinePicker |
 
@@ -34,6 +34,7 @@ Interactive terminal-based picker library for macOS with single-selection, multi
 - **Secret input:** `getSecretInput(prompt:)` hides terminal echo; `getRequiredSecretInput(prompt:)` rejects empty input. Custom `CommandLineInput` conformers must implement the secret primitive. See `PickerApi.md` for retries and interrupts.
 - **Layouts:** `.singleColumn`, `.twoColumnStatic(detailText:)`, `.twoColumnDynamic(detailForItem:)`
 - **Custom items:** Conform to `DisplayablePickerItem` (just `displayName: String`)
+- **Colors:** Conform items to `StyledPickerItem` (`displayStyle: PickerTextStyle?`) to color rows, or to `SegmentedPickerItem` (`displaySegments: [PickerTextSegment]`) for several styles in one row; pass a `PickerTheme` to `SwiftPicker(interruptBehavior:assumeYes:permissionSubmitMode:theme:)` to recolor the chrome. `NO_COLOR`/`TERM=dumb` drop colors but keep underline. See `PickerApi.md`.
 - **Tree items:** Conform to `TreeNodePickerItem` for hierarchical navigation; use `FileSystemNode` for filesystem browsing
 - **Named flags:** `flagHint:` overloads of the `required*` methods report which CLI flag supplies a value instead of prompting for it
 - **Errors:** `SwiftPickerError.selectionCancelled` (user quit), `.inputRequired` (empty text input); `PickerRequirementError` from the `flagHint:` overloads; `PickerInterruptedError` for interrupted required selections or secret input on `SwiftPicker` when the host keeps running and the picker uses `.finishAsCancelled`

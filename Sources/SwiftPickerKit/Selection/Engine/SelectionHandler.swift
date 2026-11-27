@@ -42,7 +42,7 @@ final class SelectionHandler<
         self.pickerInput = pickerInput
         self.waitForTermination = waitForTermination
 
-        self.headerRenderer = .init(pickerInput: pickerInput)
+        self.headerRenderer = .init(pickerInput: pickerInput, dividerStyle: .single, theme: renderer.theme, styler: renderer.styler)
         self.footerRenderer = .init(pickerInput: pickerInput)
         self.contentRenderer = renderer
     }
@@ -237,6 +237,12 @@ protocol ContentRenderer {
     associatedtype State
     associatedtype Item: DisplayablePickerItem
 
+    /// Colors for the picker's chrome; the header and scroll arrows use it too.
+    var theme: PickerTheme { get }
+
+    /// Applies styles, dropping colors when the terminal doesn't support them.
+    var styler: PickerStyler { get }
+
     /// Draws the visible slice of `items` into the content area that starts at `context.listStartRow`.
     func render(items: [Item], state: State, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int)
 
@@ -247,7 +253,7 @@ protocol ContentRenderer {
 extension ContentRenderer {
     /// Puts the up arrow on the row above the content and the down arrow on the footer's first row.
     func renderScrollIndicators(showUp: Bool, showDown: Bool, state: State, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int, headerHeight: Int, totalRows: Int) {
-        let scrollRenderer = ScrollRenderer(pickerInput: input)
+        let scrollRenderer = ScrollRenderer(pickerInput: input, theme: theme, styler: styler)
         let footerRenderer = PickerFooterRenderer(pickerInput: input)
 
         if showUp {

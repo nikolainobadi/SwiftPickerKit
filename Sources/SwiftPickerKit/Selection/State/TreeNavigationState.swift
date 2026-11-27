@@ -325,19 +325,19 @@ extension TreeNavigationState: BaseSelectionState {
         showSelectedItemTextValue
     }
 
-    /// The focused item's metadata in gray, followed by any empty-folder message in orange.
-    var selectedDetailLines: [String] {
-        var lines: [String] = []
+    /// The focused item's metadata, followed by any empty-folder message; the header styles them.
+    var selectedDetailLines: [PickerDetailLine] {
+        var lines: [PickerDetailLine] = []
 
         if let item = activeSelectedItem, let metadata = item.metadata {
             if let subtitle = metadata.subtitle {
-                lines.append(subtitle.foreColor(240))
+                lines.append(.init(text: subtitle, kind: .subtitle))
             }
-            lines.append(contentsOf: metadata.detailLines.map { $0.foreColor(244) })
+            lines.append(contentsOf: metadata.detailLines.map { .init(text: $0, kind: .metadataDetail) })
         }
 
         if let message = emptyFolderMessage {
-            lines.append(message.foreColor(208))
+            lines.append(.init(text: message, kind: .emptyFolderMessage))
         }
 
         return lines

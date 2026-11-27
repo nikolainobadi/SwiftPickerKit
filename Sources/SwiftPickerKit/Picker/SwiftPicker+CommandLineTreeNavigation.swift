@@ -18,7 +18,7 @@ extension SwiftPicker: CommandLineTreeNavigation {
             showSelectedItemText: showSelectedItemText
         )
         let behavior = TreeNavigationBehavior<Item>()
-        let renderer = TreeNavigationRenderer<Item>()
+        let renderer = TreeNavigationRenderer<Item>(theme: theme, styler: styler)
 
         let handler = SelectionHandler(
             state: state,

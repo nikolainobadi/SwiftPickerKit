@@ -1,5 +1,3 @@
-import ANSITerminal
-
 /// Draws the fixed 3-row footer (spacer, divider, instruction text) anchored to the bottom
 /// of the screen. Scroll arrows are drawn by `ScrollRenderer`, not here.
 struct PickerFooterRenderer {

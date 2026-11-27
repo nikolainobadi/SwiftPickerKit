@@ -10,11 +10,19 @@ public struct SwiftPicker {
     /// `init(interruptBehavior:assumeYes:)`.
     internal let assumeYes: Bool
 
-    internal init(textInput: TextInput, pickerInput: PickerInput, waitForTermination: (() -> Void)?, assumeYes: Bool) {
+    /// Colors for the picker's chrome. See `init(interruptBehavior:assumeYes:permissionSubmitMode:theme:)`.
+    internal let theme: PickerTheme
+
+    /// Applies styles, dropping colors when standard output doesn't support them.
+    internal let styler: PickerStyler
+
+    internal init(textInput: TextInput, pickerInput: PickerInput, waitForTermination: (() -> Void)?, assumeYes: Bool, theme: PickerTheme, styler: PickerStyler) {
         self.textInput = textInput
         self.pickerInput = pickerInput
         self.waitForTermination = waitForTermination
         self.assumeYes = assumeYes
+        self.theme = theme
+        self.styler = styler
     }
 }
 
@@ -66,12 +74,31 @@ public extension SwiftPicker {
     ///   - assumeYes: Whether permission prompts are approved without asking
     ///   - permissionSubmitMode: Whether a permission answer needs Enter or is taken on the keypress
     init(interruptBehavior: PickerInterruptBehavior, assumeYes: Bool, permissionSubmitMode: PermissionSubmitMode) {
+        self.init(interruptBehavior: interruptBehavior, assumeYes: assumeYes, permissionSubmitMode: permissionSubmitMode, theme: .standard)
+    }
+
+    /// Creates a picker that draws its markers, pointers, gray text, headers, and arrows in
+    /// `theme`'s colors.
+    ///
+    /// Colors are left out when standard output isn't a terminal, `NO_COLOR` is set to a non-empty
+    /// value, or `TERM` is `dumb`; bold, dim, and underline are still drawn so the active row stays
+    /// visible. Items that conform to `StyledPickerItem` use their own style for their rows.
+    ///
+    /// - Parameters:
+    ///   - interruptBehavior: Whether interrupted prompts finish as cancelled or wait for the host
+    ///     to end the process
+    ///   - assumeYes: Whether permission prompts are approved without asking
+    ///   - permissionSubmitMode: Whether a permission answer needs Enter or is taken on the keypress
+    ///   - theme: The colors for the picker's own chrome; pass `.standard` for the default look
+    init(interruptBehavior: PickerInterruptBehavior, assumeYes: Bool, permissionSubmitMode: PermissionSubmitMode, theme: PickerTheme) {
         let waitForTermination: (() -> Void)? = switch interruptBehavior {
         case .finishAsCancelled: nil
         case .waitForTermination: { SignalHandler.parkUntilTermination() }
         }
 
-        self.init(textInput: DefaultTextInput(permissionSubmitMode: permissionSubmitMode), pickerInput: DefaultPickerInput(), waitForTermination: waitForTermination, assumeYes: assumeYes)
+        let styler = PickerStyler(colorEnabled: PickerColorSupport.isEnabledForStandardOutput)
+
+        self.init(textInput: DefaultTextInput(permissionSubmitMode: permissionSubmitMode), pickerInput: DefaultPickerInput(), waitForTermination: waitForTermination, assumeYes: assumeYes, theme: theme, styler: styler)
     }
 }
 

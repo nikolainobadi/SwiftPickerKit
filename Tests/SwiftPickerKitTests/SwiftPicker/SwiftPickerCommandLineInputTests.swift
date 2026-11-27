@@ -137,7 +137,7 @@ extension SwiftPickerCommandLineInputTests {
 private extension SwiftPickerCommandLineInputTests {
     func makeSUT(inputResponses: [String] = [], secretResponses: [String] = [], onSecretRead: @escaping () -> Void = {}, waitForTermination: (() -> Void)? = nil) -> (SwiftPicker, MockTextInput) {
         let textInput = MockTextInput(inputResponses: inputResponses, secretResponses: secretResponses, onSecretRead: onSecretRead)
-        let sut = SwiftPicker(textInput: textInput, pickerInput: MockPickerInput(), waitForTermination: waitForTermination, assumeYes: false)
+        let sut = SwiftPicker(textInput: textInput, pickerInput: MockPickerInput(), waitForTermination: waitForTermination, assumeYes: false, theme: .standard, styler: PickerStyler(colorEnabled: true))
         return (sut, textInput)
     }
 }

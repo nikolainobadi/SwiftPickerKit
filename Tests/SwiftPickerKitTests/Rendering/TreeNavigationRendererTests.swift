@@ -419,7 +419,7 @@ private struct TestTreeNode: TreeNodePickerItem {
 private extension TreeNavigationRendererTests {
 func makeSUT(screenSize: (rows: Int, cols: Int) = (40, 100)) -> (TreeNavigationRenderer<TestTreeNode>, MockPickerInput) {
         let pickerInput = MockPickerInput(screenSize: screenSize)
-        let sut = TreeNavigationRenderer<TestTreeNode>()
+        let sut = TreeNavigationRenderer<TestTreeNode>(theme: .standard, styler: PickerStyler(colorEnabled: true))
         return (sut, pickerInput)
     }
 }

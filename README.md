@@ -23,6 +23,7 @@
   - [Directory Browsing](#directory-browsing)
   - [Text Input & Permissions](#text-input--permissions)
   - [Custom Types](#custom-types)
+  - [Colors & Themes](#colors--themes)
 - [Architecture](#architecture)
 - [Testing](#testing)
 - [Dependencies](#dependencies)
@@ -107,6 +108,10 @@ swift run SwiftPickerDemo <subcommand>
 
 - **`secret`** — Text input without echoing typed characters
   - `-r, --required` — Require a secret (throws if none entered)
+
+- **`colors`** — Styled items and custom themes
+  - `-t, --theme` — Use a custom magenta theme
+  - `--tree` — Show styled nodes in tree navigation
 
 ### Quick Start
 
@@ -407,6 +412,55 @@ if let category = picker.treeNavigation(
     print("Selected: \(category.name)")
 }
 ```
+
+### Colors & Themes
+
+Conform an item to `StyledPickerItem` to choose how its row is drawn:
+
+```swift
+struct Job: StyledPickerItem {
+    let name: String
+    let failed: Bool
+
+    var displayName: String { name }
+    var displayStyle: PickerTextStyle? { failed ? .failure : nil }
+}
+```
+
+Inactive rows use the item's style; the active row keeps it and adds an underline. Items that return `nil`, or don't conform, keep the default gray. `PickerTextStyle` combines a `PickerColor` (16 named colors or `.palette(UInt8)`) with bold, dim, and underline, and ships presets: `.success`, `.warning`, `.failure`, `.muted`, `.standout`, `.heading`. `TreeNode` takes a `displayStyle:` too.
+
+To give parts of one row different styles, conform to `SegmentedPickerItem` and return `PickerTextSegment`s:
+
+```swift
+struct SkillRow: SegmentedPickerItem {
+    let name: String
+    let failedCases: Int
+
+    var displayName: String { displaySegments.map(\.text).joined() }
+    var displaySegments: [PickerTextSegment] {
+        [
+            PickerTextSegment(text: name.padding(toLength: 18, withPad: " ", startingAt: 0), style: nil),
+            PickerTextSegment(text: failedCases > 0 ? "failed" : "passed", style: failedCases > 0 ? .failure : .success),
+            PickerTextSegment(text: " · \(failedCases) failing", style: .muted)
+        ]
+    }
+}
+```
+
+Segments with a `nil` style use the item's `displayStyle` (if it also conforms to `StyledPickerItem`) or the default gray. Long rows are cut across segments, and the active row underlines every segment.
+
+Recolor the picker's own markers, pointers, arrows, and headers with a `PickerTheme`:
+
+```swift
+let picker = SwiftPicker(
+    interruptBehavior: .finishAsCancelled,
+    assumeYes: false,
+    permissionSubmitMode: .requireEnter,
+    theme: .standard  // or your own PickerTheme(...)
+)
+```
+
+Colors are dropped automatically when output isn't a terminal, `NO_COLOR` is set, or `TERM=dumb`; bold, dim, and underline stay so the active row remains visible.
 
 ## Architecture
 

@@ -184,7 +184,7 @@ private extension SingleColumnRendererTests {
 private extension SingleColumnRendererTests {
 func makeSUT() -> (SingleColumnRenderer<TestItem>, MockPickerInput) {
         let pickerInput = MockPickerInput()
-        let sut = SingleColumnRenderer<TestItem>()
+        let sut = SingleColumnRenderer<TestItem>(theme: .standard, styler: PickerStyler(colorEnabled: true))
         return (sut, pickerInput)
     }
 }

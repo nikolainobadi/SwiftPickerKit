@@ -93,13 +93,31 @@ struct ScrollRendererTests {
         #expect(pickerInput.moveToCalls[0].row == 0)
         #expect(pickerInput.moveToCalls[0].col == 0)
     }
+    @Test
+    func `Draws arrows in the theme's scroll arrow color`() {
+        let (sut, pickerInput) = makeSUT()
+
+        sut.renderUpArrow(at: 2)
+
+        #expect(pickerInput.writtenText == ["\u{1B}[92m↑\u{1B}[0m"])
+    }
+
+    @Test
+    func `Draws an arrow at an explicit column`() {
+        let (sut, pickerInput) = makeSUT()
+
+        sut.renderArrow("↓", at: 4, column: 30)
+
+        #expect(pickerInput.moveToCalls[0].row == 4)
+        #expect(pickerInput.moveToCalls[0].col == 30)
+    }
 }
 
 // MARK: - SUT
 private extension ScrollRendererTests {
     func makeSUT() -> (ScrollRenderer, MockPickerInput) {
         let pickerInput = MockPickerInput()
-        let sut = ScrollRenderer(pickerInput: pickerInput)
+        let sut = ScrollRenderer(pickerInput: pickerInput, theme: .standard, styler: PickerStyler(colorEnabled: true))
         return (sut, pickerInput)
     }
 }
