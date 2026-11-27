@@ -90,7 +90,7 @@ extension SwiftPickerCommandLinePermissionTests {
 private extension SwiftPickerCommandLinePermissionTests {
     func makeSUT(inputResponses: [String], permissionResponses: [Bool], assumeYes: Bool) -> (SwiftPicker, MockTextInput) {
         let textInput = MockTextInput(inputResponses: inputResponses, permissionResponses: permissionResponses)
-        let sut = SwiftPicker(textInput: textInput, pickerInput: MockPickerInput(), waitForTermination: nil, assumeYes: assumeYes)
+        let sut = SwiftPicker(textInput: textInput, pickerInput: MockPickerInput(), waitForTermination: nil, assumeYes: assumeYes, theme: .standard, styler: PickerStyler(colorEnabled: true))
         return (sut, textInput)
     }
 }

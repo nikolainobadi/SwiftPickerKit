@@ -240,7 +240,7 @@ private extension TwoColumnDynamicDetailRendererTests {
 private extension TwoColumnDynamicDetailRendererTests {
 func makeSUT() -> (TwoColumnDynamicDetailRenderer<TestItem>, MockPickerInput) {
         let pickerInput = MockPickerInput()
-        let sut = TwoColumnDynamicDetailRenderer<TestItem>()
+        let sut = TwoColumnDynamicDetailRenderer<TestItem>(theme: .standard, styler: PickerStyler(colorEnabled: true))
         return (sut, pickerInput)
     }
 }

@@ -66,7 +66,7 @@ signal-handling and error contract.
 
 ### Rendering Layout
 
-Two columns when a parent level exists: parent items on the left, current items on the right. Breadcrumb path displayed above columns showing navigation trail with ` ▸ ` separators.
+Two columns when a parent level exists: parent items on the left, current items on the right. Breadcrumb path displayed above columns showing navigation trail with ` ▸ ` separators. Rows in the unfocused column are dimmed and keep any `StyledPickerItem` color; colors come from the picker's `PickerTheme` (see `PickerApi.md`).
 
 ### Empty Folder Handling
 
@@ -176,10 +176,11 @@ let metadata = TreeNodeMetadata(
 Generic tree node wrapping any value type. Conforms to `TreeNodePickerItem`.
 
 ```swift
-public struct TreeNode<T>: TreeNodePickerItem {
+public struct TreeNode<T>: TreeNodePickerItem, StyledPickerItem {
     public let displayName: String
     public let value: T
     public let metadata: TreeNodeMetadata?
+    public let displayStyle: PickerTextStyle?
     public let isSelectable: Bool
     public var hasChildren: Bool { get }
 
@@ -191,6 +192,15 @@ public struct TreeNode<T>: TreeNodePickerItem {
         loadChildren: @escaping () -> [TreeNode<T>]
     )
 
+    public init(
+        name: String, value: T,
+        hasChildren: Bool,
+        isSelectable: Bool,
+        metadata: TreeNodeMetadata?,
+        displayStyle: PickerTextStyle?,
+        loadChildren: @escaping () -> [TreeNode<T>]
+    )
+
     public func loadChildren() -> [TreeNode<T>]
 }
 ```
@@ -199,7 +209,8 @@ public struct TreeNode<T>: TreeNodePickerItem {
 
 | Initializer | Description |
 |-------------|-------------|
-| `init(name:value:hasChildren:isSelectable:metadata:loadChildren:)` | Creates a node; `loadChildren` closure is called lazily on navigation |
+| `init(name:value:hasChildren:isSelectable:metadata:loadChildren:)` | Creates a node; `loadChildren` closure is called lazily on navigation; `displayStyle` is `nil` |
+| `init(name:value:hasChildren:isSelectable:metadata:displayStyle:loadChildren:)` | Same, with an explicit row style; every argument is required |
 
 ### Properties
 
@@ -208,6 +219,7 @@ public struct TreeNode<T>: TreeNodePickerItem {
 | `displayName` | `String` | Display text for this node |
 | `value` | `T` | The wrapped value extracted on selection |
 | `metadata` | `TreeNodeMetadata?` | Optional metadata for display |
+| `displayStyle` | `PickerTextStyle?` | Row style, or `nil` for the theme's default |
 | `isSelectable` | `Bool` | Whether this node can be selected with enter |
 | `hasChildren` | `Bool` | Computed; true if `hasChildren` was set in init or cached children exist |
 

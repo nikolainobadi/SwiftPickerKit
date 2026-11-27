@@ -1,14 +1,16 @@
-import ANSITerminal
-
 /// Draws the header: centered top line, optional prompt, and optional selected-item section
 /// with detail lines. Its returned height sizes the content area below it.
 struct PickerHeaderRenderer {
     private let pickerInput: PickerInput
     private let dividerStyle: PickerDividerStyle
+    private let theme: PickerTheme
+    private let styler: PickerStyler
 
-    init(pickerInput: PickerInput, dividerStyle: PickerDividerStyle = .single) {
+    init(pickerInput: PickerInput, dividerStyle: PickerDividerStyle, theme: PickerTheme, styler: PickerStyler) {
         self.pickerInput = pickerInput
         self.dividerStyle = dividerStyle
+        self.theme = theme
+        self.styler = styler
     }
 }
 
@@ -16,12 +18,13 @@ struct PickerHeaderRenderer {
 extension PickerHeaderRenderer {
     /// Clears the screen and draws the header from the top.
     ///
-    /// Prompt lines (split on `\n`) and detail lines are truncated to `screenWidth - 2` and centered.
+    /// Prompt lines (split on `\n`) and detail lines are truncated to `screenWidth - 2` and centered;
+    /// detail lines are styled from the theme after truncation.
     /// The selected-item section is skipped when `selectedItem` is `nil`.
     ///
     /// - Returns: Rows consumed, counting only dividers that produced output.
     @discardableResult
-    func renderHeader(prompt: String, topLineText: String, selectedItem: (any DisplayablePickerItem)?, selectedDetailLines: [String] = [], showSelectedItemText: Bool = true, showPromptText: Bool = true, screenWidth: Int) -> Int {
+    func renderHeader(prompt: String, topLineText: String, selectedItem: (any DisplayablePickerItem)?, selectedDetailLines: [PickerDetailLine], showSelectedItemText: Bool = true, showPromptText: Bool = true, screenWidth: Int) -> Int {
         pickerInput.clearScreen()
         pickerInput.moveToHome()
 
@@ -35,7 +38,7 @@ extension PickerHeaderRenderer {
             for raw in lines {
                 let line = String(raw)
                 let maxWidth = screenWidth - 2
-                let text = line.count > maxWidth ? PickerTextFormatter.truncate(line, maxWidth: maxWidth) : line
+                let text = PickerTextFormatter.truncate(line, maxWidth: maxWidth)
 
                 height += writeCentered(text, width: screenWidth)
             }
@@ -47,12 +50,11 @@ extension PickerHeaderRenderer {
 
         if showSelectedItemText, let item = selectedItem {
             height += writeDivider(width: screenWidth)
-            height += writeCentered("Selected: \(item.displayName)".foreColor(51), width: screenWidth)
+            height += writeCentered(styler.styled("Selected: \(item.displayName)", color: theme.selectedHeader), width: screenWidth)
 
             for line in selectedDetailLines {
-                let maxWidth = screenWidth - 2
-                let text = line.count > maxWidth ? PickerTextFormatter.truncate(line, maxWidth: maxWidth) : line
-                height += writeCentered(text, width: screenWidth)
+                let text = PickerTextFormatter.truncate(line.text, maxWidth: screenWidth - 2)
+                height += writeCentered(styler.styled(text, color: color(for: line.kind)), width: screenWidth)
             }
 
             height += writeDivider(width: screenWidth)
@@ -67,6 +69,17 @@ extension PickerHeaderRenderer {
 
 // MARK: - Private Methods
 private extension PickerHeaderRenderer {
+    func color(for kind: PickerDetailLine.Kind) -> PickerColor? {
+        switch kind {
+        case .subtitle:
+            return theme.subtitle
+        case .metadataDetail:
+            return theme.metadataDetail
+        case .emptyFolderMessage:
+            return theme.emptyHint
+        }
+    }
+
     /// Writes nothing and returns 0 when the style produces an empty line.
     @discardableResult
     func writeDivider(width: Int) -> Int {

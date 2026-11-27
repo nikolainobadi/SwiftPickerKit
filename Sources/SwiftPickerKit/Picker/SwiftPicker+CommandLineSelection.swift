@@ -85,7 +85,7 @@ private extension SwiftPicker {
         state: SelectionState<Item>,
         isSingle: Bool
     ) -> SelectionOutcome<Item> {
-        let renderer = SingleColumnRenderer<Item>()
+        let renderer = SingleColumnRenderer<Item>(theme: theme, styler: styler)
 
         if isSingle {
             let behavior = SingleSelectionBehavior<Item>()
@@ -105,7 +105,7 @@ private extension SwiftPicker {
             leftState: leftState,
             rightText: detailText
         )
-        let renderer = TwoColumnStaticTextRenderer<Item>()
+        let renderer = TwoColumnStaticTextRenderer<Item>(theme: theme, styler: styler)
 
         if isSingle {
             let behavior = TwoColumnStaticTextSingleBehavior<Item>()
@@ -125,7 +125,7 @@ private extension SwiftPicker {
             leftState: leftState,
             detailForItem: detailForItem
         )
-        let renderer = TwoColumnDynamicDetailRenderer<Item>()
+        let renderer = TwoColumnDynamicDetailRenderer<Item>(theme: theme, styler: styler)
 
         if isSingle {
             let behavior = TwoColumnDynamicDetailSingleBehavior<Item>()

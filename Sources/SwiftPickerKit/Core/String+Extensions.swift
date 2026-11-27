@@ -1,6 +1,9 @@
 extension String {
     /// Word-wraps each line to `maxWidth`, keeping existing line breaks and blank lines
     /// (whitespace-only lines become `""`).
+    ///
+    /// Widths count visible characters, so ANSI escape sequences don't cause early wraps. A style
+    /// doesn't carry over a wrap break; style each line separately.
     func wrapToWidth(maxWidth: Int) -> [String] {
         split(separator: "\n", omittingEmptySubsequences: false)
             .flatMap { line in
@@ -31,7 +34,7 @@ private extension Substring {
             }
 
             // +1 for the joining space
-            if current.count + 1 + word.count <= maxWidth {
+            if PickerTextFormatter.visibleWidth(current) + 1 + PickerTextFormatter.visibleWidth(String(word)) <= maxWidth {
                 current += " \(word)"
                 continue
             }

@@ -1,6 +1,15 @@
 struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
+    let theme: PickerTheme
+    let styler: PickerStyler
+
+    init(theme: PickerTheme, styler: PickerStyler) {
+        self.theme = theme
+        self.styler = styler
+    }
+
     func renderScrollIndicators(showUp: Bool, showDown: Bool, state: TreeNavigationState<Item>, context: ScrollRenderContext, input: any PickerInput, screenWidth: Int, headerHeight: Int, totalRows: Int) {
         let footerRenderer = PickerFooterRenderer(pickerInput: input)
+        let scrollRenderer = ScrollRenderer(pickerInput: input, theme: theme, styler: styler)
         let footerStartRow = totalRows - footerRenderer.height()
         let arrowRow = headerHeight - 1
 
@@ -20,13 +29,11 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
             let (start, end) = engine.bounds(activeIndex: parent.activeIndex)
 
             if engine.showScrollUp(start: start) {
-                input.moveTo(arrowRow, 0)
-                input.write("↑".lightGreen)
+                scrollRenderer.renderArrow("↑", at: arrowRow, column: 0)
             }
 
             if engine.showScrollDown(end: end) {
-                input.moveTo(footerStartRow, 0)
-                input.write("↓".lightGreen)
+                scrollRenderer.renderArrow("↓", at: footerStartRow, column: 0)
             }
         }
 
@@ -35,13 +42,11 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
         let (currentStart, currentEnd) = currentEngine.bounds(activeIndex: currentInfo.level.activeIndex)
 
         if currentEngine.showScrollUp(start: currentStart) {
-            input.moveTo(arrowRow, rightColumnStart)
-            input.write("↑".lightGreen)
+            scrollRenderer.renderArrow("↑", at: arrowRow, column: rightColumnStart)
         }
 
         if currentEngine.showScrollDown(end: currentEnd) {
-            input.moveTo(footerStartRow, rightColumnStart)
-            input.write("↓".lightGreen)
+            scrollRenderer.renderArrow("↓", at: footerStartRow, column: rightColumnStart)
         }
     }
 
@@ -52,8 +57,8 @@ struct TreeNavigationRenderer<Item: TreeNodePickerItem>: ContentRenderer {
 
         if !breadcrumb.isEmpty, row < maxRowExclusive {
             input.moveTo(row, 0)
-            let truncated = PickerTextFormatter.truncate(breadcrumb.lightBlue, maxWidth: screenWidth)
-            input.write(truncated)
+            let truncated = PickerTextFormatter.truncate(breadcrumb, maxWidth: screenWidth)
+            input.write(styler.styled(truncated, color: theme.breadcrumb))
             row += 1
         }
 
@@ -153,7 +158,7 @@ private extension TreeNavigationRenderer {
             if row < maxRowExclusive {
                 input.moveTo(row, insetCol)
                 let truncated = PickerTextFormatter.truncate(emptyPlaceholder, maxWidth: textWidth)
-                input.write(truncated.foreColor(240))
+                input.write(styler.styled(truncated, color: theme.placeholder))
             }
             return
         }
@@ -169,27 +174,17 @@ private extension TreeNavigationRenderer {
             input.moveTo(row, insetCol)
             let emptyHint = state.isEmptyHint(level: levelIndex, index: index)
 
-            let pointer: String
-            if index == activeIndex {
-                pointer = isActiveColumn ? "➤".lightGreen : "•".foreColor(244)
-            } else {
-                pointer = " "
-            }
+            let isActiveRow = index == activeIndex
+            input.write(makePointer(isActiveRow: isActiveRow, isActiveColumn: isActiveColumn))
+            input.write(" ")
 
-            let icon = item.metadata?.icon ?? (item.hasChildren ? "▸" : " ")
-            var baseText = "\(pointer) \(icon) \(item.displayName)"
-            if emptyHint {
-                baseText += " (empty)"
-            }
-            let truncated = PickerTextFormatter.truncate(baseText, maxWidth: textWidth)
+            let segments = makeRowSegments(item: item, isEmptyHint: emptyHint)
+            let truncated = PickerTextFormatter.truncate(segments, maxWidth: textWidth - 2)
 
-            let defaultColor: UInt8 = isActiveColumn ? 250 : 244
-            let color: UInt8 = emptyHint ? 208 : defaultColor
-            var styled = truncated.foreColor(color)
-            if index == activeIndex && isActiveColumn {
-                styled = styled.underline
+            for segment in truncated {
+                let style = makeRowStyle(item: item, segmentStyle: segment.style, isEmptyHint: emptyHint, isActiveRow: isActiveRow, isActiveColumn: isActiveColumn)
+                input.write(styler.styled(segment.text, as: style))
             }
-            input.write(styled)
 
             row += 1
         }
@@ -216,16 +211,56 @@ private extension TreeNavigationRenderer {
 
         var coloredParts: [String] = []
         if showLeadingArrow {
-            coloredParts.append("←".lightGreen)
+            coloredParts.append(styler.styled("←", color: theme.scrollArrow))
         }
-        coloredParts.append(plainTitle.foreColor(102))
+        coloredParts.append(styler.styled(plainTitle, color: theme.columnHeader))
         if showTrailingArrow {
-            coloredParts.append("→".lightGreen)
+            coloredParts.append(styler.styled("→", color: theme.scrollArrow))
         }
         let spacedColored = coloredParts.joined(separator: " ")
         let compactColored = coloredParts.joined()
         let headerText = useSpaced ? spacedColored : compactColored
 
         input.write(headerText)
+    }
+
+    /// `➤` on the active row of the focused column, `•` on the active row of the other column,
+    /// otherwise a space.
+    func makePointer(isActiveRow: Bool, isActiveColumn: Bool) -> String {
+        guard isActiveRow else {
+            return " "
+        }
+
+        return isActiveColumn ? styler.styled("➤", color: theme.activePointer) : styler.styled("•", color: theme.inactivePointer)
+    }
+
+    /// The row's plain text pieces: the icon, then the item's `displaySegments` (or `displayName`),
+    /// then `(empty)` for an empty folder. A row without segments stays a single piece.
+    func makeRowSegments(item: Item, isEmptyHint: Bool) -> [PickerTextSegment] {
+        let icon = item.metadata?.icon ?? (item.hasChildren ? "▸" : " ")
+        let emptySuffix = isEmptyHint ? " (empty)" : ""
+
+        guard let itemSegments = item.resolvedDisplaySegments else {
+            return [PickerTextSegment(text: "\(icon) \(item.displayName)\(emptySuffix)", style: nil)]
+        }
+
+        return [PickerTextSegment(text: "\(icon) ", style: nil)] + itemSegments + [PickerTextSegment(text: emptySuffix, style: nil)]
+    }
+
+    /// The segment's style, then the item's style, then the theme's inactive text; replaced by the
+    /// empty hint color when the folder is empty, underlined on the focused active row, and dimmed
+    /// in the unfocused column.
+    func makeRowStyle(item: Item, segmentStyle: PickerTextStyle?, isEmptyHint: Bool, isActiveRow: Bool, isActiveColumn: Bool) -> PickerTextStyle {
+        var style = isEmptyHint ? .colored(theme.emptyHint) : (segmentStyle ?? item.resolvedDisplayStyle ?? .colored(theme.inactiveText))
+
+        if isActiveRow && isActiveColumn {
+            style = style.underlined
+        }
+
+        if !isActiveColumn {
+            style = style.dimmed
+        }
+
+        return style
     }
 }

@@ -33,6 +33,147 @@ struct MenuItem: DisplayablePickerItem {
 
 ---
 
+## Protocol: StyledPickerItem
+
+Opt-in protocol for items that choose how their row is drawn. Items that don't conform keep the theme's default look.
+
+```swift
+public protocol StyledPickerItem: DisplayablePickerItem {
+    var displayStyle: PickerTextStyle? { get }
+}
+```
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `displayStyle` | `PickerTextStyle?` | The row's style; `nil` uses the theme's `inactiveText` color |
+
+### Row Styling Rules
+
+- **Inactive rows** use `displayStyle`, or `theme.inactiveText` when it is `nil`
+- **The active row** keeps `displayStyle` (or the default foreground) and adds an underline
+- **Tree navigation**: rows in the unfocused column are also dimmed; an empty-folder hint row uses `theme.emptyHint`
+- The plain `displayName` is truncated **before** styling — never embed escape codes in `displayName`
+- `TreeNode` conforms through its `displayStyle` property (see `TreeNavigationApi.md`)
+
+### Usage Example
+
+```swift
+struct Job: StyledPickerItem {
+    let name: String
+    let failed: Bool
+
+    var displayName: String { name }
+    var displayStyle: PickerTextStyle? { failed ? .failure : nil }
+}
+```
+
+---
+
+## Protocol: SegmentedPickerItem
+
+Opt-in protocol for items whose row is drawn in several styles (for example a red `failed` and a yellow `not fixed` in one row). Pickers draw `displaySegments` in place of `displayName`; `displayName` is still used for the header's `Selected:` line and the tree breadcrumb, so derive it from the segments.
+
+```swift
+public protocol SegmentedPickerItem: DisplayablePickerItem {
+    var displaySegments: [PickerTextSegment] { get }
+}
+
+public struct PickerTextSegment: Sendable, Equatable {
+    public let text: String
+    public let style: PickerTextStyle?
+    public init(text: String, style: PickerTextStyle?)
+}
+```
+
+### Segment Rules
+
+- A segment with a `nil` style uses the item's `displayStyle` (when it also conforms to `StyledPickerItem`), otherwise `theme.inactiveText`
+- **The active row** underlines every segment; unstyled segments use the default foreground instead of the gray
+- **Truncation** cuts across segments by combined width; the cut segment ends with `…` in its own style
+- **Tree navigation**: the icon is drawn before the segments, every segment is dimmed in the unfocused column, and an empty-folder hint row uses `theme.emptyHint` for all of them
+- Segment text must be plain — never embed escape codes
+
+### Usage Example
+
+```swift
+struct SkillRow: SegmentedPickerItem {
+    let name: String
+    let failed: Bool
+
+    var displayName: String { displaySegments.map(\.text).joined() }
+    var displaySegments: [PickerTextSegment] {
+        [
+            PickerTextSegment(text: name.padding(toLength: 18, withPad: " ", startingAt: 0), style: nil),
+            PickerTextSegment(text: failed ? "failed" : "passed", style: failed ? .failure : .success),
+            PickerTextSegment(text: " · not fixed", style: .warning)
+        ]
+    }
+}
+```
+
+---
+
+## Struct: PickerTextStyle
+
+```swift
+public struct PickerTextStyle: Sendable, Equatable {
+    public let color: PickerColor?
+    public let isBold: Bool
+    public let isDim: Bool
+    public let isUnderlined: Bool
+
+    public init(color: PickerColor?, isBold: Bool, isDim: Bool, isUnderlined: Bool)
+}
+```
+
+| Preset | Look |
+|--------|------|
+| `.heading` | bold, default color |
+| `.muted` | dim |
+| `.standout` | bold magenta |
+| `.success` | bold green |
+| `.warning` | bold yellow |
+| `.failure` | bold red |
+
+Add custom presets in a `PickerTextStyle` extension.
+
+---
+
+## Enum: PickerColor
+
+The 16 named ANSI colors (`.black` … `.white`, `.brightBlack` … `.brightWhite`) plus `.palette(UInt8)` for xterm 256-color values. Named colors take their shade from the user's terminal palette.
+
+---
+
+## Struct: PickerTheme
+
+Colors for the picker's own chrome. Every property is `PickerColor?` (`nil` = terminal default), and the memberwise `init` requires all of them.
+
+| Property | Colors | `.standard` |
+|----------|--------|-------------|
+| `marker` | Filled `●` marker | `.brightGreen` |
+| `inactiveText` | Hollow `○` marker and unstyled inactive rows | `.palette(250)` |
+| `detailText` | Right-hand detail column text | `.palette(250)` |
+| `divider` | `│` column separator | `.palette(240)` |
+| `activePointer` | `➤` in the focused tree column | `.brightGreen` |
+| `inactivePointer` | `•` in the unfocused tree column | `.palette(244)` |
+| `emptyHint` | Empty-folder row hint and header message | `.palette(208)` |
+| `columnHeader` | Tree column titles | `.palette(102)` |
+| `breadcrumb` | Tree breadcrumb path | `.brightBlue` |
+| `selectedHeader` | `Selected:` header line | `.palette(51)` |
+| `scrollArrow` | Scroll arrows and `←`/`→` column hints | `.brightGreen` |
+| `placeholder` | `(empty folder)` / `Root level` placeholders | `.palette(240)` |
+| `subtitle` | `TreeNodeMetadata.subtitle` in the header | `.palette(240)` |
+| `metadataDetail` | `TreeNodeMetadata.detailLines` in the header | `.palette(244)` |
+
+Pass a theme through `SwiftPicker(interruptBehavior:assumeYes:permissionSubmitMode:theme:)`.
+
+### Color Support
+
+Colors are dropped when standard output isn't a terminal, `NO_COLOR` is set to a non-empty value, or `TERM` is `dumb`. Bold, dim, and underline are still drawn so the active row stays visible. There is no override to force color on.
+
+---
+
 ## Protocol: CommandLineInput
 
 Text input from the terminal.
@@ -482,6 +623,7 @@ public struct SwiftPicker {
     public init(interruptBehavior: PickerInterruptBehavior)
     public init(interruptBehavior: PickerInterruptBehavior, assumeYes: Bool)
     public init(interruptBehavior: PickerInterruptBehavior, assumeYes: Bool, permissionSubmitMode: PermissionSubmitMode)
+    public init(interruptBehavior: PickerInterruptBehavior, assumeYes: Bool, permissionSubmitMode: PermissionSubmitMode, theme: PickerTheme)
 }
 ```
 
@@ -493,8 +635,9 @@ public struct SwiftPicker {
 | `init(interruptBehavior:)` | Chooses how interrupted selection and secret input prompts finish when the host keeps running; permission prompts always ask |
 | `init(interruptBehavior:assumeYes:)` | Same as above; when `assumeYes` is `true`, permission prompts are approved without asking |
 | `init(interruptBehavior:assumeYes:permissionSubmitMode:)` | Also chooses whether permission answers require Enter or are accepted immediately; all three arguments are required |
+| `init(interruptBehavior:assumeYes:permissionSubmitMode:theme:)` | Also chooses the `PickerTheme` for the picker's chrome; all four arguments are required |
 
-All initializers without `permissionSubmitMode:` use `.requireEnter`.
+All initializers without `permissionSubmitMode:` use `.requireEnter`. All initializers without `theme:` use `PickerTheme.standard`.
 
 ### Assume Yes
 

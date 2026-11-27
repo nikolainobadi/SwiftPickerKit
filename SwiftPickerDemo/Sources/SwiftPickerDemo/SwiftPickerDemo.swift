@@ -21,7 +21,8 @@ struct SwiftPickerDemo: ParsableCommand {
             DynamicDetail.self,
             Choose.self,
             Browse.self,
-            SecretInput.self
+            SecretInput.self,
+            Colors.self
         ]
     )
 }
