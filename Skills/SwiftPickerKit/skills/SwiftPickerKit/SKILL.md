@@ -1,6 +1,6 @@
 ---
 name: SwiftPickerKit
-description: SwiftPickerKit Swift API reference for terminal-based interactive pickers with single/multi-selection, two-column layouts, tree navigation, and file system browsing. USE WHEN writing code that imports SwiftPickerKit, implementing terminal pickers, configuring picker layouts, adding tree navigation, browsing directories, testing with MockSwiftPicker or ScriptedPicker.
+description: Swift API reference for SwiftPickerKit: terminal single- and multi-select pickers, column layouts, tree and directory browsing, plus text, secret, and yes/no prompts. Use when writing or testing interactive selection or input in a Swift command-line tool, even if SwiftPickerKit isn't named.
 user-invocable: true
 ---
 
