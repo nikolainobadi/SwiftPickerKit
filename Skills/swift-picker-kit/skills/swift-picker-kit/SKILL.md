@@ -1,5 +1,5 @@
 ---
-name: SwiftPickerKit
+name: swift-picker-kit
 description: Swift API reference for SwiftPickerKit: terminal single- and multi-select pickers, column layouts, tree and directory browsing, plus text, secret, and yes/no prompts. Use when writing or testing interactive selection or input in a Swift command-line tool, even if SwiftPickerKit isn't named.
 user-invocable: true
 ---
@@ -11,7 +11,7 @@ Interactive terminal-based picker library for macOS with single-selection, multi
 **Dependency:** `https://github.com/nikolainobadi/SwiftPickerKit.git`
 **Platforms:** macOS 13+ | **Swift tools:** 6.2 (Swift 6 language mode, requires Xcode 26+)
 
-> This skill lives in the SwiftPickerKit repo under `Skills/SwiftPickerKit/`. Any PR changing the
+> This skill lives in the SwiftPickerKit repo under `Skills/swift-picker-kit/`. Any PR changing the
 > package's public API must update it in the same change.
 
 ## Context Files

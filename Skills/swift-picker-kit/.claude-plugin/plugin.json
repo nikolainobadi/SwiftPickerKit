@@ -1,6 +1,6 @@
 {
   "version": "0.15.1",
-  "name": "SwiftPickerKit",
+  "name": "swift-picker-kit",
   "description": "SwiftPickerKit Swift API reference for terminal-based interactive pickers",
   "author": {
     "name": "Nikolai Nobadi"

@@ -9,12 +9,12 @@ Two products: `SwiftPickerKit` (the library) and `SwiftPickerTesting` (mocks for
 
 ## Skill Documentation
 
-`Skills/SwiftPickerKit/` holds the published API-reference skill. It lives here — not in a
+`Skills/swift-picker-kit/` holds the published API-reference skill. It lives here — not in a
 separate skills repo — so the API and its documentation change in the same PR. It previously
 lived elsewhere and drifted out of date for months.
 
 - **Any PR changing the public API must update `Skills/`.**
-- **`Skills/SwiftPickerKit/.claude-plugin/plugin.json` deliberately has no `version` field.**
+- **`Skills/swift-picker-kit/.claude-plugin/plugin.json` deliberately has no `version` field.**
   Do not reintroduce one — the installer keys its cache by commit sha, and a hand-maintained
   version number is exactly the stale-number problem this layout removes.
 - **SwiftPM ignores `Skills/`** — it is not a target and must not become one.
