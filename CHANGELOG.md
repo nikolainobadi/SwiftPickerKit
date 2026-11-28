@@ -7,15 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.2] - 2026-11-27
+
 ### Added
-- `StyledPickerItem` lets items choose their row style through `displayStyle: PickerTextStyle?`. Inactive rows use the style, the active row keeps it and adds an underline, and rows in the unfocused tree column are dimmed. Items that don't conform are unchanged
+- `StyledPickerItem` lets items choose their row style through `displayStyle: PickerTextStyle?`. Inactive rows use the style, the active row keeps it and adds an underline, and rows in the unfocused tree column are dimmed. Items that don't conform use the theme's default styling
 - `PickerTextStyle` (color plus bold, dim, underline, with `.success`, `.warning`, `.failure`, `.muted`, `.standout`, and `.heading` presets) and `PickerColor` (16 named ANSI colors plus `.palette(UInt8)`)
 - `PickerTheme` recolors markers, pointers, gray text, dividers, headers, breadcrumbs, and arrows; `PickerTheme.standard` matches the previous colors. Pass one through the new `SwiftPicker(interruptBehavior:assumeYes:permissionSubmitMode:theme:)`; existing initializers use `.standard`
 - `SegmentedPickerItem` draws one row in several styles through `displaySegments: [PickerTextSegment]`, such as a red `failed` and a yellow `not fixed` in the same row. Segments are truncated across their combined width before styling, the active row underlines every segment, and unstyled segments fall back to the item's `displayStyle` or the theme's gray. Works in list and tree-navigation pickers
 - `TreeNode.displayStyle` and `TreeNode(name:value:hasChildren:isSelectable:metadata:displayStyle:loadChildren:)`
-- Pickers leave out colors when standard output isn't a terminal, `NO_COLOR` is set, or `TERM` is `dumb`, while keeping bold, dim, and underline
+- Pickers leave out colors when standard output isn't a terminal, `NO_COLOR` has a non-empty value, or `TERM` is `dumb`, while keeping bold, dim, and underline
 
 ### Changed
+- The bundled API-reference skill and plugin are now named `swift-picker-kit` and live under `Skills/swift-picker-kit/`; use the new name and path when invoking or installing them
 - Rows in the unfocused tree-navigation column are drawn dimmed in their own color instead of a flat gray
 
 ### Fixed

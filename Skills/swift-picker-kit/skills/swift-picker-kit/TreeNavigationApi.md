@@ -68,9 +68,11 @@ signal-handling and error contract.
 
 Two columns when a parent level exists: parent items on the left, current items on the right. Breadcrumb path displayed above columns showing navigation trail with ` ▸ ` separators. Rows in the unfocused column are dimmed and keep any `StyledPickerItem` color; colors come from the picker's `PickerTheme` (see `PickerApi.md`).
 
+Custom tree items can also conform to `SegmentedPickerItem` to style parts of a row separately. Segment styles fall back to the item's `displayStyle`, then `theme.inactiveText`, including on the focused active row. That row adds underline; the unfocused column dims every segment. See `PickerApi.md` for segment construction and truncation rules.
+
 ### Empty Folder Handling
 
-When descending into a folder with no children, the picker displays an orange hint message (e.g., `"'FolderName' is empty"`) and stays at the current level. No new level is pushed onto the navigation stack.
+When descending into a folder with no children, the picker displays a hint message (e.g., `"'FolderName' is empty"`) and stays at the current level. The message and row use `theme.emptyHint` (orange in the standard theme), overriding item and segment styles. No new level is pushed onto the navigation stack.
 
 ### Usage Example
 

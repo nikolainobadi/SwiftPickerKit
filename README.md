@@ -44,6 +44,7 @@ SwiftPickerKit is a Swift Package Manager library for building interactive termi
 - **Directory Browsing** — Navigate the file system with configurable file/folder selection filtering
 - **Text Input & Permissions** — Prompt users for text input, hidden passwords or tokens, or yes/no confirmations with optional instant answers; automatically approve permission prompts with `assumeYes`
 - **Customizable Layouts** — Configure single-column, static two-column, or dynamic two-column rendering
+- **Colors & Themes** — Style whole items or individual text segments and customize picker colors
 - **Scroll Support** — Automatic scrolling with visual indicators for large lists
 - **Terminal Control** — Built on ANSITerminal for full terminal manipulation
 - **Interrupt Handling** — Restore the terminal and preserve host signal handling, with configurable behavior for interrupted selection prompts
@@ -427,7 +428,7 @@ struct Job: StyledPickerItem {
 }
 ```
 
-Inactive rows use the item's style; the active row keeps it and adds an underline. Items that return `nil`, or don't conform, keep the default gray. `PickerTextStyle` combines a `PickerColor` (16 named colors or `.palette(UInt8)`) with bold, dim, and underline, and ships presets: `.success`, `.warning`, `.failure`, `.muted`, `.standout`, `.heading`. `TreeNode` takes a `displayStyle:` too.
+Inactive rows use the item's style; the active row keeps it and adds an underline. Items that return `nil`, or don't conform, use the theme's `inactiveText` color on inactive rows and the terminal's default foreground on the active row. `PickerTextStyle` combines a `PickerColor` (16 named colors or `.palette(UInt8)`) with bold, dim, and underline, and ships presets: `.success`, `.warning`, `.failure`, `.muted`, `.standout`, `.heading`. `TreeNode` takes a `displayStyle:` too.
 
 To give parts of one row different styles, conform to `SegmentedPickerItem` and return `PickerTextSegment`s:
 
@@ -447,7 +448,7 @@ struct SkillRow: SegmentedPickerItem {
 }
 ```
 
-Segments with a `nil` style use the item's `displayStyle` (if it also conforms to `StyledPickerItem`) or the default gray. Long rows are cut across segments, and the active row underlines every segment.
+Segments with a `nil` style use the item's `displayStyle` (if it also conforms to `StyledPickerItem`); otherwise, they use the theme's `inactiveText` color on inactive rows and the terminal's default foreground on the active row. Long rows are cut across segments, and the active row underlines every segment.
 
 Recolor the picker's own markers, pointers, arrows, and headers with a `PickerTheme`:
 
@@ -460,7 +461,7 @@ let picker = SwiftPicker(
 )
 ```
 
-Colors are dropped automatically when output isn't a terminal, `NO_COLOR` is set, or `TERM=dumb`; bold, dim, and underline stay so the active row remains visible.
+Colors are dropped automatically when output isn't a terminal, `NO_COLOR` is set to a non-empty value, or `TERM=dumb`; bold, dim, and underline stay so the active row remains visible.
 
 ## Architecture
 

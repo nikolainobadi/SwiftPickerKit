@@ -50,8 +50,8 @@ public protocol StyledPickerItem: DisplayablePickerItem {
 ### Row Styling Rules
 
 - **Inactive rows** use `displayStyle`, or `theme.inactiveText` when it is `nil`
-- **The active row** keeps `displayStyle` (or the default foreground) and adds an underline
-- **Tree navigation**: rows in the unfocused column are also dimmed; an empty-folder hint row uses `theme.emptyHint`
+- **The active list row** keeps `displayStyle` (or the default foreground) and adds an underline
+- **Tree navigation**: the focused active row adds an underline while retaining `displayStyle` or `theme.inactiveText`; rows in the unfocused column are also dimmed; an empty-folder hint row uses `theme.emptyHint`
 - The plain `displayName` is truncated **before** styling — never embed escape codes in `displayName`
 - `TreeNode` conforms through its `displayStyle` property (see `TreeNavigationApi.md`)
 
@@ -88,10 +88,11 @@ public struct PickerTextSegment: Sendable, Equatable {
 ### Segment Rules
 
 - A segment with a `nil` style uses the item's `displayStyle` (when it also conforms to `StyledPickerItem`), otherwise `theme.inactiveText`
-- **The active row** underlines every segment; unstyled segments use the default foreground instead of the gray
+- **The active list row** underlines every segment; segments without a segment or item style use the default foreground instead of `theme.inactiveText`
 - **Truncation** cuts across segments by combined width; the cut segment ends with `…` in its own style
-- **Tree navigation**: the icon is drawn before the segments, every segment is dimmed in the unfocused column, and an empty-folder hint row uses `theme.emptyHint` for all of them
+- **Tree navigation**: the icon is drawn before the segments; the focused active row underlines every segment and keeps the `theme.inactiveText` fallback; every segment is dimmed in the unfocused column, and an empty-folder hint row uses `theme.emptyHint` for all of them
 - Segment text must be plain — never embed escape codes
+- Width counts each Swift `Character` as one column, so wide characters such as emoji can still overflow; account for this when choosing segment text and padding
 
 ### Usage Example
 
